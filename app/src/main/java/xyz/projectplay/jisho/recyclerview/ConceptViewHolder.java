@@ -8,11 +8,12 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xyz.projectplay.jisho.R;
+import xyz.projectplay.jisho.autoresizetextview.AutoResizeTextView;
 
 public class ConceptViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.reading)
-    TextView reading;
+    AutoResizeTextView reading;
 
     @BindView(R.id.furigana)
     LinearLayout furigana;
