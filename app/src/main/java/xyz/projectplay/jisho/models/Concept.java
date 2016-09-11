@@ -15,7 +15,7 @@ public class Concept {
     /**
      * class="kanji-2-up"
      */
-    String furigana;
+    List<String> furigana;
 
     /**
      * class="success"
@@ -38,11 +38,11 @@ public class Concept {
         this.readings = readings;
     }
 
-    public String getFurigana() {
+    public List<String> getFurigana() {
         return furigana;
     }
 
-    public void setFurigana(String furigana) {
+    public void setFurigana(List<String> furigana) {
         this.furigana = furigana;
     }
 

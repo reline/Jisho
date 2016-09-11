@@ -15,7 +15,7 @@ public class ConceptViewHolder extends RecyclerView.ViewHolder {
     TextView reading;
 
     @BindView(R.id.furigana)
-    TextView furigana;
+    LinearLayout furigana;
 
     @BindView(R.id.tag)
     TextView tag;

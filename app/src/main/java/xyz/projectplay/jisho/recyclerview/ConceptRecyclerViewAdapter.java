@@ -41,13 +41,21 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
     public void onBindViewHolder(ConceptViewHolder holder, int position) {
         Concept concept = conceptList.get(position);
         holder.reading.setText(concept.getReadings());
-        holder.furigana.setText(concept.getFurigana());
+
+        holder.furigana.removeAllViews();
+        for (String furigana : concept.getFurigana()) {
+            TextView textView = (TextView) View.inflate(context, R.layout.layout_furigana, null);
+            textView.setText(furigana);
+            holder.furigana.addView(textView);
+        }
+
         String tag = concept.getTag();
         holder.tag.setText(tag != null ? tag.toLowerCase() : null);
         holder.tag.setVisibility(tag != null ? View.VISIBLE : View.GONE);
 
         holder.meanings.removeAllViews();
         for (String meaning : concept.getMeanings()) {
+            if (meaning.isEmpty()) continue;
             TextView textView = (TextView) View.inflate(context, R.layout.layout_meaning, null);
             textView.setText(meaning);
             holder.meanings.addView(textView);

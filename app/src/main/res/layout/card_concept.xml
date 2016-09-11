@@ -5,10 +5,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
-    android:layout_marginLeft="6dp"
-    android:layout_marginRight="6dp"
-    android:layout_marginTop="6dp"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
     app:cardElevation="2dp"
     app:cardCornerRadius="2dp" >
 
@@ -18,17 +18,23 @@
             android:layout_height="match_parent"
             android:padding="4dp">
 
-            <TextView
-                android:id="@+id/furigana"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Furigana"/>
+                android:orientation="horizontal"
+                android:id="@+id/furigana">
+
+                <include layout="@layout/layout_furigana"
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/reading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="40sp"
+                android:textSize="@dimen/furigana_block_width"
                 android:maxLines="1"
                 android:text="Reading" />
 

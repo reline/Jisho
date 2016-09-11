@@ -82,13 +82,13 @@ public class MainPresenter extends BasePresenter<Concept, MainView> {
                                 }
 
                                 // set furigana
-                                Elements furigana = element.getElementsByClass("kanji-2-up");
+                                Elements furigana = element.getElementsByClass("kanji");
                                 if (!reading.isEmpty()) {
-                                    String s = "";
+                                    List<String> conceptFurigana = new ArrayList<>();
                                     for (Element e : furigana) {
-                                        s = s.concat(e.childNodes().get(0).attr("text"));
+                                        conceptFurigana.add(e.childNodes().get(0).attr("text"));
                                     }
-                                    concept.setFurigana(s);
+                                    concept.setFurigana(conceptFurigana);
                                 }
 
                                 // set tag
