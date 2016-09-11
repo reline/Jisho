@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Jisho</string>
+    <string name="search">English, Romaji, Japanese, words or text</string>
+    <string name="action_search">Search</string>
+</resources>
