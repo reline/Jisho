@@ -8,6 +8,8 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -24,6 +26,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     private static final String TAG = "MainActivity";
     MainPresenter presenter;
+
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
+                progressBar.setVisibility(View.VISIBLE);
                 presenter.search(query);
                 return true;
             }
@@ -90,5 +96,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Override
     public void updateResults(List<Concept> results) {
         adapter.setConceptList(results);
+        progressBar.setVisibility(View.GONE);
     }
 }
