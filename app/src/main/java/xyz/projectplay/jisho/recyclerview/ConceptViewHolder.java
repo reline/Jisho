@@ -13,16 +13,16 @@ import xyz.projectplay.jisho.autoresizetextview.AutoResizeTextView;
 public class ConceptViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.reading)
-    AutoResizeTextView reading;
+    public AutoResizeTextView reading;
 
     @BindView(R.id.furigana)
-    LinearLayout furigana;
+    public LinearLayout furigana;
 
     @BindView(R.id.tag)
-    TextView tag;
+    public TextView tag;
 
     @BindView(R.id.meanings)
-    LinearLayout meanings;
+    public LinearLayout meanings;
 
     public ConceptViewHolder(View itemView) {
         super(itemView);

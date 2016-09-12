@@ -11,12 +11,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.subjects.PublishSubject;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 
 public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptViewHolder> {
 
     private Context context;
+    final PublishSubject<Concept> onClickSubject = PublishSubject.create();
     private List<Concept> conceptList = new ArrayList<>();
 
     public ConceptRecyclerViewAdapter(@NonNull Context context) {
@@ -39,8 +42,8 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
 
     @Override
     public void onBindViewHolder(ConceptViewHolder holder, int position) {
-        Concept concept = conceptList.get(position);
-        holder.reading.setText(concept.getReadings());
+        final Concept concept = conceptList.get(position);
+        holder.reading.setText(concept.getReading());
 
         holder.furigana.removeAllViews();
         for (String furigana : concept.getFurigana()) {
@@ -60,10 +63,21 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
             textView.setText(meaning);
             holder.meanings.addView(textView);
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSubject.onNext(concept);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return conceptList.size();
+    }
+
+    public Observable<Concept> itemClickObservable() {
+        return onClickSubject.asObservable();
     }
 }

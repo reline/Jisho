@@ -11,6 +11,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.schedulers.Schedulers;
 import xyz.projectplay.jisho.BuildConfig;
 import xyz.projectplay.jisho.network.services.SearchApi;
+import xyz.projectplay.jisho.network.services.WordApi;
 
 @Module
 public class NetworkModule {
@@ -45,5 +46,10 @@ public class NetworkModule {
     @Provides
     SearchApi provideServerApi() {
         return provideRetrofit(provideHttpClient()).create(SearchApi.class);
+    }
+
+    @Provides
+    WordApi provideWordApi() {
+        return provideRetrofit(provideHttpClient()).create(WordApi.class);
     }
 }

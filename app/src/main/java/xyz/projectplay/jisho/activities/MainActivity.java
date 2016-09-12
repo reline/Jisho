@@ -1,5 +1,7 @@
 package xyz.projectplay.jisho.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +27,8 @@ import xyz.projectplay.jisho.views.MainView;
 public class MainActivity extends AppCompatActivity implements MainView {
 
     private static final String TAG = "MainActivity";
+    static final String EXTRA_CONCEPT = "xyz.projectplay.jisho.CONCEPT";
+
     MainPresenter presenter;
 
     @BindView(R.id.progress_bar)
@@ -45,14 +49,16 @@ public class MainActivity extends AppCompatActivity implements MainView {
         } else {
             presenter = PresenterManager.getInstance().restorePresenter(savedInstanceState);
         }
+        presenter.bindView(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConceptRecyclerViewAdapter(this);
+        presenter.setupItemClickObservable(adapter);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         presenter.bindView(this);
     }
@@ -97,5 +103,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public void updateResults(List<Concept> results) {
         adapter.setConceptList(results);
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void goToConceptDetailsActivity(Concept concept) {
+        Intent intent = new Intent(this, WordActivity.class);
+        intent.putExtra(EXTRA_CONCEPT, concept.getReading());
+        startActivity(intent);
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }

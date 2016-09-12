@@ -5,8 +5,6 @@ import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,11 +14,15 @@ import javax.inject.Inject;
 
 import okhttp3.ResponseBody;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import xyz.projectplay.jisho.Jisho;
+import xyz.projectplay.jisho.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.network.services.SearchApi;
+import xyz.projectplay.jisho.recyclerview.ConceptRecyclerViewAdapter;
 import xyz.projectplay.jisho.views.MainView;
 
 public class MainPresenter extends BasePresenter<Concept, MainView> {
@@ -32,7 +34,11 @@ public class MainPresenter extends BasePresenter<Concept, MainView> {
     @Inject
     SearchApi searchApi;
 
+    Subscription onItemClick;
+
     private List<Concept> concepts = new ArrayList<>();
+
+    public MainPresenter() {}
 
     @Override
     public void bindView(@NonNull final MainView view) {
@@ -59,64 +65,33 @@ public class MainPresenter extends BasePresenter<Concept, MainView> {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
-                        e.printStackTrace();
                     }
 
                     @Override
                     public void onNext(ResponseBody responseBody) {
                         try {
                             Document doc = Jsoup.parse(responseBody.string());
-                            Elements elements = doc.select("div.concept_light.clearfix");
-                            concepts.clear();
-                            for (Element element : elements) {
-                                // TODO: 9/11/16 names
-                                if (element.parent().className().equals("names"))
-                                    continue;
-
-                                Concept concept = new Concept();
-
-                                // set reading
-                                Elements reading = element.getElementsByClass("text");
-                                if (!reading.isEmpty()) {
-                                    concept.setReadings(reading.first().text());
-                                }
-
-                                // set furigana
-                                Elements furigana = element.getElementsByClass("kanji");
-                                if (!reading.isEmpty()) {
-                                    List<String> conceptFurigana = new ArrayList<>();
-                                    for (Element e : furigana) {
-                                        conceptFurigana.add(e.childNodes().get(0).attr("text"));
-                                    }
-                                    concept.setFurigana(conceptFurigana);
-                                }
-
-                                // set tag
-                                Elements tag = element.getElementsByClass("success");
-                                if (!tag.isEmpty()) {
-                                    concept.setTag(tag.first().text());
-                                }
-
-                                // set meaning
-                                Elements meanings = element.getElementsByClass("meaning-definition");
-                                if (!meanings.isEmpty()) {
-                                    List<String> conceptMeanings = new ArrayList<>();
-                                    for (Element meaning : meanings) {
-                                        String conceptMeaning = "";
-                                        for (Element child : meaning.children()) {
-                                            conceptMeaning = conceptMeaning.concat(child.childNodes().get(0).attr("text"));
-                                        }
-                                        conceptMeanings.add(conceptMeaning);
-                                    }
-                                    concept.setMeanings(conceptMeanings);
-                                }
-
-                                concepts.add(concept);
-                            }
+                            concepts = JsoupConceptAdapter.parseConcepts(doc);
                             view.updateResults(concepts);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            Log.e(TAG, e.getMessage());
                         }
+                    }
+                });
+    }
+
+    public void setupItemClickObservable(ConceptRecyclerViewAdapter adapter) {
+        onItemClick = adapter.itemClickObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Concept>() {
+                    @Override
+                    public void call(Concept concept) {
+                        view().goToConceptDetailsActivity(concept);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e(TAG, throwable.getMessage());
                     }
                 });
     }

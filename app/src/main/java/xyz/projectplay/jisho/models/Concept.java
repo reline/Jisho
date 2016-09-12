@@ -10,7 +10,7 @@ public class Concept {
     /**
      * class="text"
      **/
-    String readings;
+    String reading;
 
     /**
      * class="kanji-2-up"
@@ -30,12 +30,12 @@ public class Concept {
     public Concept() {
     }
 
-    public String getReadings() {
-        return readings;
+    public String getReading() {
+        return reading;
     }
 
-    public void setReadings(String readings) {
-        this.readings = readings;
+    public void setReading(String reading) {
+        this.reading = reading;
     }
 
     public List<String> getFurigana() {
