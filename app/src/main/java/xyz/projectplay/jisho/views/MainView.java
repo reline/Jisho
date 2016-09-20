@@ -9,7 +9,5 @@ import xyz.projectplay.jisho.models.Concept;
 public interface MainView extends BaseView {
     void updateResults(List<Concept> results);
 
-    void goToConceptDetailsActivity(Concept concept);
-
     Context getContext();
 }

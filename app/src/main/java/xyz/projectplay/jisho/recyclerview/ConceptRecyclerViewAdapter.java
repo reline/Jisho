@@ -11,15 +11,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.models.Japanese;
+import xyz.projectplay.jisho.models.Sense;
 
 public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptViewHolder> {
 
     private Context context;
-    final PublishSubject<Concept> onClickSubject = PublishSubject.create();
     private List<Concept> conceptList = new ArrayList<>();
 
     public ConceptRecyclerViewAdapter(@NonNull Context context) {
@@ -43,41 +42,44 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
     @Override
     public void onBindViewHolder(ConceptViewHolder holder, int position) {
         final Concept concept = conceptList.get(position);
-        holder.reading.setText(concept.getReading());
 
+        Japanese j = concept.getJapanese().get(0);
+        String word = j.getWord();
+
+        // TODO: 9/19/16 API BLOCKER: align furigana
         holder.furigana.removeAllViews();
-        for (String furigana : concept.getFurigana()) {
-            TextView textView = (TextView) View.inflate(context, R.layout.layout_furigana, null);
-            textView.setText(furigana);
-            holder.furigana.addView(textView);
+        if (word != null) {
+            holder.reading.setText(word);
+            TextView furiganaTextView = (TextView) View.inflate(context, R.layout.layout_furigana, null);
+            furiganaTextView.setText(j.getReading());
+            holder.furigana.addView(furiganaTextView);
+        } else {
+            holder.reading.setText(j.getReading());
         }
 
-        String tag = concept.getTag();
-        holder.tag.setText(tag != null ? tag.toLowerCase() : null);
-        holder.tag.setVisibility(tag != null ? View.VISIBLE : View.GONE);
+        holder.common.setVisibility(concept.isCommon() ? View.VISIBLE : View.GONE);
 
         holder.meanings.removeAllViews();
-        for (String meaning : concept.getMeanings()) {
-            if (meaning.isEmpty()) continue;
-            TextView textView = (TextView) View.inflate(context, R.layout.layout_meaning, null);
-            textView.setText(meaning);
-            holder.meanings.addView(textView);
-        }
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickSubject.onNext(concept);
+        List<Sense> senses = concept.getSenses();
+        int s = senses.size();
+        for (int i = 0; i < s; i++) {
+            String englishDefinition = String.valueOf(i + 1) + ". ";
+            List<String> englishDefinitions = senses.get(i).getEnglishDefinitions();
+            int size = englishDefinitions.size();
+            for (int k = 0; k < size; k++) {
+                englishDefinition = englishDefinition.concat(englishDefinitions.get(k));
+                if (k != size - 1) {
+                    englishDefinition = englishDefinition.concat("; ");
+                }
             }
-        });
+            TextView meaningTextView = (TextView) View.inflate(context, R.layout.layout_meaning, null);
+            meaningTextView.setText(englishDefinition);
+            holder.meanings.addView(meaningTextView);
+        }
     }
 
     @Override
     public int getItemCount() {
         return conceptList.size();
-    }
-
-    public Observable<Concept> itemClickObservable() {
-        return onClickSubject.asObservable();
     }
 }

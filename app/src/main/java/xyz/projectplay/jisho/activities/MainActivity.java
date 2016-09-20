@@ -1,7 +1,6 @@
 package xyz.projectplay.jisho.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import java.util.List;
@@ -27,12 +28,14 @@ import xyz.projectplay.jisho.views.MainView;
 public class MainActivity extends AppCompatActivity implements MainView {
 
     private static final String TAG = "MainActivity";
-    static final String EXTRA_CONCEPT = "xyz.projectplay.jisho.CONCEPT";
 
     MainPresenter presenter;
 
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
+
+    @BindView(R.id.logo)
+    ImageView logo;
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConceptRecyclerViewAdapter(this);
-        presenter.setupItemClickObservable(adapter);
         recyclerView.setAdapter(adapter);
     }
 
@@ -92,6 +94,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
             public boolean onQueryTextSubmit(String query) {
                 progressBar.setVisibility(View.VISIBLE);
                 presenter.search(query);
+                View currentFocus = getCurrentFocus();
+                if (currentFocus != null) {
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+                            .hideSoftInputFromWindow(currentFocus.getWindowToken(),
+                                    InputMethodManager.HIDE_NOT_ALWAYS);
+                }
                 return true;
             }
         });
@@ -101,15 +109,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void updateResults(List<Concept> results) {
+        logo.setVisibility(View.GONE);
         adapter.setConceptList(results);
         progressBar.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void goToConceptDetailsActivity(Concept concept) {
-        Intent intent = new Intent(this, WordActivity.class);
-        intent.putExtra(EXTRA_CONCEPT, concept.getReading());
-        startActivity(intent);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package xyz.projectplay.jisho.network.services;
 
-import okhttp3.ResponseBody;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
+import xyz.projectplay.jisho.network.responses.SearchResponse;
 
 public interface SearchApi {
 
-    @GET("/search/{query}")
-    Observable<ResponseBody> searchQuery(@Path("query") String query);
+    @GET("search/words")
+    Observable<SearchResponse> searchQuery(@Query("keyword") String keyword);
 }

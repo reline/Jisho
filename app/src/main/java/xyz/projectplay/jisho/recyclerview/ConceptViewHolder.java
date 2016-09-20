@@ -10,21 +10,21 @@ import butterknife.ButterKnife;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.autoresizetextview.AutoResizeTextView;
 
-public class ConceptViewHolder extends RecyclerView.ViewHolder {
+class ConceptViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.reading)
-    public AutoResizeTextView reading;
+    AutoResizeTextView reading;
 
     @BindView(R.id.furigana)
-    public LinearLayout furigana;
+    LinearLayout furigana;
 
     @BindView(R.id.tag)
-    public TextView tag;
+    TextView common;
 
     @BindView(R.id.meanings)
-    public LinearLayout meanings;
+    LinearLayout meanings;
 
-    public ConceptViewHolder(View itemView) {
+    ConceptViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }

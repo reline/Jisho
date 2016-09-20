@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/furigana_block_width"
                 android:maxLines="1"
-                android:text="Reading" />
+                android:text="@string/word" />
 
             <TextView
                 android:id="@+id/tag"
@@ -48,14 +48,13 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textColor="@android:color/white"
-                android:text="Tag" />
+                android:text="@string/common_word" />
 
             <LinearLayout
                 android:id="@+id/meanings"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
 
             </LinearLayout>
 
