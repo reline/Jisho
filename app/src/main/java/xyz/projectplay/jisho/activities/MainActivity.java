@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import java.util.List;
@@ -33,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
+
+    @BindView(R.id.logo)
+    ImageView logo;
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -92,6 +97,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
             public boolean onQueryTextSubmit(String query) {
                 progressBar.setVisibility(View.VISIBLE);
                 presenter.search(query);
+                View currentFocus = getCurrentFocus();
+                if (currentFocus != null) {
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+                            .hideSoftInputFromWindow(currentFocus.getWindowToken(),
+                                    InputMethodManager.HIDE_NOT_ALWAYS);
+                }
                 return true;
             }
         });
@@ -101,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void updateResults(List<Concept> results) {
+        logo.setVisibility(View.GONE);
         adapter.setConceptList(results);
         progressBar.setVisibility(View.GONE);
     }

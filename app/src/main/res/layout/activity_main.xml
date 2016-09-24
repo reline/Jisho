@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="196dp"
+        android:src="@drawable/jisho_logo"
+        android:layout_gravity="center"
+        android:contentDescription="@string/app_name" />
+
     <ProgressBar
         style="progressBarStyleLarge"
         android:layout_width="wrap_content"
