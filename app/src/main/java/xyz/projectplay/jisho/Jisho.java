@@ -9,9 +9,9 @@ import xyz.projectplay.jisho.injection.modules.NetworkModule;
 
 public class Jisho extends Application {
 
-    private static Jisho sInstance = null;
+    private static Jisho sInstance;
 
-    private static InjectionComponent sInjectionComponent = null;
+    private static InjectionComponent sInjectionComponent;
 
     @Override
     public void onCreate() {

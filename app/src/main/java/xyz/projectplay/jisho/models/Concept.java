@@ -7,25 +7,26 @@ import java.util.List;
  */
 public class Concept {
 
+    public static final String KEY = Concept.class.getCanonicalName();
     /**
      * class="text"
      **/
-    String reading;
+    private String reading;
 
     /**
      * class="kanji-2-up"
      */
-    List<String> furigana;
+    private List<String> furigana;
 
     /**
      * class="success"
      **/
-    String tag;
+    private String tag;
 
     /**
      * class="meanings-wrapper"
      **/
-    List<String> meanings;
+    private List<String> meanings;
 
     public Concept() {
     }

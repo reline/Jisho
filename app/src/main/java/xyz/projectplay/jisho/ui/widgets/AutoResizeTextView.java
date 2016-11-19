@@ -1,4 +1,4 @@
-package xyz.projectplay.jisho.autoresizetextview;
+package xyz.projectplay.jisho.ui.widgets;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.content.res.Resources;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.annotation.AttrRes;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -25,6 +27,7 @@ import android.util.TypedValue;
 public class AutoResizeTextView extends AppCompatTextView {
     private static final int NO_LINE_LIMIT = -1;
     private final RectF _availableSpaceRect = new RectF();
+    @NonNull
     private final SizeTester _sizeTester;
     private float _maxTextSize, _spacingMult = 1.0f, _spacingAdd = 0.0f, _minTextSize;
     private int _widthLimit, _maxLines;
@@ -42,15 +45,15 @@ public class AutoResizeTextView extends AppCompatTextView {
         int onTestSize(int suggestedSize, RectF availableSpace);
     }
 
-    public AutoResizeTextView(final Context context) {
+    public AutoResizeTextView(@NonNull final Context context) {
         this(context, null, android.R.attr.textViewStyle);
     }
 
-    public AutoResizeTextView(final Context context, final AttributeSet attrs) {
+    public AutoResizeTextView(@NonNull final Context context, final AttributeSet attrs) {
         this(context, attrs, android.R.attr.textViewStyle);
     }
 
-    public AutoResizeTextView(final Context context, final AttributeSet attrs, final int defStyle) {
+    public AutoResizeTextView(@NonNull final Context context, final AttributeSet attrs, @AttrRes final int defStyle) {
         super(context, attrs, defStyle);
         // using the minimal recommended font size
         _minTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics());
@@ -65,7 +68,7 @@ public class AutoResizeTextView extends AppCompatTextView {
 
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
             @Override
-            public int onTestSize(final int suggestedSize, final RectF availableSpace) {
+            public int onTestSize(final int suggestedSize, @NonNull final RectF availableSpace) {
                 _paint.setTextSize(suggestedSize);
                 final TransformationMethod transformationMethod = getTransformationMethod();
                 final String text;
@@ -221,7 +224,7 @@ public class AutoResizeTextView extends AppCompatTextView {
         super.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
     }
 
-    private int binarySearch(final int start, final int end, final SizeTester sizeTester, final RectF availableSpace) {
+    private int binarySearch(final int start, final int end, @NonNull final SizeTester sizeTester, final RectF availableSpace) {
         int lastBest = start, lo = start, hi = end - 1, mid;
         while (lo <= hi) {
             mid = lo + hi >>> 1;

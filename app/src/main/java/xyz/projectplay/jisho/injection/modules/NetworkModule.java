@@ -1,5 +1,7 @@
 package xyz.projectplay.jisho.injection.modules;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -11,13 +13,14 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.schedulers.Schedulers;
 import xyz.projectplay.jisho.BuildConfig;
 import xyz.projectplay.jisho.network.services.SearchApi;
-import xyz.projectplay.jisho.network.services.WordApi;
+import xyz.projectplay.jisho.network.services.ConceptApi;
 
 @Module
 public class NetworkModule {
 
     private static final String BASE_URL = "http://jisho.org";
 
+    @NonNull
     @Provides
     @Singleton
     static OkHttpClient provideHttpClient() {
@@ -26,12 +29,12 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    static Retrofit provideRetrofit(OkHttpClient okHttpClient) {
+    static Retrofit provideRetrofit(@NonNull OkHttpClient okHttpClient) {
         OkHttpClient.Builder httpClientBuilder = okHttpClient.newBuilder();
 
         if(BuildConfig.DEBUG) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
             httpClientBuilder.addInterceptor(loggingInterceptor);
         }
 
@@ -49,7 +52,7 @@ public class NetworkModule {
     }
 
     @Provides
-    WordApi provideWordApi() {
-        return provideRetrofit(provideHttpClient()).create(WordApi.class);
+    ConceptApi provideWordApi() {
+        return provideRetrofit(provideHttpClient()).create(ConceptApi.class);
     }
 }

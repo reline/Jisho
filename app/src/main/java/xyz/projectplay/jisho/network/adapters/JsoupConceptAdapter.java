@@ -1,4 +1,6 @@
-package xyz.projectplay.jisho.adapters;
+package xyz.projectplay.jisho.network.adapters;
+
+import android.support.annotation.NonNull;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,11 +15,12 @@ public class JsoupConceptAdapter {
 
     private JsoupConceptAdapter() {}
 
-    public static Concept parseConcept(Document doc) {
+    public static Concept parseConcept(@NonNull Document doc) {
         return parseConcepts(doc).get(0);
     }
 
-    public static List<Concept> parseConcepts(Document doc) {
+    @NonNull
+    public static List<Concept> parseConcepts(@NonNull Document doc) {
         Elements elements = doc.select("div.concept_light.clearfix");
         List<Concept> concepts = new ArrayList<>();
         for (Element element : elements) {

@@ -1,19 +1,17 @@
 package xyz.projectplay.jisho.presenters;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 
 public abstract class BasePresenter<M, V> {
     protected M model;
+    @Nullable
     private WeakReference<V> view;
 
     public void setModel(M model) {
         this.model = model;
-
-//        if (setupDone()) {
-//           updateView(); // do something
-//        }
     }
 
     protected void resetState() {
@@ -22,16 +20,13 @@ public abstract class BasePresenter<M, V> {
 
     public void bindView(@NonNull V view) {
         this.view = new WeakReference<>(view);
-
-//        if (setupDone()) {
-//            updateView(); // do something
-//        }
     }
 
     public void unbindView() {
         this.view = null;
     }
 
+    @Nullable
     protected V view() {
         if (view == null) {
             return null;
