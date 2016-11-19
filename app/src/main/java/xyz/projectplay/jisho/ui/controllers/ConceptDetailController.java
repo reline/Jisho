@@ -11,19 +11,21 @@ import android.widget.ProgressBar;
 
 import com.bluelinelabs.conductor.Controller;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.ConceptDetailPresenter;
 import xyz.projectplay.jisho.ui.recyclerview.ConceptViewHolder;
-import xyz.projectplay.jisho.ui.views.ConceptView;
+import xyz.projectplay.jisho.ui.views.ConceptDetailView;
 
-public class ConceptDetailController extends Controller implements ConceptView {
+public class ConceptDetailController extends Controller implements ConceptDetailView {
 
-    private String conceptReading;
-
-    private ConceptDetailPresenter presenter;
+    @Inject
+    ConceptDetailPresenter presenter;
 
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
@@ -31,7 +33,10 @@ public class ConceptDetailController extends Controller implements ConceptView {
     @BindView(R.id.card_concept)
     CardView conceptCardView;
 
+    private String conceptReading;
+
     public ConceptDetailController(@Nullable Bundle bundle) {
+        Jisho.getInjectionComponent().inject(this);
         if (bundle != null) {
             conceptReading = bundle.getString(Concept.KEY);
         }
@@ -42,14 +47,9 @@ public class ConceptDetailController extends Controller implements ConceptView {
     protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         View view = inflater.inflate(R.layout.controller_concept_detail, container, false);
         ButterKnife.bind(this, view);
-        initialize();
-        return view;
-    }
-
-    private void initialize() {
-        presenter = new ConceptDetailPresenter();
         presenter.bindView(this);
         presenter.getConceptDetails(conceptReading);
+        return view;
     }
 
     @Override

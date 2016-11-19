@@ -16,27 +16,27 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.SerialSubscription;
-import xyz.projectplay.jisho.Jisho;
-import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.ConceptApi;
-import xyz.projectplay.jisho.ui.views.ConceptView;
+import xyz.projectplay.jisho.ui.views.ConceptDetailView;
 
-public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptView> {
+public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetailView> {
 
     private static final String TAG = "ConceptDetailPresenter";
 
-    @Inject
-    ConceptApi conceptApi;
+    private ConceptApi api;
 
     private Subscription subscription;
 
-    public ConceptDetailPresenter() {}
+    @Inject
+    public ConceptDetailPresenter(ConceptApi api) {
+        this.api = api;
+    }
 
     @Override
-    public void bindView(@NonNull ConceptView view) {
+    public void bindView(@NonNull ConceptDetailView view) {
         super.bindView(view);
-        Jisho.getInjectionComponent().inject(this);
         subscription = new SerialSubscription();
     }
 
@@ -47,7 +47,7 @@ public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptView> 
     }
 
     public void getConceptDetails(String conceptReading) {
-        subscription = conceptApi.getWordDetails(conceptReading)
+        subscription = api.getConcept(conceptReading)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<ResponseBody>() {
@@ -73,5 +73,10 @@ public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptView> 
                         }
                     }
                 });
+    }
+
+    @Override
+    protected boolean setupDone() {
+        return view() != null;
     }
 }

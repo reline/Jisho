@@ -4,12 +4,13 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import xyz.projectplay.jisho.injection.modules.NetworkModule;
-import xyz.projectplay.jisho.presenters.ConceptDetailPresenter;
-import xyz.projectplay.jisho.presenters.HomePresenter;
+import xyz.projectplay.jisho.injection.modules.PresenterModule;
+import xyz.projectplay.jisho.ui.controllers.ConceptDetailController;
+import xyz.projectplay.jisho.ui.controllers.HomeController;
 
 @Singleton
-@Component(modules = {NetworkModule.class})
+@Component(modules = {PresenterModule.class, NetworkModule.class})
 public interface InjectionComponent {
-    void inject(HomePresenter presenter);
-    void inject(ConceptDetailPresenter presenter);
+    void inject(ConceptDetailController controller);
+    void inject(HomeController controller);
 }

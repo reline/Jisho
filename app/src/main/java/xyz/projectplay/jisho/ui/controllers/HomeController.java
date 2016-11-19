@@ -21,9 +21,12 @@ import com.bluelinelabs.conductor.RouterTransaction;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscription;
+import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.HomePresenter;
@@ -32,7 +35,8 @@ import xyz.projectplay.jisho.ui.views.HomeView;
 
 public class HomeController extends Controller implements HomeView {
 
-    private HomePresenter presenter;
+    @Inject
+    HomePresenter presenter;
 
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
@@ -45,20 +49,22 @@ public class HomeController extends Controller implements HomeView {
     private ConceptRecyclerViewAdapter adapter;
     private Subscription onItemClickSubscription;
 
+    public HomeController() {
+        Jisho.getInjectionComponent().inject(this);
+    }
+
     @NonNull
     @Override
     protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         View view = inflater.inflate(R.layout.controller_home, container, false);
         ButterKnife.bind(this, view);
+        presenter.bindView(this);
         setHasOptionsMenu(true);
-        initialize();
+        setupRecycler();
         return view;
     }
 
-    private void initialize() {
-        presenter = new HomePresenter();
-        presenter.bindView(this);
-
+    private void setupRecycler() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new ConceptRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);

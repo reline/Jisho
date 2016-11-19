@@ -11,5 +11,5 @@ public interface ConceptApi {
 
     @NonNull
     @GET("/word/{word}")
-    Observable<ResponseBody> getWordDetails(@Path("word") String reading);
+    Observable<ResponseBody> getConcept(@Path("word") String reading);
 }

@@ -11,11 +11,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import xyz.projectplay.jisho.Jisho;
-import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
+import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.SearchApi;
 import xyz.projectplay.jisho.ui.views.HomeView;
 
@@ -23,19 +24,30 @@ public class HomePresenter extends BasePresenter<Void, HomeView> {
 
     private static final String TAG = "HomePresenter";
 
+    private SearchApi api;
+
+    private Subscription subscription;
+
     @Inject
-    SearchApi searchApi;
+    public HomePresenter(SearchApi api) {
+        this.api = api;
+    }
 
     @Override
     public void bindView(@NonNull final HomeView view) {
         super.bindView(view);
-        Jisho.getInjectionComponent().inject(this);
+        subscription = new SerialSubscription();
+    }
+
+    @Override
+    public void unbindView() {
+        subscription.unsubscribe();
+        super.unbindView();
     }
 
     public void search(final String query) {
-        searchApi.searchQuery(query).asObservable()
+        subscription = api.searchQuery(query).asObservable()
                 .subscribeOn(Schedulers.io())
-                .filter(response -> setupDone())
                 .map(responseBody -> {
                     try {
                         return JsoupConceptAdapter.parseConcepts(Jsoup.parse(responseBody.string()));
@@ -62,10 +74,5 @@ public class HomePresenter extends BasePresenter<Void, HomeView> {
                         view().updateView(concepts);
                     }
                 });
-    }
-
-    @Override
-    protected boolean setupDone() {
-        return view() != null;
     }
 }
