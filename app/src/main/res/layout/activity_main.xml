@@ -4,29 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity">
+    tools:context=".ui.activities.MainActivity">
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="wrap_content"
-        android:layout_height="196dp"
-        android:src="@drawable/jisho_logo"
-        android:layout_gravity="center"
-        android:contentDescription="@string/app_name" />
-
-    <ProgressBar
-        style="progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progress_bar"
-        android:layout_gravity="center"
-        android:visibility="gone" />
-
-
-    <android.support.v7.widget.RecyclerView
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_view">
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"/>
 
 </android.support.design.widget.CoordinatorLayout>

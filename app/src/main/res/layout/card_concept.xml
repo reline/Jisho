@@ -30,7 +30,7 @@
 
             </LinearLayout>
 
-            <xyz.projectplay.jisho.autoresizetextview.AutoResizeTextView
+            <xyz.projectplay.jisho.ui.widgets.AutoResizeTextView
                 android:id="@+id/reading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

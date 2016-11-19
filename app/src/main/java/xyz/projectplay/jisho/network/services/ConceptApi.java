@@ -7,9 +7,9 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 import rx.Observable;
 
-public interface SearchApi {
+public interface ConceptApi {
 
     @NonNull
-    @GET("/search/{query}")
-    Observable<ResponseBody> searchQuery(@Path("query") String query);
+    @GET("/word/{word}")
+    Observable<ResponseBody> getConcept(@Path("word") String reading);
 }

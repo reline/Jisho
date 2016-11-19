@@ -1,42 +1,66 @@
 package xyz.projectplay.jisho.models;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
+/**
+ * class="concept_light clearfix"
+ */
 public class Concept {
 
-    @SerializedName("is_common")
-    private boolean common;
+    public static final String KEY = Concept.class.getCanonicalName();
+    /**
+     * class="text"
+     **/
+    private String reading;
 
-    private List<String> tags;
+    /**
+     * class="kanji-2-up"
+     */
+    private List<String> furigana;
 
-    private List<Japanese> japanese;
+    /**
+     * class="success"
+     **/
+    private String tag;
 
-    private List<Sense> senses;
-
-    private Attribution attribution;
+    /**
+     * class="meanings-wrapper"
+     **/
+    private List<String> meanings;
 
     public Concept() {
     }
 
-    public boolean isCommon() {
-        return common;
+    public String getReading() {
+        return reading;
     }
 
-    public List<String> getTags() {
-        return tags;
+    public void setReading(String reading) {
+        this.reading = reading;
     }
 
-    public List<Japanese> getJapanese() {
-        return japanese;
+    public List<String> getFurigana() {
+        return furigana;
     }
 
-    public List<Sense> getSenses() {
-        return senses;
+    public void setFurigana(List<String> furigana) {
+        this.furigana = furigana;
     }
 
-    public Attribution getAttribution() {
-        return attribution;
+    public String getTag() {
+        return tag;
     }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public List<String> getMeanings() {
+        return meanings;
+    }
+
+    public void setMeanings(List<String> meanings) {
+        this.meanings = meanings;
+    }
+
 }
