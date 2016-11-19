@@ -9,20 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.bluelinelabs.conductor.Controller;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.ConceptDetailPresenter;
+import xyz.projectplay.jisho.ui.controllers.base.BaseController;
 import xyz.projectplay.jisho.ui.recyclerview.ConceptViewHolder;
 import xyz.projectplay.jisho.ui.views.ConceptDetailView;
 
-public class ConceptDetailController extends Controller implements ConceptDetailView {
+public class ConceptDetailController extends BaseController implements ConceptDetailView {
 
     @Inject
     ConceptDetailPresenter presenter;
@@ -36,20 +34,22 @@ public class ConceptDetailController extends Controller implements ConceptDetail
     private String conceptReading;
 
     public ConceptDetailController(@Nullable Bundle bundle) {
-        Jisho.getInjectionComponent().inject(this);
+        super(bundle);
         if (bundle != null) {
             conceptReading = bundle.getString(Concept.KEY);
         }
+        Jisho.getInjectionComponent().inject(this);
     }
 
-    @NonNull
     @Override
-    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        View view = inflater.inflate(R.layout.controller_concept_detail, container, false);
-        ButterKnife.bind(this, view);
+    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+        return inflater.inflate(R.layout.controller_concept_detail, container, false);
+    }
+
+    @Override
+    protected void onViewBound(@NonNull View view) {
         presenter.bindView(this);
         presenter.getConceptDetails(conceptReading);
-        return view;
     }
 
     @Override

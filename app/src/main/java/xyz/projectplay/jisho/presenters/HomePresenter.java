@@ -18,6 +18,7 @@ import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.SearchApi;
+import xyz.projectplay.jisho.presenters.base.BasePresenter;
 import xyz.projectplay.jisho.ui.views.HomeView;
 
 public class HomePresenter extends BasePresenter<Void, HomeView> {

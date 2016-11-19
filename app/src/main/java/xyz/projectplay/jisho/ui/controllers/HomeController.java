@@ -1,5 +1,6 @@
 package xyz.projectplay.jisho.ui.controllers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.RouterTransaction;
 
 import java.util.List;
@@ -24,16 +24,17 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import rx.Subscription;
 import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.HomePresenter;
+import xyz.projectplay.jisho.ui.controllers.base.BaseController;
 import xyz.projectplay.jisho.ui.recyclerview.ConceptRecyclerViewAdapter;
 import xyz.projectplay.jisho.ui.views.HomeView;
+import xyz.projectplay.jisho.util.BundleBuilder;
 
-public class HomeController extends Controller implements HomeView {
+public class HomeController extends BaseController implements HomeView {
 
     @Inject
     HomePresenter presenter;
@@ -53,27 +54,30 @@ public class HomeController extends Controller implements HomeView {
         Jisho.getInjectionComponent().inject(this);
     }
 
-    @NonNull
     @Override
-    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        View view = inflater.inflate(R.layout.controller_home, container, false);
-        ButterKnife.bind(this, view);
-        presenter.bindView(this);
-        setHasOptionsMenu(true);
-        setupRecycler();
-        return view;
+    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+        return inflater.inflate(R.layout.controller_home, container, false);
     }
 
-    private void setupRecycler() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+    @Override
+    protected void onViewBound(@NonNull View view) {
+        presenter.bindView(this);
+        setHasOptionsMenu(true);
+        setupRecycler(view.getContext());
+    }
+
+    private void setupRecycler(Context context) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         adapter = new ConceptRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
         onItemClickSubscription = adapter.itemClickObservable().subscribe(
-                concept -> {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(Concept.KEY, concept.getReading());
-                    getRouter().pushController(RouterTransaction.with(new ConceptDetailController(bundle)));
-                });
+                concept ->
+                    getRouter().pushController(RouterTransaction.with(new ConceptDetailController(
+                            new BundleBuilder(new Bundle())
+                                    .putString(Concept.KEY, concept.getReading())
+                                    .build()
+                    )))
+                );
     }
 
     @Override
@@ -83,7 +87,8 @@ public class HomeController extends Controller implements HomeView {
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
         SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint(getActivity().getString(R.string.search));
+        Activity activity = getActivity();
+        searchView.setQueryHint(activity != null ? activity.getString(R.string.search) : null);
         searchView.setMaxWidth(Integer.MAX_VALUE); // allow search view to match the width of the toolbar
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextChange(String newText) {return false;}
@@ -92,9 +97,9 @@ public class HomeController extends Controller implements HomeView {
             public boolean onQueryTextSubmit(String query) {
                 progressBar.setVisibility(View.VISIBLE);
                 presenter.search(query);
-                View currentFocus = getActivity().getCurrentFocus();
+                View currentFocus = activity != null ? activity.getCurrentFocus() : null;
                 if (currentFocus != null) {
-                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                    ((InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE))
                             .hideSoftInputFromWindow(currentFocus.getWindowToken(),
                                     InputMethodManager.HIDE_NOT_ALWAYS);
                 }

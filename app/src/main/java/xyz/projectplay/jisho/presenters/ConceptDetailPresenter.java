@@ -19,6 +19,7 @@ import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.ConceptApi;
+import xyz.projectplay.jisho.presenters.base.BasePresenter;
 import xyz.projectplay.jisho.ui.views.ConceptDetailView;
 
 public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetailView> {

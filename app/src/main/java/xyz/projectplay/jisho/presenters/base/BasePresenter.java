@@ -1,4 +1,4 @@
-package xyz.projectplay.jisho.presenters;
+package xyz.projectplay.jisho.presenters.base;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,7 +26,6 @@ public abstract class BasePresenter<M, V> {
         this.view = null;
     }
 
-    @Nullable
     protected V view() {
         if (view == null) {
             return null;
@@ -34,8 +33,6 @@ public abstract class BasePresenter<M, V> {
             return view.get();
         }
     }
-
-//    protected abstract void updateView();
 
     protected boolean setupDone() {
         return view() != null && model != null;
