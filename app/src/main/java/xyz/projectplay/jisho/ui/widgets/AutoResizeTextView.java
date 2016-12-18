@@ -90,14 +90,11 @@ public class AutoResizeTextView extends AppCompatTextView {
                     int lineCount = layout.getLineCount();
                     for (int i = 0; i < lineCount; i++) {
                         int end = layout.getLineEnd(i);
-                        if (i < lineCount - 1 && end > 0 && !isValidWordWrap(text.charAt(end - 1), text.charAt(end)))
+                        if (i < lineCount - 1 && end > 0 && !isValidWordWrap(text.charAt(end - 1)))
                             return 1;
                         if (maxWidth < layout.getLineRight(i) - layout.getLineLeft(i))
                             maxWidth = (int) layout.getLineRight(i) - (int) layout.getLineLeft(i);
                     }
-                    //for (int i = 0; i < layout.getLineCount(); i++)
-                    //    if (maxWidth < layout.getLineRight(i) - layout.getLineLeft(i))
-                    //        maxWidth = (int) layout.getLineRight(i) - (int) layout.getLineLeft(i);
                     textRect.right = maxWidth;
                 }
                 textRect.offsetTo(0, 0);
@@ -111,7 +108,7 @@ public class AutoResizeTextView extends AppCompatTextView {
         _initialized = true;
     }
 
-    public boolean isValidWordWrap(char before, char after) {
+    public boolean isValidWordWrap(char before) {
         return before == ' ' || before == '-';
     }
 
@@ -197,13 +194,6 @@ public class AutoResizeTextView extends AppCompatTextView {
     }
 
     private void adjustTextSize() {
-        // This is a workaround for truncated text issue on ListView, as shown here: https://github.com/AndroidDeveloperLB/AutoFitTextView/pull/14
-        // TODO think of a nicer, elegant solution.
-//    post(new Runnable()
-//    {
-//    @Override
-//    public void run()
-//      {
         if (!_initialized)
             return;
         final int startSize = (int) _minTextSize;
@@ -215,8 +205,6 @@ public class AutoResizeTextView extends AppCompatTextView {
         _availableSpaceRect.right = _widthLimit;
         _availableSpaceRect.bottom = heightLimit;
         superSetTextSize(startSize);
-//      }
-//    });
     }
 
     private void superSetTextSize(int startSize) {

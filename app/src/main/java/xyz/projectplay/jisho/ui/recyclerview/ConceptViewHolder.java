@@ -9,8 +9,8 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xyz.projectplay.jisho.R;
-import xyz.projectplay.jisho.ui.widgets.AutoResizeTextView;
 import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.ui.widgets.AutoResizeTextView;
 
 public class ConceptViewHolder extends RecyclerView.ViewHolder {
 
@@ -42,8 +42,12 @@ public class ConceptViewHolder extends RecyclerView.ViewHolder {
         }
 
         String tag = concept.getTag();
-        tagTextView.setText(tag != null ? tag.toLowerCase() : null);
-        tagTextView.setVisibility(tag != null ? View.VISIBLE : View.GONE);
+        if (tag != null) {
+            tagTextView.setText(tag.toLowerCase());
+            tagTextView.setVisibility(View.VISIBLE);
+        } else {
+            tagTextView.setVisibility(View.GONE);
+        }
 
         meaningsLayout.removeAllViews();
         for (String meaning : concept.getMeanings()) {

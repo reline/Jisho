@@ -12,38 +12,42 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.schedulers.Schedulers;
 import xyz.projectplay.jisho.BuildConfig;
-import xyz.projectplay.jisho.network.services.SearchApi;
 import xyz.projectplay.jisho.network.services.ConceptApi;
+import xyz.projectplay.jisho.network.services.SearchApi;
 
 @Module
 public class NetworkModule {
 
     private static final String BASE_URL = "http://jisho.org";
+    private static OkHttpClient okHttpClient;
+    private static Retrofit retrofit;
 
-    @NonNull
     @Provides
     @Singleton
     static OkHttpClient provideHttpClient() {
-        return new OkHttpClient();
+        if (okHttpClient == null) {
+            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+            if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+                httpClientBuilder.addInterceptor(loggingInterceptor);
+            }
+            okHttpClient = httpClientBuilder.build();
+        }
+        return okHttpClient;
     }
 
     @Provides
     @Singleton
     static Retrofit provideRetrofit(@NonNull OkHttpClient okHttpClient) {
-        OkHttpClient.Builder httpClientBuilder = okHttpClient.newBuilder();
-
-        if(BuildConfig.DEBUG) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-            httpClientBuilder.addInterceptor(loggingInterceptor);
+        if (retrofit == null) {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+                    .callFactory(okHttpClient)
+                    .build();
         }
-
-        // TODO: 9/11/16 either use SimpleXmlConverter to parse HTML or create a JsoupConverterFactory
-        return new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .callFactory(httpClientBuilder.build())
-                .build();
+        return retrofit;
     }
 
     @Provides

@@ -1,6 +1,5 @@
 package xyz.projectplay.jisho.presenters;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.jsoup.Jsoup;
@@ -19,16 +18,14 @@ import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.ConceptApi;
-import xyz.projectplay.jisho.presenters.base.BasePresenter;
-import xyz.projectplay.jisho.ui.views.ConceptDetailView;
+import xyz.projectplay.jisho.presenters.base.Presenter;
+import xyz.projectplay.jisho.ui.views.IConceptDetailView;
 
-public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetailView> {
-
-    private static final String TAG = "ConceptDetailPresenter";
+public class ConceptDetailPresenter extends Presenter<IConceptDetailView> {
 
     private ConceptApi api;
 
-    private Subscription subscription;
+    private Subscription subscription = new SerialSubscription();
 
     @Inject
     public ConceptDetailPresenter(ConceptApi api) {
@@ -36,18 +33,11 @@ public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetail
     }
 
     @Override
-    public void bindView(@NonNull ConceptDetailView view) {
-        super.bindView(view);
-        subscription = new SerialSubscription();
-    }
-
-    @Override
-    public void unbindView() {
+    public void onUnbind() {
         subscription.unsubscribe();
-        super.unbindView();
     }
 
-    public void getConceptDetails(String conceptReading) {
+    public void getConceptDetails(final String conceptReading) {
         subscription = api.getConcept(conceptReading)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -58,12 +48,12 @@ public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetail
                     }
 
                     @Override
-                    public void onError(@NonNull Throwable e) {
+                    public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
                     }
 
                     @Override
-                    public void onNext(@NonNull ResponseBody responseBody) {
+                    public void onNext(ResponseBody responseBody) {
                         try {
                             Document doc = Jsoup.parse(responseBody.string());
                             Concept concept = JsoupConceptAdapter.parseConcept(doc);
@@ -74,10 +64,5 @@ public class ConceptDetailPresenter extends BasePresenter<Concept, ConceptDetail
                         }
                     }
                 });
-    }
-
-    @Override
-    protected boolean setupDone() {
-        return view() != null;
     }
 }

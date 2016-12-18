@@ -3,7 +3,6 @@ package xyz.projectplay.jisho.ui.recyclerview;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -16,21 +15,14 @@ import xyz.projectplay.jisho.models.Concept;
 
 public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptViewHolder> {
 
-    private final PublishSubject<Concept> onClickSubject;
-    private List<Concept> conceptList;
-
-    public ConceptRecyclerViewAdapter() {
-        onClickSubject = PublishSubject.create();
-        conceptList = new ArrayList<>();
-    }
+    private final PublishSubject<Concept> onClickSubject = PublishSubject.create();
+    private List<Concept> conceptList = new ArrayList<>();
 
     @NonNull
     @Override
     public ConceptViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View itemView = LayoutInflater.
-                from(viewGroup.getContext()).
-                inflate(R.layout.card_concept, viewGroup, false);
-        return new ConceptViewHolder(itemView);
+        return new ConceptViewHolder(LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.card_concept, viewGroup, false));
     }
 
     @Override
@@ -64,5 +56,10 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
         } else {
             notifyItemRangeChanged(0, newSize);
         }
+    }
+
+    @Override
+    public void onViewRecycled(ConceptViewHolder holder) {
+        holder.itemView.setOnClickListener(null);
     }
 }

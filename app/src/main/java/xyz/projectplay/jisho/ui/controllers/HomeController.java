@@ -7,12 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -30,11 +28,13 @@ import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.HomePresenter;
 import xyz.projectplay.jisho.ui.controllers.base.BaseController;
+import xyz.projectplay.jisho.ui.controllers.base.Layout;
 import xyz.projectplay.jisho.ui.recyclerview.ConceptRecyclerViewAdapter;
-import xyz.projectplay.jisho.ui.views.HomeView;
+import xyz.projectplay.jisho.ui.views.IHomeView;
 import xyz.projectplay.jisho.util.BundleBuilder;
 
-public class HomeController extends BaseController implements HomeView {
+@Layout(R.layout.controller_home)
+public class HomeController extends BaseController implements IHomeView {
 
     @Inject
     HomePresenter presenter;
@@ -55,13 +55,8 @@ public class HomeController extends BaseController implements HomeView {
     }
 
     @Override
-    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.controller_home, container, false);
-    }
-
-    @Override
     protected void onViewBound(@NonNull View view) {
-        presenter.bindView(this);
+        presenter.takeView(this);
         setHasOptionsMenu(true);
         setupRecycler(view.getContext());
     }
@@ -111,7 +106,8 @@ public class HomeController extends BaseController implements HomeView {
     @Override
     protected void onDestroyView(@NonNull View view) {
         onItemClickSubscription.unsubscribe();
-        presenter.unbindView();
+        presenter.dropView(this);
+        super.onDestroyView(view);
     }
 
     @Override

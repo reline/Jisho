@@ -1,15 +1,11 @@
 package xyz.projectplay.jisho.models;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 public class Sense {
 
-    @SerializedName("english_definitions")
     private List<String> englishDefinitions;
 
-    @SerializedName("parts_of_speech")
     private List<String> partsOfSpeech;
 
     private List<Link> links;
@@ -18,7 +14,6 @@ public class Sense {
 
     private List<String> restrictions;
 
-    @SerializedName("see_also")
     private List<String> seeAlso;
 
     private List<String> antonyms;

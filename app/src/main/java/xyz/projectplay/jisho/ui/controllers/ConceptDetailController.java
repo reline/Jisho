@@ -4,9 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import javax.inject.Inject;
@@ -17,10 +15,12 @@ import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.presenters.ConceptDetailPresenter;
 import xyz.projectplay.jisho.ui.controllers.base.BaseController;
+import xyz.projectplay.jisho.ui.controllers.base.Layout;
 import xyz.projectplay.jisho.ui.recyclerview.ConceptViewHolder;
-import xyz.projectplay.jisho.ui.views.ConceptDetailView;
+import xyz.projectplay.jisho.ui.views.IConceptDetailView;
 
-public class ConceptDetailController extends BaseController implements ConceptDetailView {
+@Layout(R.layout.controller_concept_detail)
+public class ConceptDetailController extends BaseController implements IConceptDetailView {
 
     @Inject
     ConceptDetailPresenter presenter;
@@ -42,19 +42,15 @@ public class ConceptDetailController extends BaseController implements ConceptDe
     }
 
     @Override
-    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.controller_concept_detail, container, false);
-    }
-
-    @Override
     protected void onViewBound(@NonNull View view) {
-        presenter.bindView(this);
+        presenter.takeView(this);
         presenter.getConceptDetails(conceptReading);
     }
 
     @Override
     protected void onDestroyView(@NonNull View view) {
-        presenter.unbindView();
+        presenter.dropView(this);
+        super.onDestroyView(view);
     }
 
     @Override
@@ -64,4 +60,6 @@ public class ConceptDetailController extends BaseController implements ConceptDe
         conceptCardView.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }
+
+
 }

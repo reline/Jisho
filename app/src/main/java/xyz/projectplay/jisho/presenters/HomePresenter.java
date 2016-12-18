@@ -1,6 +1,5 @@
 package xyz.projectplay.jisho.presenters;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.jsoup.Jsoup;
@@ -18,16 +17,16 @@ import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
 import xyz.projectplay.jisho.network.adapters.JsoupConceptAdapter;
 import xyz.projectplay.jisho.network.services.SearchApi;
-import xyz.projectplay.jisho.presenters.base.BasePresenter;
-import xyz.projectplay.jisho.ui.views.HomeView;
+import xyz.projectplay.jisho.presenters.base.Presenter;
+import xyz.projectplay.jisho.ui.views.IHomeView;
 
-public class HomePresenter extends BasePresenter<Void, HomeView> {
+public class HomePresenter extends Presenter<IHomeView> {
 
     private static final String TAG = "HomePresenter";
 
     private SearchApi api;
 
-    private Subscription subscription;
+    private Subscription subscription = new SerialSubscription();
 
     @Inject
     public HomePresenter(SearchApi api) {
@@ -35,15 +34,8 @@ public class HomePresenter extends BasePresenter<Void, HomeView> {
     }
 
     @Override
-    public void bindView(@NonNull final HomeView view) {
-        super.bindView(view);
-        subscription = new SerialSubscription();
-    }
-
-    @Override
-    public void unbindView() {
+    public void onUnbind() {
         subscription.unsubscribe();
-        super.unbindView();
     }
 
     public void search(final String query) {
