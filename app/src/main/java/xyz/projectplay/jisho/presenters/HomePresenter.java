@@ -65,7 +65,7 @@ public class HomePresenter extends Presenter<IHomeView> {
                         return null;
                     }
                 })
-                .filter(concepts -> concepts != null && !concepts.isEmpty())
+                .filter(concepts -> concepts != null)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Concept>>() {
                     @Override

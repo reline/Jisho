@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bluelinelabs.conductor.RouterTransaction;
 
@@ -61,10 +62,14 @@ public class HomeController extends BaseController implements IHomeView {
     @BindView(R.id.logo)
     ImageView logo;
 
+    @BindView(R.id.no_match)
+    TextView noMatch;
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private ConceptRecyclerViewAdapter adapter;
     private Subscription onItemClickSubscription;
+    private SearchView searchView;
 
     public HomeController() {
         Jisho.getInjectionComponent().inject(this);
@@ -97,7 +102,7 @@ public class HomeController extends BaseController implements IHomeView {
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView = (SearchView) searchItem.getActionView();
         Activity activity = getActivity();
         searchView.setQueryHint(activity != null ? activity.getString(R.string.search) : null);
         searchView.setMaxWidth(Integer.MAX_VALUE); // allow search view to match the width of the toolbar
@@ -131,5 +136,7 @@ public class HomeController extends BaseController implements IHomeView {
         logo.setVisibility(View.GONE);
         adapter.setConceptList(results);
         progressBar.setVisibility(View.GONE);
+        noMatch.setVisibility(results.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+        noMatch.setText(String.format(getApplicationContext().getString(R.string.no_match), searchView.getQuery()));
     }
 }
