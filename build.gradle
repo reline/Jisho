@@ -7,9 +7,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
 
-        // https://code.google.com/p/android/issues/detail?id=214615
-        classpath 'com.google.guava:guava:19.0'
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

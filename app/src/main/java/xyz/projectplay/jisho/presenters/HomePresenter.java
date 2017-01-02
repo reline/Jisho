@@ -25,9 +25,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import okhttp3.ResponseBody;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.SerialSubscription;
 import xyz.projectplay.jisho.models.Concept;
@@ -57,15 +59,23 @@ public class HomePresenter extends Presenter<IHomeView> {
     public void search(final String query) {
         subscription = api.searchQuery(query).asObservable()
                 .subscribeOn(Schedulers.io())
-                .map(responseBody -> {
-                    try {
-                        return JsoupConceptAdapter.parseConcepts(Jsoup.parse(responseBody.string()));
-                    } catch (IOException e) {
-                        Log.e(getClass().getSimpleName(), "Parsing concepts failed: ", e);
-                        return null;
+                .map(new Func1<ResponseBody, List<Concept>>() {
+                    @Override
+                    public List<Concept> call(ResponseBody responseBody) {
+                        try {
+                            return JsoupConceptAdapter.parseConcepts(Jsoup.parse(responseBody.string()));
+                        } catch (IOException e) {
+                            Log.e(getClass().getSimpleName(), "Parsing concepts failed: ", e);
+                            return null;
+                        }
                     }
                 })
-                .filter(concepts -> concepts != null)
+                .filter(new Func1<List<Concept>, Boolean>() {
+                    @Override
+                    public Boolean call(List<Concept> concepts) {
+                        return concepts != null;
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Concept>>() {
                     @Override

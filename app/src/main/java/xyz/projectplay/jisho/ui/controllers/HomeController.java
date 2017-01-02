@@ -40,6 +40,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.Subscription;
+import rx.functions.Action1;
 import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Concept;
@@ -87,13 +88,16 @@ public class HomeController extends BaseController implements IHomeView {
         adapter = new ConceptRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
         onItemClickSubscription = adapter.itemClickObservable().subscribe(
-                concept ->
-                    getRouter().pushController(RouterTransaction.with(new ConceptDetailController(
-                            new BundleBuilder(new Bundle())
-                                    .putString(Concept.KEY, concept.getReading())
-                                    .build()
-                    )))
-                );
+                new Action1<Concept>() {
+                    @Override
+                    public void call(Concept concept) {
+                        getRouter().pushController(RouterTransaction.with(new ConceptDetailController(
+                                new BundleBuilder(new Bundle())
+                                        .putString(Concept.KEY, concept.getReading())
+                                        .build()
+                        )));
+                    }
+                });
     }
 
     @Override
@@ -103,7 +107,7 @@ public class HomeController extends BaseController implements IHomeView {
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
         searchView = (SearchView) searchItem.getActionView();
-        Activity activity = getActivity();
+        final Activity activity = getActivity();
         searchView.setQueryHint(activity != null ? activity.getString(R.string.search) : null);
         searchView.setMaxWidth(Integer.MAX_VALUE); // allow search view to match the width of the toolbar
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

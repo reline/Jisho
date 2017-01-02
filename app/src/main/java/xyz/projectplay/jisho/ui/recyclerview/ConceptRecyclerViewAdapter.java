@@ -19,6 +19,7 @@ package xyz.projectplay.jisho.ui.recyclerview;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -45,7 +46,12 @@ public class ConceptRecyclerViewAdapter extends RecyclerView.Adapter<ConceptView
     public void onBindViewHolder(@NonNull ConceptViewHolder holder, int position) {
         final Concept concept = conceptList.get(position);
         holder.bind(concept);
-        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(concept));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSubject.onNext(concept);
+            }
+        });
     }
 
     @Override
