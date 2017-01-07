@@ -16,7 +16,7 @@
 
 package xyz.projectplay.jisho.models;
 
-public class Link {
+class Link {
     private String text;
     private String url;
 
