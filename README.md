@@ -1,4 +1,4 @@
-# Jisho
+# Jisho [![Build Status](https://travis-ci.org/Reline/Jisho.svg?branch=master)](https://travis-ci.org/Reline/Jisho)
 
 Jisho is a powerful Japanese-English dictionary utilizing the data sources from the popular Jisho.org lovingly crafted by Kim, Miwa and Andrew. It lets you find words, kanji, example sentences and more quickly and easily.
 
