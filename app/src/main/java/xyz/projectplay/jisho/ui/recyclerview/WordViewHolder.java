@@ -17,6 +17,7 @@
 package xyz.projectplay.jisho.ui.recyclerview;
 
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -30,12 +31,11 @@ import xyz.projectplay.jisho.R;
 import xyz.projectplay.jisho.models.Japanese;
 import xyz.projectplay.jisho.models.Sense;
 import xyz.projectplay.jisho.models.Word;
-import xyz.projectplay.jisho.ui.widgets.AutoResizeTextView;
 
 public class WordViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.word)
-    AutoResizeTextView readingTextView;
+    TextView readingTextView;
 
     @BindView(R.id.furigana)
     TextView furiganaTextView;
@@ -67,29 +67,48 @@ public class WordViewHolder extends RecyclerView.ViewHolder {
 
         commonTextView.setVisibility(word.isCommon() ? View.VISIBLE : View.GONE);
 
+        bindTags(word.getTags());
+        bindSenses(word.getSenses());
+    }
+
+    private void bindTags(List<String> tags) {
         tagsLayout.removeAllViews();
-        for (String tag : word.getTags()) {
+        for (String tag : tags) {
             TextView textView = (TextView) View.inflate(itemView.getContext(), R.layout.layout_tag, null);
             textView.setText(tag);
             tagsLayout.addView(textView);
         }
-
-        bindSenses(word.getSenses());
     }
 
     private void bindSenses(List<Sense> senses) {
         sensesLayout.removeAllViews();
         for (int i = 0; i < senses.size(); i++) {
             Sense sense = senses.get(i);
-            TextView textView = new TextView(itemView.getContext());
+
+            bindPartsOfSpeech(sense.getPartsOfSpeech());
+
+            TextView definitionTextView = new TextView(itemView.getContext());
             String definition = String.valueOf(i + 1) + ". ";
             List<String> englishDefinitions = sense.getEnglishDefinitions();
             for (int k = 0; k < englishDefinitions.size(); k++) {
                 definition += englishDefinitions.get(k) + (k < englishDefinitions.size() - 1 ? "; " : "");
             }
-            textView.setText(definition);
-            textView.setTextIsSelectable(true);
-            sensesLayout.addView(textView);
+            definitionTextView.setText(definition);
+            definitionTextView.setTextIsSelectable(true);
+            sensesLayout.addView(definitionTextView);
         }
+    }
+
+    private void bindPartsOfSpeech(List<String> pos) {
+        if (pos.isEmpty()) return;
+        TextView posTextView = new TextView(itemView.getContext());
+        StringBuilder partsOfSpeech = new StringBuilder();
+        for (int i = 0; i < pos.size(); i++) {
+            partsOfSpeech.append(pos.get(i)).append(i < pos.size() - 1 ? ", " : "");
+        }
+        posTextView.setText(partsOfSpeech.toString());
+        posTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorAccent));
+        posTextView.setTextIsSelectable(true);
+        sensesLayout.addView(posTextView);
     }
 }
