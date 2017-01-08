@@ -18,7 +18,6 @@ package xyz.projectplay.jisho.ui.controllers;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,24 +31,19 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bluelinelabs.conductor.RouterTransaction;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import rx.Subscription;
-import rx.functions.Action1;
 import xyz.projectplay.jisho.Jisho;
 import xyz.projectplay.jisho.R;
-import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.models.Word;
 import xyz.projectplay.jisho.presenters.HomePresenter;
 import xyz.projectplay.jisho.ui.controllers.base.BaseController;
 import xyz.projectplay.jisho.ui.controllers.base.Layout;
-import xyz.projectplay.jisho.ui.recyclerview.ConceptRecyclerViewAdapter;
+import xyz.projectplay.jisho.ui.recyclerview.WordRecyclerViewAdapter;
 import xyz.projectplay.jisho.ui.views.IHomeView;
-import xyz.projectplay.jisho.util.BundleBuilder;
 
 @Layout(R.layout.controller_home)
 public class HomeController extends BaseController implements IHomeView {
@@ -68,8 +62,7 @@ public class HomeController extends BaseController implements IHomeView {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    private ConceptRecyclerViewAdapter adapter;
-    private Subscription onItemClickSubscription;
+    private WordRecyclerViewAdapter adapter;
     private SearchView searchView;
 
     public HomeController() {
@@ -85,19 +78,8 @@ public class HomeController extends BaseController implements IHomeView {
 
     private void setupRecycler(Context context) {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        adapter = new ConceptRecyclerViewAdapter();
+        adapter = new WordRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
-        onItemClickSubscription = adapter.itemClickObservable().subscribe(
-                new Action1<Concept>() {
-                    @Override
-                    public void call(Concept concept) {
-                        getRouter().pushController(RouterTransaction.with(new ConceptDetailController(
-                                new BundleBuilder(new Bundle())
-                                        .putString(Concept.KEY, concept.getReading())
-                                        .build()
-                        )));
-                    }
-                });
     }
 
     @Override
@@ -130,17 +112,16 @@ public class HomeController extends BaseController implements IHomeView {
 
     @Override
     protected void onDestroyView(@NonNull View view) {
-        onItemClickSubscription.unsubscribe();
         presenter.dropView(this);
         super.onDestroyView(view);
     }
 
     @Override
-    public void updateView(List<Concept> results) {
+    public void updateView(List<Word> results) {
         logo.setVisibility(View.GONE);
-        adapter.setConceptList(results);
+        adapter.updateData(results);
         progressBar.setVisibility(View.GONE);
-        noMatch.setVisibility(results.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+        noMatch.setVisibility(results.isEmpty() ? View.VISIBLE : View.GONE);
         noMatch.setText(String.format(getApplicationContext().getString(R.string.no_match), searchView.getQuery()));
     }
 }

@@ -16,15 +16,35 @@
 
 package xyz.projectplay.jisho.models;
 
-class Source {
-    private String language;
-    private String word;
+import com.squareup.moshi.Json;
 
-    public String getLanguage() {
-        return language;
+import java.util.List;
+
+public class Word {
+    @Json(name = "is_common")
+    private boolean common;
+    private List<String> tags;
+    private List<Japanese> japanese;
+    private List<Sense> senses;
+    private Attribution attribution;
+
+    public boolean isCommon() {
+        return common;
     }
 
-    public String getWord() {
-        return word;
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public List<Japanese> getJapanese() {
+        return japanese;
+    }
+
+    public List<Sense> getSenses() {
+        return senses;
+    }
+
+    public Attribution getAttribution() {
+        return attribution;
     }
 }

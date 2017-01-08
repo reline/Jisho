@@ -16,31 +16,32 @@
 
 package xyz.projectplay.jisho.models;
 
+import com.squareup.moshi.Json;
+
 import java.util.List;
 
 public class Sense {
 
+    @Json(name = "english_definitions")
     private List<String> englishDefinitions;
 
+    @Json(name = "parts_of_speech")
     private List<String> partsOfSpeech;
 
     private List<Link> links;
 
-    private List<String> tags;
+//    private List<String> tags;
 
-    private List<String> restrictions;
+//    private List<String> restrictions;
 
+    @Json(name = "see_also")
     private List<String> seeAlso;
 
-    private List<String> antonyms;
+//    private List<String> antonyms;
 
-    private List<Source> source;
+//    private List<Source> source;
 
-    private List<String> info;
-
-    Sense() {
-
-    }
+//    private List<String> info;
 
     public List<String> getEnglishDefinitions() {
         return englishDefinitions;
@@ -54,27 +55,7 @@ public class Sense {
         return links;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public List<String> getRestrictions() {
-        return restrictions;
-    }
-
     public List<String> getSeeAlso() {
         return seeAlso;
-    }
-
-    public List<String> getAntonyms() {
-        return antonyms;
-    }
-
-    public List<Source> getSource() {
-        return source;
-    }
-
-    public List<String> getInfo() {
-        return info;
     }
 }

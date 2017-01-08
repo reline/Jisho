@@ -18,17 +18,17 @@ package xyz.projectplay.jisho.network.responses;
 
 import java.util.List;
 
-import xyz.projectplay.jisho.models.Concept;
+import xyz.projectplay.jisho.models.Word;
 
 public class SearchResponse {
     private Meta meta;
-    private List<Concept> data;
+    private List<Word> data;
 
     public Meta getMeta() {
         return meta;
     }
 
-    public List<Concept> getData() {
+    public List<Word> getData() {
         return data;
     }
 }

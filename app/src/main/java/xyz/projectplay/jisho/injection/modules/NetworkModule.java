@@ -26,15 +26,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.moshi.MoshiConverterFactory;
 import rx.schedulers.Schedulers;
 import xyz.projectplay.jisho.BuildConfig;
-import xyz.projectplay.jisho.network.services.ConceptApi;
 import xyz.projectplay.jisho.network.services.SearchApi;
 
 @Module
 public class NetworkModule {
 
-    private static final String BASE_URL = "http://jisho.org";
+    private static final String BASE_URL = "http://jisho.org/api/v1/";
     private static OkHttpClient okHttpClient;
     private static Retrofit retrofit;
 
@@ -60,6 +60,7 @@ public class NetworkModule {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+                    .addConverterFactory(MoshiConverterFactory.create())
                     .callFactory(okHttpClient)
                     .build();
         }
@@ -69,10 +70,5 @@ public class NetworkModule {
     @Provides
     SearchApi provideServerApi() {
         return provideRetrofit(provideHttpClient()).create(SearchApi.class);
-    }
-
-    @Provides
-    ConceptApi provideWordApi() {
-        return provideRetrofit(provideHttpClient()).create(ConceptApi.class);
     }
 }
