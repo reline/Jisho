@@ -3,3 +3,6 @@
 local.properties
 .idea
 build
+*.jks
+*.keystore
+keystore.properties
