@@ -18,10 +18,11 @@ package com.github.reline.jisho.network.services;
 
 import android.support.annotation.NonNull;
 
+import com.github.reline.jisho.network.responses.SearchResponse;
+
+import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import rx.Observable;
-import com.github.reline.jisho.network.responses.SearchResponse;
 
 public interface SearchApi {
 

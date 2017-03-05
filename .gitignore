@@ -6,3 +6,4 @@ build
 *.jks
 *.keystore
 keystore.properties
+projectFilesBackup*

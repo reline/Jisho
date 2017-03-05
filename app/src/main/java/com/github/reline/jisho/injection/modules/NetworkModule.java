@@ -18,18 +18,19 @@ package com.github.reline.jisho.injection.modules;
 
 import android.support.annotation.NonNull;
 
+import com.github.reline.jisho.BuildConfig;
+import com.github.reline.jisho.network.services.SearchApi;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
-import rx.schedulers.Schedulers;
-import com.github.reline.jisho.BuildConfig;
-import com.github.reline.jisho.network.services.SearchApi;
 
 @Module
 public class NetworkModule {
@@ -59,7 +60,7 @@ public class NetworkModule {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                     .addConverterFactory(MoshiConverterFactory.create())
                     .callFactory(okHttpClient)
                     .build();
