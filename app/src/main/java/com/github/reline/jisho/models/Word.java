@@ -16,17 +16,40 @@
 
 package com.github.reline.jisho.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.squareup.moshi.Json;
 
 import java.util.List;
 
-public class Word {
+public class Word implements Parcelable {
     @Json(name = "is_common")
     private boolean common;
     private List<String> tags;
     private List<Japanese> japanese;
     private List<Sense> senses;
     private Attribution attribution;
+
+    private Word(Parcel in) {
+        common = in.readByte() != 0;
+        tags = in.createStringArrayList();
+        japanese = in.createTypedArrayList(Japanese.CREATOR);
+        senses = in.createTypedArrayList(Sense.CREATOR);
+        attribution = in.readParcelable(Attribution.class.getClassLoader());
+    }
+
+    public static final Creator<Word> CREATOR = new Creator<Word>() {
+        @Override
+        public Word createFromParcel(Parcel in) {
+            return new Word(in);
+        }
+
+        @Override
+        public Word[] newArray(int size) {
+            return new Word[size];
+        }
+    };
 
     public boolean isCommon() {
         return common;
@@ -46,5 +69,19 @@ public class Word {
 
     public Attribution getAttribution() {
         return attribution;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (common ? 1 : 0));
+        dest.writeStringList(tags);
+        dest.writeTypedList(japanese);
+        dest.writeTypedList(senses);
+        dest.writeParcelable(attribution, flags);
     }
 }

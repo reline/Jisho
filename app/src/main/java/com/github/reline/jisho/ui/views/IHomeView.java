@@ -16,10 +16,10 @@
 
 package com.github.reline.jisho.ui.views;
 
-import java.util.List;
-
 import com.github.reline.jisho.models.Word;
 
+import java.util.ArrayList;
+
 public interface IHomeView {
-    void updateView(List<Word> results);
+    void updateView(ArrayList<Word> results);
 }

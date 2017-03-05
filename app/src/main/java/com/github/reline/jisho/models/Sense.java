@@ -16,11 +16,14 @@
 
 package com.github.reline.jisho.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.squareup.moshi.Json;
 
 import java.util.List;
 
-public class Sense {
+public class Sense implements Parcelable {
 
     @Json(name = "english_definitions")
     private List<String> englishDefinitions;
@@ -43,6 +46,25 @@ public class Sense {
 
 //    private List<String> info;
 
+    private Sense(Parcel in) {
+        englishDefinitions = in.createStringArrayList();
+        partsOfSpeech = in.createStringArrayList();
+        links = in.createTypedArrayList(Link.CREATOR);
+        seeAlso = in.createStringArrayList();
+    }
+
+    public static final Creator<Sense> CREATOR = new Creator<Sense>() {
+        @Override
+        public Sense createFromParcel(Parcel in) {
+            return new Sense(in);
+        }
+
+        @Override
+        public Sense[] newArray(int size) {
+            return new Sense[size];
+        }
+    };
+
     public List<String> getEnglishDefinitions() {
         return englishDefinitions;
     }
@@ -57,5 +79,18 @@ public class Sense {
 
     public List<String> getSeeAlso() {
         return seeAlso;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringList(englishDefinitions);
+        dest.writeStringList(partsOfSpeech);
+        dest.writeTypedList(links);
+        dest.writeStringList(seeAlso);
     }
 }

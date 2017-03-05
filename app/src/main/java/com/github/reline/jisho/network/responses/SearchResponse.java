@@ -16,9 +16,10 @@
 
 package com.github.reline.jisho.network.responses;
 
-import java.util.List;
-
 import com.github.reline.jisho.models.Word;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchResponse {
     private Meta meta;
@@ -28,7 +29,7 @@ public class SearchResponse {
         return meta;
     }
 
-    public List<Word> getData() {
-        return data;
+    public ArrayList<Word> getData() {
+        return new ArrayList<>(data);
     }
 }

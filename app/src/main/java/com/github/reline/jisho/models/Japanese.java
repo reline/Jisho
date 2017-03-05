@@ -16,9 +16,29 @@
 
 package com.github.reline.jisho.models;
 
-public class Japanese {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Japanese implements Parcelable {
     private String word;
     private String reading;
+
+    private Japanese(Parcel in) {
+        word = in.readString();
+        reading = in.readString();
+    }
+
+    public static final Creator<Japanese> CREATOR = new Creator<Japanese>() {
+        @Override
+        public Japanese createFromParcel(Parcel in) {
+            return new Japanese(in);
+        }
+
+        @Override
+        public Japanese[] newArray(int size) {
+            return new Japanese[size];
+        }
+    };
 
     public String getWord() {
         return word;
@@ -26,5 +46,16 @@ public class Japanese {
 
     public String getReading() {
         return reading;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(word);
+        dest.writeString(reading);
     }
 }

@@ -17,19 +17,19 @@
 package com.github.reline.jisho.ui.recyclerview;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.reline.jisho.R;
 import com.github.reline.jisho.models.Word;
 
+import java.util.ArrayList;
+
 public class WordRecyclerViewAdapter extends RecyclerView.Adapter<WordViewHolder> {
 
-    private List<Word> wordList = new ArrayList<>();
+    private ArrayList<Word> wordList;
 
     @NonNull
     @Override
@@ -46,10 +46,10 @@ public class WordRecyclerViewAdapter extends RecyclerView.Adapter<WordViewHolder
 
     @Override
     public int getItemCount() {
-        return wordList.size();
+        return wordList != null ? wordList.size() : 0;
     }
 
-    public void updateData(@NonNull List<Word> wordList) {
+    public void updateData(@NonNull ArrayList<Word> wordList) {
         int oldSize = getItemCount();
         int newSize = wordList.size();
         this.wordList = wordList;
@@ -63,5 +63,10 @@ public class WordRecyclerViewAdapter extends RecyclerView.Adapter<WordViewHolder
         } else {
             notifyItemRangeChanged(0, newSize);
         }
+    }
+
+    @Nullable
+    public ArrayList<Word> getWordList() {
+        return wordList;
     }
 }

@@ -16,9 +16,29 @@
 
 package com.github.reline.jisho.models;
 
-class Link {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+class Link implements Parcelable {
     private String text;
     private String url;
+
+    private Link(Parcel in) {
+        text = in.readString();
+        url = in.readString();
+    }
+
+    public static final Creator<Link> CREATOR = new Creator<Link>() {
+        @Override
+        public Link createFromParcel(Parcel in) {
+            return new Link(in);
+        }
+
+        @Override
+        public Link[] newArray(int size) {
+            return new Link[size];
+        }
+    };
 
     public String getText() {
         return text;
@@ -26,5 +46,16 @@ class Link {
 
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(text);
+        dest.writeString(url);
     }
 }
