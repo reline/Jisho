@@ -23,14 +23,15 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.github.reline.jisho.R;
 import com.github.reline.jisho.models.Japanese;
 import com.github.reline.jisho.models.Sense;
 import com.github.reline.jisho.models.Word;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class WordViewHolder extends RecyclerView.ViewHolder {
 

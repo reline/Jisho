@@ -23,11 +23,11 @@ import android.view.ViewGroup;
 import com.bluelinelabs.conductor.Conductor;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
+import com.github.reline.jisho.R;
+import com.github.reline.jisho.ui.controllers.HomeController;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.github.reline.jisho.R;
-import com.github.reline.jisho.ui.controllers.HomeController;
 
 public class MainActivity extends AppCompatActivity {
 

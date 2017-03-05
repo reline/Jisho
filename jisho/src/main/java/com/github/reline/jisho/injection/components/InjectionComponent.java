@@ -16,12 +16,13 @@
 
 package com.github.reline.jisho.injection.components;
 
-import javax.inject.Singleton;
-
-import dagger.Component;
 import com.github.reline.jisho.injection.modules.NetworkModule;
 import com.github.reline.jisho.injection.modules.PresenterModule;
 import com.github.reline.jisho.ui.controllers.HomeController;
+
+import javax.inject.Singleton;
+
+import dagger.Component;
 
 @Singleton
 @Component(modules = {PresenterModule.class, NetworkModule.class})

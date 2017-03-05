@@ -16,10 +16,11 @@
 
 package com.github.reline.jisho.injection.modules;
 
-import dagger.Module;
-import dagger.Provides;
 import com.github.reline.jisho.network.services.SearchApi;
 import com.github.reline.jisho.presenters.HomePresenter;
+
+import dagger.Module;
+import dagger.Provides;
 
 @Module
 public class PresenterModule {
