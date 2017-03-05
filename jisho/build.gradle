@@ -1,14 +1,12 @@
-evaluate(new File("keystore.properties"))
-
 apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
         release {
-            keyAlias KEY_ALIAS
-            keyPassword KEY_PASSWORD
-            storeFile file(STORE_FILE)
-            storePassword STORE_PASSWORD
+            keyAlias 'android'
+            keyPassword 'android'
+            storeFile file('jisho.jks')
+            storePassword 'android'
         }
     }
 
