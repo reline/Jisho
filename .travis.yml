@@ -18,7 +18,7 @@ before_script:
   - echo no | android create avd --force -n test -t "android-21" --abi "armeabi-v7a"
   - emulator -avd test -no-audio -no-window &
   - pwd
-  - /home/jenkins/Reline/Jisho/android-wait-for-emulator
+  - ./android-wait-for-emulator.sh
   - adb shell input keyevent 82 &
 script:
     - ./gradlew test
