@@ -13,3 +13,6 @@ android:
      - sys-img-armeabi-v7a-android-25
   licenses:
     - 'android-sdk-license-.+'
+script:
+    - ./gradlew test
+    - ./gradlew connectedAndroidTest

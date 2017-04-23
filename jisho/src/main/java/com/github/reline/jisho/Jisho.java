@@ -21,7 +21,6 @@ import android.app.Application;
 import com.github.reline.jisho.injection.components.DaggerInjectionComponent;
 import com.github.reline.jisho.injection.components.InjectionComponent;
 import com.github.reline.jisho.injection.modules.NetworkModule;
-import com.github.reline.jisho.injection.modules.PresenterModule;
 
 public class Jisho extends Application {
 
@@ -33,7 +32,6 @@ public class Jisho extends Application {
 
         sInjectionComponent = DaggerInjectionComponent.builder()
                 .networkModule(new NetworkModule())
-                .presenterModule(new PresenterModule())
                 .build();
     }
 

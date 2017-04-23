@@ -17,7 +17,6 @@
 package com.github.reline.jisho.injection.components;
 
 import com.github.reline.jisho.injection.modules.NetworkModule;
-import com.github.reline.jisho.injection.modules.PresenterModule;
 import com.github.reline.jisho.ui.controllers.HomeController;
 
 import javax.inject.Singleton;
@@ -25,7 +24,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 
 @Singleton
-@Component(modules = {PresenterModule.class, NetworkModule.class})
+@Component(modules = {NetworkModule.class})
 public interface InjectionComponent {
     void inject(HomeController controller);
 }

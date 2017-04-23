@@ -36,40 +36,32 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class NetworkModule {
 
     private static final String BASE_URL = "http://jisho.org/api/v1/";
-    private static OkHttpClient okHttpClient;
-    private static Retrofit retrofit;
 
     @Provides
     @Singleton
-    static OkHttpClient provideHttpClient() {
-        if (okHttpClient == null) {
-            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-            if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
-                httpClientBuilder.addInterceptor(loggingInterceptor);
-            }
-            okHttpClient = httpClientBuilder.build();
+    OkHttpClient provideHttpClient() {
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+            httpClientBuilder.addInterceptor(loggingInterceptor);
         }
-        return okHttpClient;
+        return httpClientBuilder.build();
     }
 
     @Provides
     @Singleton
-    static Retrofit provideRetrofit(@NonNull OkHttpClient okHttpClient) {
-        if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .callFactory(okHttpClient)
-                    .build();
-        }
-        return retrofit;
+    Retrofit provideRetrofit(@NonNull OkHttpClient okHttpClient) {
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .addConverterFactory(MoshiConverterFactory.create())
+                .callFactory(okHttpClient)
+                .build();
     }
 
     @Provides
-    SearchApi provideServerApi() {
-        return provideRetrofit(provideHttpClient()).create(SearchApi.class);
+    SearchApi provideServerApi(Retrofit retrofit) {
+        return retrofit.create(SearchApi.class);
     }
 }
