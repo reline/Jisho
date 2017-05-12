@@ -1,1 +1,1 @@
-include ':jisho'
+include ':app', ':jishodb', ':jisho'
