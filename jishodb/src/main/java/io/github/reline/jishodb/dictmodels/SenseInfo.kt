@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package io.github.reline.jishodb
+package io.github.reline.jishodb.dictmodels
 
-import android.app.Application
-import io.realm.Realm
-import io.realm.RealmConfiguration
+import com.tickaroo.tikxml.annotation.TextContent
+import com.tickaroo.tikxml.annotation.Xml
 
-class JishoDB : Application() {
+/**
+ * The sense-information elements provided for additional
+information to be recorded about a sense. Typical usage would
+be to indicate such things as level of currency of a sense, the
+regional variations, etc.
+ */
+@Xml(name = "s_inf")
+class SenseInfo {
 
-    private val TAG = "JishoDB"
-
-    override fun onCreate() {
-        Realm.init(applicationContext)
-        Realm.setDefaultConfiguration(RealmConfiguration.Builder()
-                .name("jisho.realm")
-                .deleteRealmIfMigrationNeeded()
-                .build())
-    }
+    @TextContent
+    lateinit var value: String
 }

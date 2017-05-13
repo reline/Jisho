@@ -24,4 +24,12 @@ open class Japanese : RealmModel {
     var word: String? = null
     var reading: String? = null
 
+    constructor() {
+        // realm constructor
+    }
+
+    constructor(word: String? = null, reading: String? = null) {
+        this.word = word
+        this.reading = reading
+    }
 }

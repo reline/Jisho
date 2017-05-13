@@ -19,19 +19,60 @@ package io.github.reline.jishodb.dictmodels
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
+import io.github.reline.jishodb.dbmodels.Japanese
+import io.github.reline.jishodb.dbmodels.Sense
+import io.realm.RealmList
 
+/**
+ * Entries consist of kanji elements, reading elements,
+ * general information and sense elements. Each entry must have at
+ * least one reading element and one sense element. Others are optional.
+ */
 @Xml(name = "entry")
 open class Entry {
 
+    /** A unique numeric sequence number for each entry **/
     @PropertyElement(name = "ent_seq")
     var id: Int = 0
 
     @Element
-    lateinit var kanji: MutableList<Kanji>
+    var kanji: MutableList<Kanji>? = null
 
     @Element
     lateinit var readings: MutableList<Reading>
 
-//    @Element
-//    lateinit var senses: MutableList<DictSense>
+    @Element
+    lateinit var senses: MutableList<DictSense>
+
+    fun getJapanese() : RealmList<Japanese> {
+        val japanese = RealmList<Japanese>()
+        readings.forEach {
+            val reading = it
+            if (kanji?.isEmpty() ?: true) {
+                japanese.add(Japanese(reading = reading.value))
+            } else {
+                kanji!!.forEach {
+                    japanese.add(Japanese(it.value, reading.value))
+                }
+            }
+        }
+        return japanese
+    }
+
+    fun getSenses() = senses.mapTo(RealmList<Sense>()){ it.getSense() }
+
+    fun isCommon(): Boolean {
+        readings.forEach {
+            if (it.isCommon()) {
+                return true
+            }
+        }
+        kanji?.forEach {
+            if (it.isCommon()) {
+                return true
+            }
+        }
+        return false
+    }
+
 }

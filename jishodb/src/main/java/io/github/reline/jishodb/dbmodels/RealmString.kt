@@ -16,8 +16,10 @@
 
 package io.github.reline.jishodb.dbmodels
 
+import io.realm.RealmList
 import io.realm.RealmModel
 import io.realm.annotations.RealmClass
+import java.util.*
 
 @RealmClass
 open class RealmString : RealmModel {
@@ -30,6 +32,11 @@ open class RealmString : RealmModel {
 
     constructor(string: String) {
         this.string = string
+    }
+
+    companion object {
+        fun wrap(list: List<String>) = list.mapTo(RealmList<RealmString>()) { RealmString(it) }
+        fun unwrap(realmList: RealmList<RealmString>) = realmList.mapTo(ArrayList<String>()) { it.string }
     }
 
 }
