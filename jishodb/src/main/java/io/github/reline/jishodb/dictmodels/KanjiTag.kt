@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package io.github.reline.jishodb
+package io.github.reline.jishodb.dictmodels
 
-import android.app.Application
-import io.realm.Realm
-import io.realm.RealmConfiguration
+import com.tickaroo.tikxml.annotation.TextContent
+import com.tickaroo.tikxml.annotation.Xml
 
-class JishoDB : Application() {
+/**
+ * Indicates that the sense is restricted
+    to the lexeme represented by the keb.
+ */
+@Xml(name = "stagk")
+class KanjiTag {
 
-    private val TAG = "JishoDB"
-
-    override fun onCreate() {
-        Realm.init(applicationContext)
-        Realm.setDefaultConfiguration(RealmConfiguration.Builder()
-                .name("jisho.realm")
-                .deleteRealmIfMigrationNeeded()
-                .build())
-    }
+    @TextContent
+    lateinit var value: String
 }

@@ -20,25 +20,17 @@ import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- *  This and the equivalent re_pri field are provided to record
-    information about the relative priority of the entry,  and consist
-    of codes indicating the word appears in various references which
-    can be taken as an indication of the frequency with which the word
-    is used. This field is intended for use either by applications which
-    want to concentrate on entries of  a particular priority, or to
-    generate subset files.
-    The current values in this field are: {@link Priority}
-
-
-    The reason both the kanji and reading elements are tagged is because
-    on occasions a priority is only associated with a particular
-    kanji/reading pair.
+ * This element is used to indicate a cross-reference to another
+entry with a similar or related meaning or sense. The content of
+this element is typically a keb or reb element in another entry. In some
+cases a keb will be followed by a reb and/or a sense number to provide
+a precise target for the cross-reference. Where this happens, a JIS
+"centre-dot" (0x2126) is placed between the components of the
+cross-reference.
  */
-@Xml(name = "ke_pri")
-open class KanjiPriority {
+@Xml(name = "xref")
+class XReference {
 
     @TextContent
     lateinit var value: String
-
-    fun isCommon() = Priority.isCommon(value)
 }

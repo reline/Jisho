@@ -20,21 +20,51 @@ import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
 
+/**
+ *  The reading element typically contains the valid readings
+    of the word(s) in the kanji element using modern kanadzukai.
+    Where there are multiple reading elements, they will typically be
+    alternative readings of the kanji element. In the absence of a
+    kanji element, i.e. in the case of a word or phrase written
+    entirely in kana, these elements will define the entry.
+ */
 @Xml(name = "r_ele")
 open class Reading {
 
+    /**
+     *  this element content is restricted to kana and related
+        characters such as chouon and kurikaeshi. Kana usage will be
+        consistent between the keb and reb elements; e.g. if the keb
+        contains katakana, so too will the reb.
+     */
     @PropertyElement(name = "reb")
-    var value: String? = null
+    lateinit var value: String
 
+    /**
+     *  This element, which will usually have a null value, indicates
+        that the reb, while associated with the keb, cannot be regarded
+        as a true reading of the kanji. It is typically used for words
+        such as foreign place names, gairaigo which can be in kanji or
+        katakana, etc.
+     */
     @PropertyElement(name = "re_nokanji")
     var isNotTrueReading: Boolean? = null
 
     @Element
-    lateinit var restrictions: MutableList<ReadingRestriction>
+    var restrictions: MutableList<ReadingRestriction>? = null
 
     @Element
-    lateinit var information: MutableList<ReadingInfo>
+    var information: MutableList<ReadingInfo>? = null
 
     @Element
-    lateinit var priorities: MutableList<ReadingPriority>
+    var priorities: MutableList<ReadingPriority>? = null
+
+    fun isCommon(): Boolean {
+        priorities?.forEach {
+            if (it.isCommon()) {
+                return true
+            }
+        }
+        return false
+    }
 }
