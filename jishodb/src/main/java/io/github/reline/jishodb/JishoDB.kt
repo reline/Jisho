@@ -1,11 +1,12 @@
 package io.github.reline.jishodb
 
 import android.app.Application
+import android.util.Log
+import com.tickaroo.tikxml.TikXml
+import io.github.reline.jishodb.dictmodels.JMdict
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import org.xml.sax.InputSource
-import java.io.InputStreamReader
-import javax.xml.parsers.SAXParserFactory
+import okio.Buffer
 
 class JishoDB : Application() {
 
@@ -18,16 +19,17 @@ class JishoDB : Application() {
                 .build())
 
         val inputStream = resources.openRawResource(R.raw.jmdict_e)
-        val reader = InputStreamReader(inputStream, "UTF-8")
-//        val inputAsString = inputStream.bufferedReader().use { it.readText() }
+        val source = Buffer().readFrom(inputStream)
 
-        val `is` = InputSource(reader)
-        `is`.encoding = "UTF-8"
+        val start = System.currentTimeMillis()
 
-        val factory = SAXParserFactory.newInstance()
-        val saxParser = factory.newSAXParser()
-        val handler = Handler()
-//        saxParser.parse(`is`, handler)
+        val jmDict = TikXml.Builder()
+                .exceptionOnUnreadXml(false)
+                .build()
+                .read(source, JMdict::class.java)
 
+        val end = System.currentTimeMillis()
+
+        Log.d(TAG, "Parsing $jmDict took ${(end - start) / 1000} seconds")
     }
 }
