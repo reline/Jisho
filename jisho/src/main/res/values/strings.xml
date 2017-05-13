@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">jisho</string>
+    <string name="app_name">Jisho</string>
+    <string name="search">English, Romaji, Japanese, words or text</string>
+    <string name="action_search">Search</string>
+    <string name="common_word">common word</string>
+    <string name="word">word</string>
+    <string name="no_match">Sorry, couldn\'t find anything matching "%s".</string>
 </resources>
