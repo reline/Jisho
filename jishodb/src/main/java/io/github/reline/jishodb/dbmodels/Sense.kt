@@ -16,6 +16,7 @@
 
 package io.github.reline.jishodb.dbmodels
 
+import io.github.reline.jishodb.dbmodels.RealmString.Companion.wrap
 import io.realm.RealmList
 import io.realm.RealmModel
 import io.realm.annotations.RealmClass
@@ -40,5 +41,17 @@ open class Sense : RealmModel {
     private var source = RealmList<Source>()
 
     private var info = RealmList<RealmString>()
+
+    constructor() {
+        // realm constructor
+    }
+
+    constructor(definitions: List<String> = emptyList(),
+                tags: List<String> = emptyList(),
+                information: List<String> = emptyList()) {
+        englishDefinitions = wrap(definitions)
+        this.tags = wrap(tags)
+        info = wrap(information)
+    }
 
 }

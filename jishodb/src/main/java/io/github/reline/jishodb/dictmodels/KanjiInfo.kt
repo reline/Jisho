@@ -19,6 +19,11 @@ package io.github.reline.jishodb.dictmodels
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
+/**
+ * This is a coded information field related specifically to the
+ * orthography of the keb, and will typically indicate some unusual
+ * aspect, such as okurigana irregularity.
+ */
 @Xml(name = "ke_inf")
 open class KanjiInfo {
 

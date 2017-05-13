@@ -19,6 +19,12 @@ package io.github.reline.jishodb.dictmodels
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
+/**
+ * This element is used to indicate when the reading only applies
+to a subset of the keb elements in the entry. In its absence, all
+readings apply to all kanji elements. The contents of this element
+must exactly match those of one of the keb elements.
+ */
 @Xml(name = "re_restr")
 open class ReadingRestriction {
 

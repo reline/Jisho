@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package io.github.reline.jishodb
+package io.github.reline.jishodb.dictmodels
 
-import android.app.Application
-import io.realm.Realm
-import io.realm.RealmConfiguration
+import com.tickaroo.tikxml.annotation.TextContent
+import com.tickaroo.tikxml.annotation.Xml
 
-class JishoDB : Application() {
+/**
+ * This element is used to indicate another entry which is an
+antonym of the current entry/sense. The content of this element
+must exactly match that of a keb or reb element in another entry.
+ */
+@Xml(name = "ant")
+class Antonym {
 
-    private val TAG = "JishoDB"
-
-    override fun onCreate() {
-        Realm.init(applicationContext)
-        Realm.setDefaultConfiguration(RealmConfiguration.Builder()
-                .name("jisho.realm")
-                .deleteRealmIfMigrationNeeded()
-                .build())
-    }
+    @TextContent
+    lateinit var value: String
 }
