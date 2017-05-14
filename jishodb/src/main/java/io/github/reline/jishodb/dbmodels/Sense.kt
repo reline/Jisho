@@ -16,6 +16,7 @@
 
 package io.github.reline.jishodb.dbmodels
 
+import io.github.reline.jishodb.dbmodels.RealmString.Companion.unwrap
 import io.github.reline.jishodb.dbmodels.RealmString.Companion.wrap
 import io.realm.RealmList
 import io.realm.RealmModel
@@ -28,7 +29,7 @@ open class Sense : RealmModel {
 
     private var partsOfSpeech = RealmList<RealmString>()
 
-    private var links = RealmList<Link>()
+    var links = RealmList<Link>()
 
     private var tags = RealmList<RealmString>()
 
@@ -38,7 +39,7 @@ open class Sense : RealmModel {
 
     private var antonyms = RealmList<RealmString>()
 
-    private var source = RealmList<Source>()
+    var source = RealmList<Source>()
 
     private var info = RealmList<RealmString>()
 
@@ -54,4 +55,9 @@ open class Sense : RealmModel {
         info = wrap(information)
     }
 
+    fun getDefinitions() = unwrap(englishDefinitions)
+
+    fun getTags() = unwrap(tags)
+
+    fun getInfo() = unwrap(info)
 }
