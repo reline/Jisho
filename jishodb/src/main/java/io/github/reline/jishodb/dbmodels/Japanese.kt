@@ -22,13 +22,13 @@ import io.realm.annotations.RealmClass
 @RealmClass
 open class Japanese : RealmModel {
     var word: String? = null
-    var reading: String? = null
+    lateinit var reading: String
 
     constructor() {
         // realm constructor
     }
 
-    constructor(word: String? = null, reading: String? = null) {
+    constructor(word: String? = null, reading: String) {
         this.word = word
         this.reading = reading
     }
