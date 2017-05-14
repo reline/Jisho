@@ -29,4 +29,6 @@ open class KanjiInfo {
 
     @TextContent
     lateinit var value: String
+
+    fun getInfo() = Info.get(value)
 }
