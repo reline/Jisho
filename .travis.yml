@@ -13,3 +13,14 @@ android:
      - sys-img-armeabi-v7a-android-25
   licenses:
     - 'android-sdk-license-.+'
+before_script:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y nkf
+  - ./init.sh
+  - echo no | android create avd --force -n test -t "android-21" --abi "armeabi-v7a"
+  - emulator -avd test -no-audio -no-window &
+  - ./android-wait-for-emulator.sh
+  - adb shell input keyevent 82 &
+script:
+    - ./gradlew test
+    - ./gradlew connectedAndroidTest

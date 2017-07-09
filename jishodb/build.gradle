@@ -1,0 +1,41 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'realm-android'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "io.github.reline.jishodb"
+        minSdkVersion 25
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled = false
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile 'com.tickaroo.tikxml:annotation:0.8.11-SNAPSHOT'
+    compile 'com.tickaroo.tikxml:core:0.8.11-SNAPSHOT'
+    kapt 'com.tickaroo.tikxml:processor:0.8.11-SNAPSHOT'
+
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile "org.junit.platform:junit-platform-runner:1.0.0-M4"
+    testCompile ('org.jetbrains.spek:spek-api:1.1.1') {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+    testCompile ('org.jetbrains.spek:spek-junit-platform-engine:1.1.1') {
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.jetbrains.kotlin'
+    }
+}

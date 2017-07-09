@@ -1,0 +1,53 @@
+{
+  "is_common": true,
+  "tags": [
+    "wanikani3"
+  ],
+  "japanese": [
+    {
+      "word": "今日は",
+      "reading": "こんにちは"
+    },
+    {
+      "word": "今日は",
+      "reading": "こんちは"
+    }
+  ],
+  "senses": [
+    {
+      "english_definitions": [
+        "hello",
+        "good day (daytime greeting)"
+      ],
+      "parts_of_speech": [
+
+      ],
+      "links": [
+
+      ],
+      "tags": [
+        "Usually written using kana alone"
+      ],
+      "restrictions": [
+
+      ],
+      "see_also": [
+
+      ],
+      "antonyms": [
+
+      ],
+      "source": [
+
+      ],
+      "info": [
+        "こんちは is col."
+      ]
+    }
+  ],
+  "attribution": {
+    "jmdict": true,
+    "jmnedict": false,
+    "dbpedia": false
+  }
+}

@@ -1,17 +1,9 @@
 /*
- * Copyright 2016 Nathaniel Reline
+ * Copyright 2017 Nathaniel Reline
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or
+ * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
 package com.github.reline.jisho.models;
@@ -19,23 +11,37 @@ package com.github.reline.jisho.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.squareup.moshi.Json;
+import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Word implements Parcelable {
-    @Json(name = "is_common")
+import io.realm.RealmList;
+import io.realm.RealmModel;
+import io.realm.annotations.RealmClass;
+
+@RealmClass
+public class Word implements Parcelable, RealmModel {
+    @SerializedName("is_common")
     private boolean common;
-    private List<String> tags;
-    private List<Japanese> japanese;
-    private List<Sense> senses;
+    private RealmList<RealmString> tags;
+    private RealmList<Japanese> japanese;
+    private RealmList<Sense> senses;
     private Attribution attribution;
+
+    public Word() {
+        // realm constructor
+    }
 
     private Word(Parcel in) {
         common = in.readByte() != 0;
-        tags = in.createStringArrayList();
-        japanese = in.createTypedArrayList(Japanese.CREATOR);
-        senses = in.createTypedArrayList(Sense.CREATOR);
+        ArrayList<String> t = in.createStringArrayList();
+        tags = new RealmList<>();
+        for (String string : t) {
+            tags.add(new RealmString(string));
+        }
+        japanese = new RealmList<>(in.createTypedArray(Japanese.CREATOR));
+        senses = new RealmList<>(in.createTypedArray(Sense.CREATOR));
         attribution = in.readParcelable(Attribution.class.getClassLoader());
     }
 
@@ -56,7 +62,11 @@ public class Word implements Parcelable {
     }
 
     public List<String> getTags() {
-        return tags;
+        ArrayList<String> t = new ArrayList<>();
+        for (RealmString realmString : tags) {
+            t.add(realmString.getString());
+        }
+        return t;
     }
 
     public List<Japanese> getJapanese() {
@@ -79,7 +89,7 @@ public class Word implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte((byte) (common ? 1 : 0));
-        dest.writeStringList(tags);
+        dest.writeStringList(getTags());
         dest.writeTypedList(japanese);
         dest.writeTypedList(senses);
         dest.writeParcelable(attribution, flags);
