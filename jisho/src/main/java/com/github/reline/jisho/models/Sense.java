@@ -13,33 +13,26 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import io.realm.RealmList;
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
-
-import static com.github.reline.jisho.models.RealmString.unwrap;
-import static com.github.reline.jisho.models.RealmString.wrap;
-
-
-@RealmClass
-public class Sense implements Parcelable, RealmModel {
+public class Sense implements Parcelable {
 
     @SerializedName("english_definitions")
-    private RealmList<RealmString> englishDefinitions;
+    private ArrayList<String> englishDefinitions;
 
     @SerializedName("parts_of_speech")
-    private RealmList<RealmString> partsOfSpeech;
+    private ArrayList<String> partsOfSpeech;
 
-    private RealmList<Link> links;
+    private ArrayList<Link> links;
 
 //    private List<String> tags;
 
 //    private List<String> restrictions;
 
     @SerializedName("see_also")
-    private RealmList<RealmString> seeAlso;
+    private ArrayList<String> seeAlso;
 
 //    private List<String> antonyms;
 
@@ -52,10 +45,10 @@ public class Sense implements Parcelable, RealmModel {
     }
 
     private Sense(Parcel in) {
-        englishDefinitions = wrap(in.createStringArrayList());
-        partsOfSpeech = wrap(in.createStringArrayList());
-        links = new RealmList<>(in.createTypedArray(Link.CREATOR));
-        seeAlso = wrap(in.createStringArrayList());
+        englishDefinitions = in.createStringArrayList();
+        partsOfSpeech = in.createStringArrayList();
+        links = new ArrayList<>(Arrays.asList(in.createTypedArray(Link.CREATOR)));
+        seeAlso = in.createStringArrayList();
     }
 
     public static final Creator<Sense> CREATOR = new Creator<Sense>() {
@@ -71,11 +64,11 @@ public class Sense implements Parcelable, RealmModel {
     };
 
     public List<String> getEnglishDefinitions() {
-        return unwrap(englishDefinitions);
+        return englishDefinitions;
     }
 
     public List<String> getPartsOfSpeech() {
-        return unwrap(partsOfSpeech);
+        return partsOfSpeech;
     }
 
     public List<Link> getLinks() {
@@ -83,7 +76,7 @@ public class Sense implements Parcelable, RealmModel {
     }
 
     public List<String> getSeeAlso() {
-        return unwrap(seeAlso);
+        return seeAlso;
     }
 
     @Override

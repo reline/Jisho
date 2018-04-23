@@ -11,19 +11,15 @@ package com.github.reline.jisho.injection.modules;
 import android.support.annotation.NonNull;
 
 import com.github.reline.jisho.BuildConfig;
-import com.github.reline.jisho.models.RealmString;
-import com.github.reline.jisho.models.RealmStringListTypeAdapter;
 import com.github.reline.jisho.network.services.SearchApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.RealmList;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -39,7 +35,6 @@ public class NetworkModule {
     @Singleton
     Gson provideGson() {
         return new GsonBuilder()
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>(){}.getType(), RealmStringListTypeAdapter.INSTANCE)
                 .create();
     }
 

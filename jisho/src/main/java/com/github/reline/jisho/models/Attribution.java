@@ -11,11 +11,7 @@ package com.github.reline.jisho.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
-
-@RealmClass
-public class Attribution implements Parcelable, RealmModel {
+public class Attribution implements Parcelable {
     private boolean jmdict;
     private boolean jmnedict;
     // Issue #14: data is lost when parceled
