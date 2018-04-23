@@ -14,19 +14,15 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import io.realm.RealmList;
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
-
-@RealmClass
-public class Word implements Parcelable, RealmModel {
+public class Word implements Parcelable {
     @SerializedName("is_common")
     private boolean common;
-    private RealmList<RealmString> tags;
-    private RealmList<Japanese> japanese;
-    private RealmList<Sense> senses;
+    private ArrayList<String> tags;
+    private ArrayList<Japanese> japanese;
+    private ArrayList<Sense> senses;
     private Attribution attribution;
 
     public Word() {
@@ -35,13 +31,10 @@ public class Word implements Parcelable, RealmModel {
 
     private Word(Parcel in) {
         common = in.readByte() != 0;
-        ArrayList<String> t = in.createStringArrayList();
-        tags = new RealmList<>();
-        for (String string : t) {
-            tags.add(new RealmString(string));
-        }
-        japanese = new RealmList<>(in.createTypedArray(Japanese.CREATOR));
-        senses = new RealmList<>(in.createTypedArray(Sense.CREATOR));
+        tags = in.createStringArrayList();
+        new ArrayList<>();
+        japanese = new ArrayList<>(Arrays.asList(in.createTypedArray(Japanese.CREATOR)));
+        senses = new ArrayList<>(Arrays.asList(in.createTypedArray(Sense.CREATOR)));
         attribution = in.readParcelable(Attribution.class.getClassLoader());
     }
 
@@ -62,11 +55,7 @@ public class Word implements Parcelable, RealmModel {
     }
 
     public List<String> getTags() {
-        ArrayList<String> t = new ArrayList<>();
-        for (RealmString realmString : tags) {
-            t.add(realmString.getString());
-        }
-        return t;
+        return tags;
     }
 
     public List<Japanese> getJapanese() {

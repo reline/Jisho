@@ -11,11 +11,7 @@ package com.github.reline.jisho.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
-
-@RealmClass
-public class Japanese implements Parcelable, RealmModel {
+public class Japanese implements Parcelable {
     private String word;
     private String reading;
 
