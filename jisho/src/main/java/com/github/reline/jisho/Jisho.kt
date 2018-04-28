@@ -8,23 +8,37 @@
 
 package com.github.reline.jisho
 
+import android.app.Activity
 import android.app.Application
-import com.github.reline.jisho.injection.components.DaggerInjectionComponent
-import com.github.reline.jisho.injection.components.InjectionComponent
+import com.github.reline.jisho.injection.components.ApplicationComponent
+import com.github.reline.jisho.injection.components.DaggerApplicationComponent
 import com.github.reline.jisho.injection.modules.NetworkModule
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasActivityInjector
+import javax.inject.Inject
 
-class Jisho : Application() {
+class Jisho : Application(), HasActivityInjector {
+
+    @Inject
+    lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
+
+    override fun activityInjector(): AndroidInjector<Activity> {
+        return dispatchingActivityInjector
+    }
 
     override fun onCreate() {
         super.onCreate()
 
-        injectionComponent = DaggerInjectionComponent.builder()
+        DaggerApplicationComponent.create().inject(this)
+        // is this needed?
+        applicationComponent = DaggerApplicationComponent.builder()
             .networkModule(NetworkModule())
             .build()
     }
 
     companion object {
-        lateinit var injectionComponent: InjectionComponent
+        lateinit var applicationComponent: ApplicationComponent
             private set
     }
 }

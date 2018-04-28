@@ -2,6 +2,7 @@ package com.github.reline.jisho;
 
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import com.github.reline.jisho.main.MainActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
