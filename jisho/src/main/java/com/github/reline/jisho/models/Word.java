@@ -11,14 +11,14 @@ package com.github.reline.jisho.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Word implements Parcelable {
-    @SerializedName("is_common")
+    @Json(name = "is_common")
     private boolean common;
     private ArrayList<String> tags;
     private ArrayList<Japanese> japanese;

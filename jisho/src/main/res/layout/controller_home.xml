@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/logo"
+        android:id="@+id/homeControllerLogoTextView"
         android:layout_width="match_parent"
         android:layout_marginTop="32dp"
         android:layout_height="196dp"
@@ -14,7 +14,7 @@
         android:src="@drawable/banner"/>
 
     <TextView
-        android:id="@+id/no_match"
+        android:id="@+id/homeControllerNoMatchTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -25,12 +25,12 @@
         tools:visibility="visible"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
+        android:id="@+id/homeControllerRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/homeControllerProgressBar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
