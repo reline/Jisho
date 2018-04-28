@@ -8,6 +8,3 @@ projectFilesBackup*
 
 # the raw dictionary files are large and should be ignored
 raw
-
-# realm database files pulled from the emulator
-realm

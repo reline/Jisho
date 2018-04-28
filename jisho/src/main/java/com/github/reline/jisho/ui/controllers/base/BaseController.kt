@@ -22,17 +22,20 @@ import com.bluelinelabs.conductor.Controller
 /** Extending this Controller means you must also annotate it with [Layout]  */
 abstract class BaseController @JvmOverloads protected constructor(args: Bundle? = null) : Controller(args) {
 
-    protected val TAG = javaClass.simpleName
+    protected val TAG: String = javaClass.simpleName
 
     private val layout: Int
         @LayoutRes
         get() {
             val clazz = javaClass
             val layout = clazz.getAnnotation(Layout::class.java)
-                    ?: throw IllegalStateException(
-                            String.format("@%s annotation not found on class %s",
-                                    Layout::class.java.simpleName,
-                                    clazz.name))
+                ?: throw IllegalStateException(
+                    String.format(
+                        "@%s annotation not found on class %s",
+                        Layout::class.java.simpleName,
+                        clazz.name
+                    )
+                )
             return layout.value
         }
 

@@ -6,8 +6,13 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.network.responses;
+package com.github.reline.jisho.models
 
-class Meta {
-    String status;
-}
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class Link(
+    val text: String,
+    val url: String
+) : Parcelable

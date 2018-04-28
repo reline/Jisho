@@ -6,12 +6,11 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.views;
+package com.github.reline.jisho.network.responses
 
-import com.github.reline.jisho.models.Word;
+import com.github.reline.jisho.models.Word
 
-import java.util.ArrayList;
-
-public interface IHomeView {
-    void updateView(ArrayList<Word> results);
-}
+class SearchResponse(
+    val meta: Meta,
+    val data: List<Word>
+)
