@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.recyclerview
+package com.github.reline.jisho.home
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater

@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.controllers.base
+package com.github.reline.jisho.base
 
 import android.content.Context
 import android.content.res.Resources
@@ -55,7 +55,7 @@ abstract class BaseController @JvmOverloads protected constructor(args: Bundle? 
         return null
     }
 
-    protected fun hideKeyboard() {
+    fun hideKeyboard() {
         activity?.currentFocus?.windowToken?.let {
             val context = applicationContext?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             context?.hideSoftInputFromWindow(it, InputMethodManager.HIDE_NOT_ALWAYS)

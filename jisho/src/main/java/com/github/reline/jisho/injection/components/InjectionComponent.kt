@@ -8,13 +8,14 @@
 
 package com.github.reline.jisho.injection.components
 
+import com.github.reline.jisho.home.HomeController
+import com.github.reline.jisho.injection.modules.AppModule
 import com.github.reline.jisho.injection.modules.NetworkModule
-import com.github.reline.jisho.ui.controllers.HomeController
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [(NetworkModule::class)])
+@Component(modules = [AppModule::class, NetworkModule::class])
 interface InjectionComponent {
     fun inject(controller: HomeController)
 }

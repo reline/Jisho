@@ -10,7 +10,6 @@ package com.github.reline.jisho.injection.modules
 
 import com.github.reline.jisho.BuildConfig
 import com.github.reline.jisho.network.services.SearchApi
-import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -29,7 +28,6 @@ class NetworkModule {
     @Singleton
     internal fun provideMoshi(): Moshi {
         return Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
             .build()
     }
 

@@ -13,6 +13,6 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Japanese(
-    val word: String,
-    val reading: String
+    val word: String?,
+    val reading: String?
 ) : Parcelable

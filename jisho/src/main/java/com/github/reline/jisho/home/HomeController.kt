@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.controllers
+package com.github.reline.jisho.home
 
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -16,12 +16,9 @@ import android.view.MenuInflater
 import android.view.View
 import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
+import com.github.reline.jisho.base.BaseController
+import com.github.reline.jisho.base.Layout
 import com.github.reline.jisho.models.Word
-import com.github.reline.jisho.presenters.HomePresenter
-import com.github.reline.jisho.ui.controllers.base.BaseController
-import com.github.reline.jisho.ui.controllers.base.Layout
-import com.github.reline.jisho.ui.recyclerview.WordRecyclerViewAdapter
-import com.github.reline.jisho.ui.views.IHomeView
 import kotlinx.android.synthetic.main.controller_home.view.*
 import javax.inject.Inject
 
@@ -68,9 +65,7 @@ class HomeController : BaseController(), IHomeView {
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                view?.homeControllerProgressBar?.visibility = View.VISIBLE
                 presenter.onSearchClicked(query)
-                hideKeyboard()
                 return true
             }
         })
@@ -102,6 +97,12 @@ class HomeController : BaseController(), IHomeView {
     override fun hideLogo() {
         view?.apply {
             homeControllerLogoTextView.visibility = View.GONE
+        }
+    }
+
+    override fun showProgressBar() {
+        view?.apply {
+            homeControllerProgressBar.visibility = View.VISIBLE
         }
     }
 
