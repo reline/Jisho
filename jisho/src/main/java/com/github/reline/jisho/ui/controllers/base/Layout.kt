@@ -6,26 +6,20 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.controllers.base;
+package com.github.reline.jisho.ui.controllers.base
 
-import android.support.annotation.LayoutRes;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import android.support.annotation.LayoutRes
 
 /**
  * Marks a class that designates a controller and specifies its layout.
  *
- * <p>For example, <pre><code>
+ *
+ *
+ * For example, <pre>`
  * {@literal@}Layout(R.layout.my_controller_layout)
  * public class MyController { ... }
- * </code></pre>
+`</pre> *
  */
-@Retention(RUNTIME)
-@Target(TYPE)
-public @interface Layout {
-    @LayoutRes int value();
-}
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+annotation class Layout(@LayoutRes val value: Int)

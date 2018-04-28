@@ -6,17 +6,13 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.models;
+package com.github.reline.jisho.models
 
-public class Source {
-    private String language;
-    private String word;
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-    public String getLanguage() {
-        return language;
-    }
-
-    public String getWord() {
-        return word;
-    }
-}
+@Parcelize
+data class Source(
+    val language: String,
+    val word: String
+) : Parcelable

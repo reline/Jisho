@@ -23,7 +23,6 @@ import com.github.reline.jisho.ui.controllers.base.Layout
 import com.github.reline.jisho.ui.recyclerview.WordRecyclerViewAdapter
 import com.github.reline.jisho.ui.views.IHomeView
 import kotlinx.android.synthetic.main.controller_home.view.*
-import java.util.*
 import javax.inject.Inject
 
 @Layout(R.layout.controller_home)
@@ -36,7 +35,7 @@ class HomeController : BaseController(), IHomeView {
     private var query: String? = null
 
     init {
-        Jisho.getInjectionComponent().inject(this)
+        Jisho.injectionComponent.inject(this)
     }
 
     override fun onViewBound(view: View) {
@@ -49,10 +48,8 @@ class HomeController : BaseController(), IHomeView {
 
     override fun onRestoreViewState(view: View, savedViewState: Bundle) {
         query = savedViewState.getString(QUERY)
-        val words = savedViewState.getParcelableArrayList<Word>(WORDS)
-        if (words != null) {
-            updateView(words)
-        }
+        val words: List<Word> = savedViewState.getParcelableArrayList(WORDS) ?: emptyList()
+        updateResults(words)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -63,7 +60,7 @@ class HomeController : BaseController(), IHomeView {
         val searchView = searchItem.actionView as SearchView
         searchView.setQuery(query, false) // restore the query
         searchView.queryHint = getString(R.string.search)
-        searchView.maxWidth = Integer.MAX_VALUE // allow search view to match the width of the toolbar
+        searchView.maxWidth = Integer.MAX_VALUE // allow onSearchClicked view to match the width of the toolbar
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
                 query = newText
@@ -72,7 +69,7 @@ class HomeController : BaseController(), IHomeView {
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 view?.homeControllerProgressBar?.visibility = View.VISIBLE
-                presenter.search(query)
+                presenter.onSearchClicked(query)
                 hideKeyboard()
                 return true
             }
@@ -81,7 +78,7 @@ class HomeController : BaseController(), IHomeView {
 
     override fun onSaveViewState(view: View, outState: Bundle) {
         outState.putString(QUERY, query)
-        outState.putParcelableArrayList(WORDS, adapter.wordList)
+        outState.putParcelableArrayList(WORDS, ArrayList(adapter.wordList))
     }
 
     override fun onDestroyView(view: View) {
@@ -89,18 +86,33 @@ class HomeController : BaseController(), IHomeView {
         super.onDestroyView(view)
     }
 
-    override fun updateView(results: ArrayList<Word>) {
+    override fun showNoMatchView() {
+        view?.apply {
+            homeControllerNoMatchTextView.visibility = View.VISIBLE
+            homeControllerNoMatchTextView.text = getString(R.string.no_match)?.format(query)
+        }
+    }
+
+    override fun hideNoMatchView() {
+        view?.apply {
+            homeControllerNoMatchTextView.visibility = View.GONE
+        }
+    }
+
+    override fun hideLogo() {
         view?.apply {
             homeControllerLogoTextView.visibility = View.GONE
-            adapter.updateData(results)
-            homeControllerProgressBar.visibility = View.GONE
-            if (results.isEmpty()) {
-                homeControllerNoMatchTextView.visibility = View.VISIBLE
-                homeControllerNoMatchTextView.text = getString(R.string.no_match)?.format(query)
-            } else {
-                homeControllerNoMatchTextView.visibility = View.GONE
-            }
         }
+    }
+
+    override fun hideProgressBar() {
+        view?.apply {
+            homeControllerProgressBar.visibility = View.GONE
+        }
+    }
+
+    override fun updateResults(results: List<Word>) {
+        adapter.updateData(results)
     }
 
     companion object {
