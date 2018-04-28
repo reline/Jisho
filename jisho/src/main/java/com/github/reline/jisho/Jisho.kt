@@ -10,12 +10,11 @@ package com.github.reline.jisho
 
 import android.app.Activity
 import android.app.Application
-import com.github.reline.jisho.injection.components.ApplicationComponent
 import com.github.reline.jisho.injection.components.DaggerApplicationComponent
-import com.github.reline.jisho.injection.modules.NetworkModule
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
+import timber.log.Timber
 import javax.inject.Inject
 
 class Jisho : Application(), HasActivityInjector {
@@ -23,22 +22,21 @@ class Jisho : Application(), HasActivityInjector {
     @Inject
     lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
 
+    @Inject
+    lateinit var tree: Timber.Tree
+
     override fun activityInjector(): AndroidInjector<Activity> {
         return dispatchingActivityInjector
     }
 
     override fun onCreate() {
         super.onCreate()
-
         DaggerApplicationComponent.create().inject(this)
-        // is this needed?
-        applicationComponent = DaggerApplicationComponent.builder()
-            .networkModule(NetworkModule())
-            .build()
-    }
 
-    companion object {
-        lateinit var applicationComponent: ApplicationComponent
-            private set
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(tree)
+        }
     }
 }
