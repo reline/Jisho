@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.presenters.base
+package com.github.reline.jisho.base
 
 import java.lang.ref.WeakReference
 

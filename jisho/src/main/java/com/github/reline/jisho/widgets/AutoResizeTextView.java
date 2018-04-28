@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.widgets;
+package com.github.reline.jisho.widgets;
 
 import android.annotation.TargetApi;
 import android.content.Context;

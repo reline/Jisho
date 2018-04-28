@@ -6,18 +6,18 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.presenters
+package com.github.reline.jisho.home
 
 import android.util.Log
+import com.github.reline.jisho.base.Presenter
+import com.github.reline.jisho.base.SchedulerProvider
 import com.github.reline.jisho.network.services.SearchApi
-import com.github.reline.jisho.presenters.base.Presenter
-import com.github.reline.jisho.ui.views.IHomeView
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
 class HomePresenter @Inject constructor(
-    private val api: SearchApi
+    private val api: SearchApi,
+    private val schedulerProvider: SchedulerProvider
 ) : Presenter<IHomeView>() {
 
     private var disposable: Disposable? = null
@@ -27,11 +27,14 @@ class HomePresenter @Inject constructor(
     }
 
     fun onSearchClicked(query: String) {
-        // TODO: use RxAndroid 2
+        view?.hideKeyboard()
+        view?.hideNoMatchView()
+        view?.hideLogo()
+        view?.showProgressBar()
         disposable = api.searchQuery(query)
-            // TODO: inject scheduler
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(schedulerProvider.mainThread())
             .subscribe({ response ->
+                view?.hideProgressBar()
                 if (response.data.isEmpty()) {
                     view?.showNoMatchView()
                 } else {
@@ -39,10 +42,10 @@ class HomePresenter @Inject constructor(
                     view?.updateResults(response.data)
                 }
             }, { e ->
+                view?.hideProgressBar()
+                view?.showNoMatchView()
                 // TODO: use Timber
                 Log.e(TAG, "Search query $query failed: ", e)
-            }) {
-                disposable?.dispose()
-            }
+            })
     }
 }

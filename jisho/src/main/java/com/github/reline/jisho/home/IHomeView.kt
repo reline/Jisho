@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.views
+package com.github.reline.jisho.home
 
 import com.github.reline.jisho.models.Word
 
@@ -16,4 +16,6 @@ interface IHomeView {
     fun showNoMatchView()
     fun hideLogo()
     fun hideProgressBar()
+    fun showProgressBar()
+    fun hideKeyboard()
 }

@@ -13,7 +13,7 @@ import com.squareup.moshi.Json
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Attribution(
+class Attribution(
     @field:Json(name = "jmdict")
     val isJmdict: Boolean,
     @field:Json(name = "jmnedict")

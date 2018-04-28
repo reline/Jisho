@@ -14,6 +14,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface SearchApi {
-    @GET("onSearchClicked/words")
+    @GET("search/words")
     fun searchQuery(@Query("keyword") query: String): Observable<SearchResponse>
 }

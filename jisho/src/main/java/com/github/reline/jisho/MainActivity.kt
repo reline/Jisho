@@ -6,16 +6,14 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.ui.activities
+package com.github.reline.jisho
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-
 import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
-import com.github.reline.jisho.R
-import com.github.reline.jisho.ui.controllers.HomeController
+import com.github.reline.jisho.home.HomeController
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
