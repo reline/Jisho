@@ -20,14 +20,14 @@
             android:padding="4dp">
 
             <TextView
-                android:id="@+id/furigana"
+                android:id="@+id/cardFuriganaTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
                 tools:text="furigana"/>
 
             <com.github.reline.jisho.ui.widgets.AutoResizeTextView
-                android:id="@+id/word"
+                android:id="@+id/cardReadingTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="40sp"
@@ -36,7 +36,7 @@
                 tools:text="Kanji" />
 
             <TextView
-                android:id="@+id/common"
+                android:id="@+id/cardCommonTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/background_common"
@@ -49,14 +49,14 @@
                 android:text="@string/common_word" />
 
             <LinearLayout
-                android:id="@+id/tags"
+                android:id="@+id/cardTagsLayout"
                 android:orientation="vertical"
                 android:layout_margin="2dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <LinearLayout
-                android:id="@+id/senses"
+                android:id="@+id/cardSensesLayout"
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

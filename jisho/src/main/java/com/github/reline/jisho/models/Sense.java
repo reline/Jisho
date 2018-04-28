@@ -11,7 +11,7 @@ package com.github.reline.jisho.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,10 +19,10 @@ import java.util.List;
 
 public class Sense implements Parcelable {
 
-    @SerializedName("english_definitions")
+    @Json(name = "english_definitions")
     private ArrayList<String> englishDefinitions;
 
-    @SerializedName("parts_of_speech")
+    @Json(name = "parts_of_speech")
     private ArrayList<String> partsOfSpeech;
 
     private ArrayList<Link> links;
@@ -31,7 +31,7 @@ public class Sense implements Parcelable {
 
 //    private List<String> restrictions;
 
-    @SerializedName("see_also")
+    @Json(name = "see_also")
     private ArrayList<String> seeAlso;
 
 //    private List<String> antonyms;
@@ -86,9 +86,9 @@ public class Sense implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringList(getEnglishDefinitions());
-        dest.writeStringList(getPartsOfSpeech());
+        dest.writeStringList(englishDefinitions);
+        dest.writeStringList(partsOfSpeech);
         dest.writeTypedList(links);
-        dest.writeStringList(getSeeAlso());
+        dest.writeStringList(seeAlso);
     }
 }
