@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.home
+package com.github.reline.jisho.main
 
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
@@ -58,7 +58,7 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 bindPartsOfSpeech(sense.partsOfSpeech)
 
                 val definitionTextView = TextView(context)
-                val definition = StringBuilder().append(i + 1).append(". ")
+                val definition = StringBuilder().append(i + 1).append(" ")
                 val englishDefinitions = sense.englishDefinitions
                 for (k in englishDefinitions.indices) {
                     val separator = if (k < englishDefinitions.size - 1) "; " else ""
