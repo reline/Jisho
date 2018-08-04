@@ -3,6 +3,7 @@
 local.properties
 .idea
 build
+out
 *.jks
 projectFilesBackup*
 
