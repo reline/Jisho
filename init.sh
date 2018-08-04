@@ -6,6 +6,7 @@ DIRECTORY=${ROOT}/raw
 mkdir ${ROOT}
 mkdir ${DIRECTORY}
 printf "Inflating sources...\n"
+# sources can also be found at http://ftp.monash.edu/pub/nihongo/
 for f in sources/*.zip; do
 	unzip -q ${f} -d ${DIRECTORY}
 done

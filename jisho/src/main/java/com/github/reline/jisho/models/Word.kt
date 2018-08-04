@@ -8,12 +8,16 @@
 
 package com.github.reline.jisho.models
 
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
 import android.os.Parcelable
 import com.squareup.moshi.Json
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
+@Entity
 data class Word(
+    @ColumnInfo(name = "is_common")
     @field:Json(name = "is_common")
     val isCommon: Boolean,
     val tags: List<String>,

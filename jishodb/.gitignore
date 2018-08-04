@@ -1,0 +1,5 @@
+jisho.db
+.idea
+*.iml
+.gradle
+out
