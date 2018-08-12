@@ -31,3 +31,49 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+task unzipDictionaries {
+    doLast {
+        def outputDir = "$buildDir/dict"
+        def directory = new File(outputDir)
+        directory.mkdir()
+
+        print("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
+        def dictResourcesDir = new File("$projectDir/src/main/res/dict")
+
+        def dictZips = dictResourcesDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+                return name.endsWith(".zip")
+            }
+        })
+        for (zip in dictZips) {
+            copy {
+                from zipTree(zip)
+                into outputDir
+            }
+        }
+
+        def dictGunZips = dictResourcesDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+                return name.endsWith(".gz")
+            }
+        })
+        for (gunZip in dictGunZips) {
+            def filename = gunZip.name
+            def basename = filename.take(filename.lastIndexOf('.'))
+            file("$outputDir/${basename}.xml").withOutputStream { os ->
+                os << resources.gzip(gunZip.path).read()
+            }
+        }
+        println "Done"
+
+        print("Converting files to proper UTF-8 format...") // https://github.com/nurse/nkf
+        // FIXME: change the encoding during the unzipping process from GBK to UTF-8
+        // https://stackoverflow.com/questions/33535594/converting-utf8-to-gb2312-in-java
+        println("Done")
+    }
+}
+// unzip dictionaries after building
+build.finalizedBy(unzipDictionaries)

@@ -22,7 +22,7 @@ import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), IMainView {
+class MainActivity : AppCompatActivity(), MainView {
 
     @Inject
     internal lateinit var presenter: MainPresenter

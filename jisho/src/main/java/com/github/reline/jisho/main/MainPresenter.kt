@@ -18,7 +18,7 @@ import javax.inject.Inject
 class MainPresenter @Inject constructor(
     private val api: SearchApi,
     private val schedulerProvider: SchedulerProvider
-) : Presenter<IMainView>() {
+) : Presenter<MainView>() {
 
     private var disposable: Disposable? = null
 

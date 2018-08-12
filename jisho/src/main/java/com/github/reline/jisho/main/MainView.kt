@@ -10,7 +10,7 @@ package com.github.reline.jisho.main
 
 import com.github.reline.jisho.models.Word
 
-interface IMainView {
+interface MainView {
     fun updateResults(results: List<Word>)
     fun hideNoMatchView()
     fun showNoMatchView()

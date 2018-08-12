@@ -11,6 +11,8 @@ package com.github.reline.jisho
 import android.app.Activity
 import android.app.Application
 import com.github.reline.jisho.injection.components.DaggerApplicationComponent
+import com.github.reline.jisho.injection.modules.AppModule
+import com.github.reline.jisho.injection.modules.NetworkModule
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -31,7 +33,11 @@ class Jisho : Application(), HasActivityInjector {
 
     override fun onCreate() {
         super.onCreate()
-        DaggerApplicationComponent.create().inject(this)
+        DaggerApplicationComponent.builder()
+                .appModule(AppModule(this))
+                .networkModule(NetworkModule())
+                .build()
+                .inject(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

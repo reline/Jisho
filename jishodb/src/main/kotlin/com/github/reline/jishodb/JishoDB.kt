@@ -16,7 +16,7 @@ class JishoDB {
         fun main(args: Array<String>) {
             Class.forName("org.sqlite.JDBC")
 
-            val file = File("jishodb/src/main/resources/raw/jmdict_e")
+            val file = File("jishodb/build/dict/JMdict_e.xml")
             val inputStream = file.inputStream()
             val source = Buffer().readFrom(inputStream)
 
