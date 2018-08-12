@@ -10,8 +10,6 @@ class JishoDB {
 
     companion object {
 
-        private const val TABLE = "Word"
-
         @JvmStatic
         fun main(args: Array<String>) {
             Class.forName("org.sqlite.JDBC")
@@ -33,7 +31,7 @@ class JishoDB {
 
             println("Parsing ${jmDict.entries.size} entries took ${(parseEnd - parseStart) / 1000} seconds")
 
-        DriverManager.getConnection("jdbc:sqlite:jishodb/out/jisho.sqlite").use { connection ->
+        DriverManager.getConnection("jdbc:sqlite:jishodb/build/jisho.sqlite").use { connection ->
             val statement = connection.createStatement()
 
 //            statement.executeUpdate("DROP TABLE IF EXISTS WORD")

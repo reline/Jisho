@@ -1,3 +1,5 @@
+import java.nio.charset.Charset
+
 group 'com.github.reline'
 version '1.0-SNAPSHOT'
 
@@ -32,13 +34,13 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-task unzipDictionaries {
+task prepareDictionaries {
     doLast {
-        def outputDir = "$buildDir/dict"
-        def directory = new File(outputDir)
-        directory.mkdir()
+        println("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
 
-        print("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
+        def outputDir = new File("$buildDir/dict")
+        outputDir.mkdir()
+
         def dictResourcesDir = new File("$projectDir/src/main/res/dict")
 
         def dictZips = dictResourcesDir.listFiles(new FilenameFilter() {
@@ -48,6 +50,7 @@ task unzipDictionaries {
             }
         })
         for (zip in dictZips) {
+            println(zip.absolutePath)
             copy {
                 from zipTree(zip)
                 into outputDir
@@ -61,19 +64,38 @@ task unzipDictionaries {
             }
         })
         for (gunZip in dictGunZips) {
+            println(gunZip.absolutePath)
             def filename = gunZip.name
             def basename = filename.take(filename.lastIndexOf('.'))
-            file("$outputDir/${basename}.xml").withOutputStream { os ->
+            def file = new File("${outputDir.absolutePath}/${basename}")
+            file.withOutputStream { os ->
                 os << resources.gzip(gunZip.path).read()
             }
         }
-        println "Done"
+        println("Converting files to UTF-8 format...")
+        // EUC-JP [csEUCPkdFmtjapanese, x-euc-jp, eucjis, Extended_UNIX_Code_Packed_Format_for_Japanese, euc_jp, eucjp, x-eucjp] to UTF-8
+        for (dictionary in outputDir.listFiles()) {
+            // we don't care about the intro files
+            if (dictionary.name.contains("intro")) {
+                dictionary.delete()
+                continue
+            }
 
-        print("Converting files to proper UTF-8 format...") // https://github.com/nurse/nkf
-        // FIXME: change the encoding during the unzipping process from GBK to UTF-8
-        // https://stackoverflow.com/questions/33535594/converting-utf8-to-gb2312-in-java
-        println("Done")
+            println(dictionary.absolutePath)
+            // skip xml files, they determine their own encoding format
+            if (dictionary.name.contains(".xml")) {
+                continue
+            }
+            def temp = new File("${outputDir.absolutePath}/temp_${dictionary.name}")
+            new FileOutputStream(temp).withWriter("UTF-8") { writer ->
+                new FileInputStream(dictionary).withReader("EUC-JP") { reader ->
+                    writer << reader
+                }
+            }
+            dictionary.delete()
+            temp.renameTo(dictionary)
+        }
     }
 }
-// unzip dictionaries after building
-build.finalizedBy(unzipDictionaries)
+// prepare dictionaries after building
+assemble.finalizedBy(prepareDictionaries)
