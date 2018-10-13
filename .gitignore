@@ -40,4 +40,4 @@ captures/
 *.jks
 
 # Database files
-*.sqlite
+*.sqlite*
