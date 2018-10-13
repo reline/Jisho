@@ -1,5 +1,3 @@
-import java.nio.charset.Charset
-
 group 'com.github.reline'
 version '1.0-SNAPSHOT'
 
@@ -36,9 +34,13 @@ compileTestKotlin {
 
 task prepareDictionaries {
     doLast {
+        def outputDir = new File("$buildDir/dict")
+        if (outputDir.exists()) {
+            return
+        }
+
         println("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
 
-        def outputDir = new File("$buildDir/dict")
         outputDir.mkdir()
 
         def dictResourcesDir = new File("$projectDir/src/main/res/dict")
