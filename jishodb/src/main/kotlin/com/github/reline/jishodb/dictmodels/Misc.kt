@@ -22,5 +22,10 @@ class Misc {
     @TextContent
     lateinit var value: String
 
+    val statement: String
+        get() {
+            return ""
+        }
+
     fun getTag() = Info.get(value)
 }

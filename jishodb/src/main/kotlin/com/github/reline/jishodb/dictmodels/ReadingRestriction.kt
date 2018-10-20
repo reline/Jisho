@@ -22,4 +22,9 @@ open class ReadingRestriction {
 
     @TextContent
     lateinit var kanji: String
+
+    val statement: String
+        get() {
+            return ""
+        }
 }

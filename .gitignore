@@ -41,3 +41,4 @@ captures/
 
 # Database files
 *.sqlite*
+schemas/

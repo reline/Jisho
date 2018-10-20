@@ -6,14 +6,17 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jisho.persistence.entities
 
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.Xml
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 
-@Xml(name = "JMdict")
-open class JMdict {
-
-    @Element
-    lateinit var entries: MutableList<Entry>
-}
+/**
+ *  Indicates that the sense is restricted
+    to the lexeme represented by the reb.
+ */
+@Entity
+data class ReadingTag(
+        @PrimaryKey
+        val value: String
+)

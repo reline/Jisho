@@ -14,16 +14,16 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Sense(
-    @field:Json(name = "english_definitions")
-    val englishDefinitions: List<String>,
-    @field:Json(name = "parts_of_speech")
-    val partsOfSpeech: List<String>,
-    val links: List<Link>,
-    @field:Json(name = "see_also")
-    val seeAlso: List<String>
-//        val tags: ArrayList<String>,
-//        val restrictions: ArrayList<String>,
-//        val antonyms: ArrayList<String>,
-//        val source: ArrayList<Source>,
-//        val info: ArrayList<String>
+        @field:Json(name = "english_definitions")
+        val englishDefinitions: List<String>,
+        @field:Json(name = "parts_of_speech")
+        val partsOfSpeech: List<String>,
+        val links: List<Link>,
+        @field:Json(name = "see_also")
+        val seeAlso: List<String>,
+        val tags: ArrayList<String>,
+        val restrictions: ArrayList<String>,
+        val antonyms: ArrayList<String>,
+        val source: ArrayList<Source>,
+        val info: ArrayList<String>
 ) : Parcelable

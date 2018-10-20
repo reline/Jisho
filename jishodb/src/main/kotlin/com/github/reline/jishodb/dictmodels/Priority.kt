@@ -28,39 +28,17 @@ and gai1 values are marked with a "(P)" in the EDICT and EDICT2
 files.)
  */
 object Priority {
-    val NEWS1 = "news1"
-    val NEWS2 = "news2"
-    val ICHI1 = "ichi1"
-    val ICHI2 = "ichi2"
-    val SPEC1 = "spec1"
-    val SPEC2 = "spec2"
-    val GAI1 = "gai1"
-    val NFXX = """nf\+?\d+"""
+    private const val NEWS1 = "news1"
+    private const val NEWS2 = "news2"
+    private const val ICHI1 = "ichi1"
+    private const val ICHI2 = "ichi2"
+    private const val SPEC1 = "spec1"
+    private const val SPEC2 = "spec2"
+    private const val GAI1 = "gai1"
+    private val priorites = listOf(NEWS1, NEWS2, ICHI1, ICHI2, SPEC1, SPEC2, GAI1)
+    private const val NFXX = """nf\+?\d+"""
 
     fun isCommon(priority: String): Boolean {
-        when (priority) {
-            NEWS1 -> {
-                return true
-            }
-            NEWS2 -> {
-                return true
-            }
-            ICHI1 -> {
-                return true
-            }
-            ICHI2 -> {
-                return true
-            }
-            SPEC1 -> {
-                return true
-            }
-            SPEC2 -> {
-                return true
-            }
-            GAI1 -> {
-                return true
-            }
-        }
-        return priority.matches(Regex(NFXX))
+        return priorites.contains(priority) || priority.matches(Regex(NFXX))
     }
 }

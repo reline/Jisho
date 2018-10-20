@@ -11,6 +11,7 @@ package com.github.reline.jishodb.dictmodels
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
+import java.lang.StringBuilder
 
 /**
  * The kanji element, or in its absence, the reading element, is
@@ -42,6 +43,16 @@ open class Kanji {
 
     @Element
     var priorities: MutableList<KanjiPriority>? = null
+
+    val statement: StringBuilder
+        get() {
+            val builder = StringBuilder("CREATE TABLE IF NOT EXISTS Kanji(value TEXT NOT NULL PRIMARY KEY)")
+                    .append("INSERT INTO Kanji (value) VALUES $value")
+            // TODO: write bridge tables
+//            information?.forEach { builder.append(it.statement) }
+//            priorities?.forEach { builder.append(it.statement) }
+            return builder
+        }
 
     fun isCommon(): Boolean {
         priorities?.forEach {

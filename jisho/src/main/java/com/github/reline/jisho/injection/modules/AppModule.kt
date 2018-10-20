@@ -5,7 +5,8 @@ import android.arch.persistence.room.Room
 import com.github.reline.jisho.base.AndroidSchedulerProvider
 import com.github.reline.jisho.base.LogTree
 import com.github.reline.jisho.base.SchedulerProvider
-import com.github.reline.jisho.persistence.JishoDatabase
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.persistence.JapaneseMultilingualDatabase
 import dagger.Module
 import dagger.Provides
 import timber.log.Timber
@@ -34,11 +35,18 @@ class AppModule(private val application: Application) {
 
     @Provides
     @Singleton
-    fun provideDatabase(application: Application): JishoDatabase {
+    fun provideDatabase(application: Application): JapaneseMultilingualDatabase {
         return Room.databaseBuilder(
             application,
-            JishoDatabase::class.java,
-            "jisho"
+            JapaneseMultilingualDatabase::class.java,
+            "jisho.sqlite"
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideDao(database: JapaneseMultilingualDatabase): JapaneseMultilingualDao {
+        return database.getDao()
+    }
+
 }
