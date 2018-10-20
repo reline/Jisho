@@ -11,11 +11,13 @@ package com.github.reline.jisho.main
 import com.github.reline.jisho.base.Presenter
 import com.github.reline.jisho.base.SchedulerProvider
 import com.github.reline.jisho.network.services.SearchApi
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import io.reactivex.disposables.Disposable
 import timber.log.Timber
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
+    private val dao: JapaneseMultilingualDao,
     private val api: SearchApi,
     private val schedulerProvider: SchedulerProvider
 ) : Presenter<MainView>() {

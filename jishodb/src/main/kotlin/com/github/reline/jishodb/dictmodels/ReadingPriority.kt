@@ -49,5 +49,10 @@ open class ReadingPriority {
     @TextContent
     lateinit var value: String
 
+    val statement: String
+        get() {
+            return ""
+        }
+
     fun isCommon() = Priority.isCommon(value)
 }

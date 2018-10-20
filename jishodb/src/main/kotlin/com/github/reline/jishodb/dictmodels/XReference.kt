@@ -25,4 +25,9 @@ class XReference {
 
     @TextContent
     lateinit var value: String
+
+    val statement: String
+        get() {
+            return ""
+        }
 }

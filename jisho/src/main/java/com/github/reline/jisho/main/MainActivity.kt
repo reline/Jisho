@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun showNoMatchView() {
         homeControllerNoMatchTextView.visibility = View.VISIBLE
-        homeControllerNoMatchTextView.text = getString(R.string.no_match)?.format(query)
+        homeControllerNoMatchTextView.text = getString(R.string.no_match).format(query)
     }
 
     override fun hideNoMatchView() {

@@ -11,6 +11,7 @@ package com.github.reline.jishodb.dictmodels
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
+import java.lang.StringBuilder
 
 /**
  *  The reading element typically contains the valid readings
@@ -50,6 +51,16 @@ open class Reading {
 
     @Element
     var priorities: MutableList<ReadingPriority>? = null
+
+    val statement: String
+        get() {
+            val builder = StringBuilder()
+            // TODO: insert value and reading
+            restrictions?.forEach { builder.append(it.statement) }
+            information?.forEach { builder.append(it.statement) }
+            priorities?.forEach { builder.append(it.statement) }
+            return builder.toString()
+        }
 
     fun isCommon(): Boolean {
         priorities?.forEach {

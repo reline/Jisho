@@ -21,7 +21,6 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(word: Word) {
         with(itemView) {
-            /**
             val japanese = word.japanese[0] // always use the first result
             if (japanese.word != null) {
                 cardFuriganaTextView.visibility = View.VISIBLE
@@ -36,7 +35,6 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
             bindTags(word.tags)
             bindSenses(word.senses)
-            **/
         }
     }
 
