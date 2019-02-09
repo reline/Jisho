@@ -21,9 +21,9 @@ data class Sense(
         val links: List<Link>,
         @field:Json(name = "see_also")
         val seeAlso: List<String>,
-        val tags: ArrayList<String>,
-        val restrictions: ArrayList<String>,
-        val antonyms: ArrayList<String>,
-        val source: ArrayList<Source>,
-        val info: ArrayList<String>
+        val tags: List<String>,
+        val restrictions: List<String>,
+        val antonyms: List<String>,
+        val source: List<Source>,
+        val info: List<String>
 ) : Parcelable

@@ -60,6 +60,6 @@ class NetworkModule {
     }
 
     companion object {
-        private const val BASE_URL = "http://jisho.org/api/v1/"
+        private const val BASE_URL = "https://jisho.org/api/v1/"
     }
 }

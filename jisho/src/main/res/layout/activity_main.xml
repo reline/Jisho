@@ -7,7 +7,7 @@
     tools:context=".main.MainActivity">
 
     <ImageView
-        android:id="@+id/homeControllerLogoTextView"
+        android:id="@+id/mainActivityLogoTextView"
         android:layout_width="match_parent"
         android:layout_marginTop="32dp"
         android:layout_height="196dp"
@@ -18,7 +18,7 @@
         android:src="@drawable/banner" />
 
     <TextView
-        android:id="@+id/homeControllerNoMatchTextView"
+        android:id="@+id/mainActivityNoMatchTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -32,16 +32,17 @@
         tools:visibility="visible" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/homeControllerRecyclerView"
+        android:id="@+id/mainActivityRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
-        android:id="@+id/homeControllerProgressBar"
+        android:id="@+id/mainActivityProgressBar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
