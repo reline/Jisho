@@ -15,11 +15,8 @@ import com.github.reline.jisho.R
 import com.github.reline.jisho.models.Word
 
 class WordRecyclerViewAdapter(
-    wordList: List<Word> = emptyList()
+        private var wordList: List<Word> = emptyList()
 ) : RecyclerView.Adapter<WordViewHolder>() {
-
-    var wordList: List<Word> = wordList
-        private set
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): WordViewHolder {
         return WordViewHolder(
@@ -37,10 +34,10 @@ class WordRecyclerViewAdapter(
         return wordList.size
     }
 
-    fun updateData(wordList: List<Word>) {
+    fun updateData(wordList: List<Word>?) {
         val oldSize = itemCount
-        val newSize = wordList.size
-        this.wordList = wordList
+        this.wordList = wordList.orEmpty()
+        val newSize = itemCount
 
         when {
             newSize > oldSize -> {

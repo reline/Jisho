@@ -13,7 +13,8 @@
         <TextView android:id="@+id/cardFuriganaTextView" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:textIsSelectable="true" tools:text="furigana" />
 
-        <com.github.reline.jisho.widgets.AutoResizeTextView android:id="@+id/cardReadingTextView"
+        <!-- FIXME -->
+        <TextView android:id="@+id/cardReadingTextView"
             android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="40sp"
             android:maxLines="1" android:textIsSelectable="true" tools:text="Kanji" />
 

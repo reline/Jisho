@@ -1,18 +1,21 @@
+/*
+ * Copyright 2019 Nathaniel Reline
+ *
+ * This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or
+ * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+ */
+
 package com.github.reline.jisho.injection.modules
 
-import android.app.Activity
-import com.github.reline.jisho.injection.components.MainActivitySubComponent
 import com.github.reline.jisho.main.MainActivity
-import dagger.Binds
-import dagger.Module
-import dagger.android.ActivityKey
-import dagger.android.AndroidInjector
-import dagger.multibindings.IntoMap
 
-@Module(subcomponents = [MainActivitySubComponent::class])
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+
+@Suppress("unused")
+@Module
 abstract class MainActivityModule {
-    @Binds
-    @IntoMap
-    @ActivityKey(MainActivity::class)
-    abstract fun bindMainActivityInjectorFactory(builder: MainActivitySubComponent.Builder): AndroidInjector.Factory<out Activity>
+    @ContributesAndroidInjector
+    abstract fun contributeMainActivity(): MainActivity
 }
