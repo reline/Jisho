@@ -1,7 +1,7 @@
 package com.github.reline.jisho.persistence.relations
 
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Relation
+import androidx.room.Embedded
+import androidx.room.Relation
 import com.github.reline.jisho.persistence.bridgetables.EntryKanjiList
 import com.github.reline.jisho.persistence.bridgetables.EntryReadingList
 import com.github.reline.jisho.persistence.bridgetables.EntrySenseList

@@ -8,8 +8,8 @@
 
 package com.github.reline.jisho.injection.modules
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.github.reline.jisho.injection.ViewModelKey
 import com.github.reline.jisho.main.MainViewModel
 import com.github.reline.jisho.util.JishoViewModelFactory

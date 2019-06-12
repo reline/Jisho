@@ -9,7 +9,7 @@
 package com.github.reline.jisho.injection.modules
 
 import android.app.Application
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import com.github.reline.jisho.base.AndroidSchedulerProvider
 import com.github.reline.jisho.base.LogTree
 import com.github.reline.jisho.base.SchedulerProvider
