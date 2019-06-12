@@ -1,8 +1,8 @@
 package com.github.reline.jisho
 
-import android.arch.persistence.room.Room
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
+import androidx.room.Room
+import androidx.test.InstrumentationRegistry
+import androidx.test.runner.AndroidJUnit4
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.persistence.JapaneseMultilingualDatabase
 import com.github.reline.jisho.persistence.entities.Entry

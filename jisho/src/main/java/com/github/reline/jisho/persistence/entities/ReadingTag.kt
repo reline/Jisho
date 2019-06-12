@@ -8,8 +8,8 @@
 
 package com.github.reline.jisho.persistence.entities
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 /**
  *  Indicates that the sense is restricted
