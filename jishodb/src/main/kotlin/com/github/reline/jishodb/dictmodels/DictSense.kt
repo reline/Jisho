@@ -54,23 +54,6 @@ open class DictSense {
     @Element
     var glosses: MutableList<Gloss>? = null
 
-    val statement: String
-        get() {
-            val builder = StringBuilder()
-            kanjiTags?.forEach { builder.append(it.statement) }
-            readingTags?.forEach { builder.append(it.statement) }
-            partsOfSpeech?.forEach { builder.append(it.statement) }
-            seeAlso?.forEach { builder.append(it.statement) }
-            antonyms?.forEach { builder.append(it.statement) }
-            fields?.forEach { builder.append(it.statement) }
-            miscellaneous?.forEach { builder.append(it.statement) }
-            information?.forEach { builder.append(it.statement) }
-            sources?.forEach { builder.append(it.statement) }
-            dialects?.forEach { builder.append(it.statement) }
-            glosses?.forEach { builder.append(it.statement) }
-            return builder.toString()
-        }
-
 //    fun getSense(): Sense {
 //        return Sense(glosses?.mapTo(ArrayList(), {it.value}) ?: emptyList(),
 //                miscellaneous?.mapTo(ArrayList(), {it.getTag()}) ?: emptyList(),

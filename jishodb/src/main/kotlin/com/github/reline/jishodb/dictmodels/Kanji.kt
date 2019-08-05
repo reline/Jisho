@@ -44,16 +44,6 @@ open class Kanji {
     @Element
     var priorities: MutableList<KanjiPriority>? = null
 
-    val statement: StringBuilder
-        get() {
-            val builder = StringBuilder("CREATE TABLE IF NOT EXISTS Kanji(value TEXT NOT NULL PRIMARY KEY)")
-                    .append("INSERT INTO Kanji (value) VALUES $value")
-            // TODO: write bridge tables
-//            information?.forEach { builder.append(it.statement) }
-//            priorities?.forEach { builder.append(it.statement) }
-            return builder
-        }
-
     fun isCommon(): Boolean {
         priorities?.forEach {
             if (it.isCommon()) {

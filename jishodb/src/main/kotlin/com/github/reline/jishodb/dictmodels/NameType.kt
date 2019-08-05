@@ -9,12 +9,6 @@ class NameType {
     @TextContent
     lateinit var value: String
 
-    val statement: String
-        get() {
-            // TODO
-            return ""
-        }
-
     fun get(): String {
         val t = value.removePrefix("&").removeSuffix(";")
         return TYPES[t] ?: ""

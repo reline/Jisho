@@ -41,10 +41,4 @@ class Gloss {
     @Attribute(name = "g_gend")
     var gender: String? = null
 
-    val statement: String
-        get() {
-            // TODO
-            return ""
-        }
-
 }

@@ -27,6 +27,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Kanji @JvmOverloads constructor(
 
+        // fixme: docs were messed up by a field refactor, replace "readingIds"
         /**
          * This element will contain a word or short phrase in Japanese
          * which is written using at least one non-kana character (usually readingIds,

@@ -10,7 +10,6 @@ package com.github.reline.jishodb.dictmodels
 
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.Xml
-import java.lang.StringBuilder
 
 @Xml(name = "Dictionary")
 open class Dictionary {
@@ -18,12 +17,4 @@ open class Dictionary {
     @Element
     lateinit var entries: MutableList<Entry>
 
-    val statement: String
-    get() {
-        val statement = StringBuilder()
-        entries.forEach {
-            statement.append(it.statement)
-        }
-        return statement.toString()
-    }
 }

@@ -22,25 +22,25 @@ import androidx.room.PrimaryKey
 data class Sense @JvmOverloads constructor(
         @PrimaryKey(autoGenerate = true)
         val id: Long,
-        @Ignore // TODO: bridge
+        @Ignore
         val kanjiTags: List<KanjiTag> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val readingTags: List<ReadingTag> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val partsOfSpeech: List<PartOfSpeech> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val seeAlso: List<XReference> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val antonyms: List<Antonym> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val fields: List<Field> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val miscellaneous: List<Misc> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val information: List<SenseInfo> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val sources: List<Source> = emptyList(),
-        @Ignore // TODO: bridge
+        @Ignore
         val dialects: List<Dialect> = emptyList(),
         @Ignore
         val glosses: List<Gloss> = emptyList()

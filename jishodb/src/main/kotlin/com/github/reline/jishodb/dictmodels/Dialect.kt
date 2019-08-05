@@ -21,9 +21,4 @@ class Dialect {
     @TextContent
     lateinit var value: String
 
-    val statement: String
-        get() {
-            // TODO
-            return ""
-        }
 }
