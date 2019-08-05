@@ -51,9 +51,4 @@ class Source {
     @Attribute(name = "la_wasei")
     var waseieigo = "n" // n for false, y for true
 
-    val statement: String
-        get() {
-            return ""
-        }
-
 }

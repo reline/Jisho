@@ -7,10 +7,4 @@ import com.tickaroo.tikxml.annotation.Xml
 class TranslationDetail {
     @TextContent
     lateinit var value: String
-
-    val statement: String
-        get() {
-            // TODO
-            return ""
-        }
 }

@@ -12,8 +12,12 @@ import com.github.reline.jisho.persistence.entities.*
     Misc::class, SenseInfo::class, Source::class, Dialect::class, Gloss::class,
     EntryKanjiList::class, EntryReadingList::class, EntrySenseList::class, KanjiInfoList::class,
     KanjiPriorityList::class, ReadingInfoList::class, ReadingPriorityList::class,
-    ReadingRestrictionList::class, SenseGlossList::class],
-        version = 1)
+    ReadingRestrictionList::class, SenseGlossList::class, ReadingRestriction::class,
+    SenseAntonymList::class, SenseDialectList::class, SenseFieldList::class, SenseInfoList::class,
+    SenseKanjiTagList::class, SenseMiscList::class, SensePartOfSpeechList::class,
+    SenseReadingTagList::class, SenseSourceList::class, SenseXReferenceList::class],
+        version = 1,
+        exportSchema = true)
 abstract class JapaneseMultilingualDatabase : RoomDatabase() {
     abstract fun getDao(): JapaneseMultilingualDao
 }

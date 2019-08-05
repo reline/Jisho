@@ -32,20 +32,10 @@ open class Entry {
     lateinit var readings: MutableList<Reading>
 
     @Element
-    lateinit var senses: MutableList<DictSense>
+    var senses: MutableList<DictSense> = mutableListOf()
 
     @Element
     var translations: MutableList<Translation>? = null
-
-    val statement: StringBuilder
-    get() {
-        val builder = StringBuilder("INSERT INTO Entry VALUES ($id)")
-        kanji?.forEach { builder.append(it.statement) }
-        readings.forEach { builder.append(it.statement) }
-        senses.forEach { builder.append(it.statement) }
-        translations?.forEach { builder.append(it.statement) }
-        return builder
-    }
 
     fun isCommon(): Boolean {
         readings.forEach {

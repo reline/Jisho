@@ -42,6 +42,7 @@ open class Reading {
      */
     @PropertyElement(name = "re_nokanji")
     var isNotTrueReading: Boolean? = null
+    fun isNotTrueReading() = isNotTrueReading ?: false
 
     @Element
     var restrictions: MutableList<ReadingRestriction>? = null
@@ -51,16 +52,6 @@ open class Reading {
 
     @Element
     var priorities: MutableList<ReadingPriority>? = null
-
-    val statement: String
-        get() {
-            val builder = StringBuilder()
-            // TODO: insert value and reading
-            restrictions?.forEach { builder.append(it.statement) }
-            information?.forEach { builder.append(it.statement) }
-            priorities?.forEach { builder.append(it.statement) }
-            return builder.toString()
-        }
 
     fun isCommon(): Boolean {
         priorities?.forEach {

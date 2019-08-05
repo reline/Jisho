@@ -23,6 +23,7 @@ dependencies {
     implementation 'com.tickaroo.tikxml:annotation:0.8.13'
     implementation 'com.tickaroo.tikxml:core:0.8.13'
     kapt 'com.tickaroo.tikxml:processor:0.8.13'
+    implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
 }
 
 compileKotlin {
