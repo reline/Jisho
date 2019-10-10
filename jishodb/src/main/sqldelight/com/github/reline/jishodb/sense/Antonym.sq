@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS Antonym(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    sense_id INTEGER NOT NULL,
+    -- only one of kanji_id or reading_id will be non-null
+    kanji_id INTEGER,
+    reading_id INTEGER,
+    FOREIGN KEY (sense_id) REFERENCES Sense(id),
+    FOREIGN KEY (kanji_id) REFERENCES KanjiElement(id),
+    FOREIGN KEY (reading_id) REFERENCES Reading(id)
+);
+
+insertAntonym:
+INSERT INTO Antonym (sense_id, kanji_id, reading_id)
+VALUES (
+    ?,
+    (SELECT KanjiElement.id FROM KanjiElement WHERE KanjiElement.value = :value LIMIT 1),
+    (SELECT Reading.id FROM Reading WHERE Reading.value = :value LIMIT 1)
+);

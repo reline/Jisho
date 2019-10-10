@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS XReference(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL
+);
+
+insertXReference:
+INSERT INTO XReference (value)
+VALUES (?);
+
+rowid:
+SELECT last_insert_rowid();

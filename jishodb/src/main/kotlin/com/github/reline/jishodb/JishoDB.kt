@@ -1,39 +1,38 @@
 package com.github.reline.jishodb
 
+import com.github.reline.jisho.JishoDatabase
+import com.github.reline.jishodb.JishoDB.Companion.extractKRadFiles
 import com.github.reline.jishodb.dictmodels.Dictionary
-import com.github.reline.jishodb.room.RoomSchema
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.github.reline.jishodb.dictmodels.Radical
+import com.github.reline.jishodb.dictmodels.kanji.KanjiDictionary
+import com.squareup.sqldelight.db.SqlDriver
+import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.tickaroo.tikxml.TikXml
 import okio.Buffer
 import java.io.File
-import java.lang.Exception
-import java.lang.RuntimeException
-import java.sql.*
+import java.lang.NullPointerException
 
-private const val generateDatabase = true
-private const val runDictionaries = true
+private const val runDictionaries = false
 private const val runRadicals = false
-const val debug = false
+private const val runKanji = true
+
+private lateinit var database: JishoDatabase
 
 fun main() {
     println("Loading database driver...")
     // load the JDBC driver first to check if it's working
     Class.forName("org.sqlite.JDBC")
 
+    val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:jishodb/build/jisho.sqlite")
+    JishoDatabase.Schema.create(driver)
+    database = JishoDatabase(driver)
+
     println("Working directory: ${File(".").absolutePath}")
 
-    if (generateDatabase) {
-        val schema = File("schemas").walk().asSequence().first { it.isFile }
-        println("""Generating database from schema [${schema.name}]...""")
-        JishoDB.createDictionaryTables(schema)
-    }
-
-    if (runDictionaries) {
-        println("Extracting dictionaries...")
-        JishoDB.extractDictionaries(arrayOf(
-                File("jishodb/build/dict/JMdict_e.xml"),
-                File("jishodb/build/dict/JMnedict.xml")
+    if (runKanji) {
+        println("Extracting kanji...")
+        JishoDB.extractKanji(arrayOf(
+                File("jishodb/build/dict/kanjidic2.xml")
         ))
     }
 
@@ -45,13 +44,21 @@ fun main() {
                 File("jishodb/build/dict/radkfilex")
         ))
 
-        // TODO: check if radical files cover all kanji already; spoiler alert, I don't think they do
-        //            extractKRadFiles(arrayOf(
-//                    File("jishodb/build/dict/kradfile"),
-//                    File("jishodb/build/dict/kradfile2")
-//            ))
+        extractKRadFiles(arrayOf(
+                File("jishodb/build/dict/kradfile"),
+                File("jishodb/build/dict/kradfile2")
+        ))
+    }
+
+    if (runDictionaries) {
+        println("Extracting dictionaries...")
+        JishoDB.extractDictionaries(arrayOf(
+                File("jishodb/build/dict/JMdict_e.xml"),
+                File("jishodb/build/dict/JMnedict.xml")
+        ))
     }
 }
+
 
 class JishoDB {
 
@@ -80,148 +87,182 @@ class JishoDB {
             }
 
             dictionaries.forEachIndexed { i, dictionary ->
-                println("Inserting ${files[i].name} to database...")
                 val start = System.currentTimeMillis()
-                insertDictionary(dictionary)
+                println("Inserting ${files[i].name} to database...")
+//                insertDictionary(dictionary)
                 val end = System.currentTimeMillis()
                 println("${files[i].name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
             }
         }
 
-        fun insertDictionary(dictionary: Dictionary) {
-            DriverManager.getConnection("jdbc:sqlite:jishodb/build/jisho.sqlite").use { connection ->
-                val statement = connection.createStatement()
-                dictionary.entries.forEach {  entry ->
-                    connection.prepareStatement("INSERT OR IGNORE INTO Entry(id) VALUES(?)").apply {
-                        setInt(1, entry.id)
-                    }.performUpdate()
+        fun insertDictionary(dictionary: Dictionary) = with(database) {
+            println("Inserting Entries & Kanji...")
+            transaction {
+                dictionary.entries.forEach { entry ->
+                    entryQueries.insertEntry(entry.id, entry.isCommon())
+
                     entry.kanji?.forEach { kanji ->
-                        connection.prepareStatement("INSERT OR IGNORE INTO Kanji(value) VALUES(?)").apply {
-                            setString(1, kanji.value)
-                        }.performUpdate()
-                        connection.prepareStatement("INSERT OR IGNORE INTO EntryKanjiList(entry_id, kanji_id) VALUES(?, ?)").apply {
-                            setInt(1, entry.id)
-                            setString(2, kanji.value)
-                        }.performUpdate()
+                        kanjiElementQueries.insertKanji(kanji.value, kanji.isCommon())
+                        val kanjiId = kanjiElementQueries.rowid().executeAsOne()
+                        entryQueries.insertEntryKanjiTag(entry.id, kanjiId)
+
                         kanji.information?.forEach { info ->
-                            connection.prepareStatement("INSERT OR IGNORE INTO KanjiInfo(value) VALUES(?)").apply {
-                                setString(1, info.value)
-                            }.performUpdate()
-                            connection.prepareStatement("INSERT OR IGNORE INTO KanjiInfoList(kanji_id, kanji_info_id) VALUES(?, ?)").apply {
-                                setString(1, kanji.value)
-                                setString(2, info.value)
-                            }.performUpdate()
+                            infoQueries.insertInfo(info.value, info.getInfo())
+                            val infoId = infoQueries.rowid(info.value).executeAsOne()
+                            kanjiElementQueries.insertKanjiInfoTag(kanjiId, infoId)
                         }
+
                         kanji.priorities?.forEach { priority ->
-                            connection.prepareStatement("INSERT OR IGNORE INTO KanjiPriority(value) VALUES(?)").apply {
-                                setString(1, priority.value)
-                            }.performUpdate()
-                            connection.prepareStatement("INSERT OR IGNORE INTO KanjiPriorityList(kanji_id, kanji_priority_id) VALUES(?, ?)").apply {
-                                setString(1, kanji.value)
-                                setString(2, priority.value)
-                            }.performUpdate()
+                            priorityQueries.insertPriority(priority.value, priority.isCommon())
+                            val priorityId = priorityQueries.rowid(priority.value).executeAsOne()
+                            kanjiElementQueries.insertKanjiPriorityTag(kanjiId, priorityId)
                         }
                     }
-                    entry.readings.forEach { reading ->
-                        connection.prepareStatement("INSERT OR IGNORE INTO Reading(value, is_not_true_reading) VALUES(?, ?)").apply {
-                            setString(1, reading.value)
-                            setBoolean(2, reading.isNotTrueReading()) // todo: double check if this can default to false instead of null
-                        }.performUpdate()
-                        connection.prepareStatement("INSERT OR IGNORE INTO EntryReadingList(entry_id, reading_id) VALUES(?, ?)").apply {
-                            setInt(1, entry.id)
-                            setString(2, reading.value)
-                        }.performUpdate()
-                        reading.restrictions?.forEach { restriction ->
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingRestriction(kanji) VALUES(?)").apply {
-                                setString(1, restriction.kanji)
-                            }.performUpdate()
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingRestrictionList(reading_id, restriction_id) VALUES(?, ?)").apply {
-                                setString(1, reading.value)
-                                setString(2, restriction.kanji)
-                            }.performUpdate()
-                        }
-                        reading.information?.forEach { info ->
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingInfo(value) VALUES(?)").apply {
-                                setString(1, info.value)
-                            }.performUpdate()
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingInfoList(reading_id, reading_info_id) VALUES(?, ?)").apply {
-                                setString(1, reading.value)
-                                setString(2, info.value)
-                            }.performUpdate()
-                        }
-                        reading.priorities?.forEach { priority ->
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingPriority(value) VALUES(?)").apply {
-                                setString(1, priority.value)
-                            }.performUpdate()
-                            connection.prepareStatement("INSERT OR IGNORE INTO ReadingPriorityList(reading_id, reading_priority_id) VALUES(?, ?)").apply {
-                                setString(1, reading.value)
-                                setString(2, priority.value)
-                            }.performUpdate()
-                        }
-                    }
-                    entry.senses.forEach { sense ->
-                        connection.prepareStatement("INSERT INTO Sense DEFAULT VALUES", Statement.RETURN_GENERATED_KEYS).performUpdate()
-                        statement.generatedKeys.use { rs ->
-                            val id = rs.getInt("last_insert_rowid()")
-                            connection.prepareStatement("INSERT OR IGNORE INTO EntrySenseList(entry_id, sense_id) VALUES(?, ?)").apply {
-                                setInt(1, entry.id)
-                                setInt(2, id)
-                            }.performUpdate()
-                            // todo
-//                            sense.kanjiTags?.forEach {
-//
-//                            }
-//                            sense.readingTags?.forEach {
-//
-//                            }
-//                            sense.partsOfSpeech?.forEach {
-//
-//                            }
-//                            sense.seeAlso?.forEach {
-//
-//                            }
-//                            sense.antonyms?.forEach {
-//
-//                            }
-//                            sense.fields?.forEach {
-//
-//                            }
-//                            sense.miscellaneous?.forEach {
-//
-//                            }
-//                            sense.information?.forEach {
-//
-//                            }
-//                            sense.sources?.forEach {
-//
-//                            }
-//                            sense.dialects?.forEach {
-//
-//                            }
-                            sense.glosses?.forEach { gloss ->
-                                connection.prepareStatement("INSERT OR IGNORE INTO Gloss(value, language, gender) VALUES(?, ?, ?)").apply {
-                                    setString(1, gloss.value)
-                                    setString(2, gloss.language)
-                                    setString(3, gloss.gender)
-                                }.performUpdate()
-                                connection.prepareStatement("INSERT OR IGNORE INTO SenseGlossList(sense_id, gloss_id) VALUES(?, ?)").apply {
-                                    setInt(1, id)
-                                    setString(2, gloss.value)
-                                }.performUpdate()
-                            }
-                        }
-                    }
-                    entry.translations
                 }
             }
+
+            // Reading Restriction forces a dependency of Reading on Kanji
+
+            println("Inserting Readings...")
+            transaction {
+                dictionary.entries.forEach { entry ->
+                    entry.readings.forEach { reading ->
+                        readingQueries.insertReading(reading.value, reading.isNotTrueReading(), reading.isCommon())
+                        val readingId = readingQueries.rowid().executeAsOne()
+                        entryQueries.insertEntryReadingTag(entry.id, readingId)
+
+                        reading.restrictions?.forEach { restriction ->
+                            readingQueries.insertReadingRestrictionTag(readingId, restriction.kanji)
+                        }
+                        reading.information?.forEach { info ->
+                            infoQueries.insertInfo(info.value, info.info)
+                            val infoId = infoQueries.rowid(info.value).executeAsOne()
+                            readingQueries.insertReadingInfoTag(readingId, infoId)
+                        }
+                        reading.priorities?.forEach { priority ->
+                            priorityQueries.insertPriority(priority.value, priority.isCommon())
+                            val priorityId = priorityQueries.rowid(priority.value).executeAsOne()
+                            readingQueries.insertReadingPriorityTag(readingId, priorityId)
+                        }
+                    }
+                }
+            }
+
+            println("Inserting Senses & Translations...")
+            transaction {
+                dictionary.entries.forEach { entry ->
+
+                    // Kanji and Reading tags force a dependency of Sense on Kanji & Reading
+                    entry.senses.forEach { sense ->
+                        senseQueries.insertSense()
+                        val senseId = senseQueries.rowid().executeAsOne()
+                        entryQueries.insertEntrySenseTag(entry.id, senseId)
+
+                        sense.kanjiTags?.forEach {
+                            senseQueries.insertSenseKanjiTag(senseId, it.value)
+                        }
+
+                        sense.readingTags?.forEach {
+                            senseQueries.insertSenseReadingTag(senseId, it.value)
+                        }
+
+                        sense.partsOfSpeech?.forEach {
+                            partOfSpeechQueries.insertPartOfSpeech(it.value)
+                            val posId = partOfSpeechQueries.rowid(it.value).executeAsOne()
+                            senseQueries.insertSensePosTag(senseId, posId)
+                        }
+                        sense.seeAlso?.forEach {
+                            xReferenceQueries.insertXReference(it.value)
+                            val xrefId = xReferenceQueries.rowid().executeAsOne()
+                            senseQueries.insertSenseXRefTag(senseId, xrefId)
+                        }
+                        sense.antonyms?.forEach { antonym ->
+                            antonymQueries.insertAntonym(senseId, antonym.value)
+                        }
+                        sense.fields?.forEach {
+                            fieldQueries.insertField(it.value)
+                            val fieldId = fieldQueries.rowid(it.value).executeAsOne()
+                            senseQueries.insertSenseFieldTag(senseId, fieldId)
+                        }
+                        sense.miscellaneous?.forEach {
+                            infoQueries.insertInfo(it.value, it.getTag())
+                            val miscId = infoQueries.rowid(it.value).executeAsOne()
+                            senseQueries.insertSenseMiscTag(senseId, miscId)
+                        }
+                        sense.information?.forEach {
+                            senseInfoQueries.insertSenseInfo(it.value)
+                            val infoId = senseInfoQueries.rowid().executeAsOne()
+                            senseQueries.insertSenseInfoTag(senseId, infoId)
+                        }
+                        sense.sources?.forEach {
+                            sourceQueries.insertSource(it.value, it.language, it.isFullDescription(), it.isWaseieigo())
+                            val sourceId = sourceQueries.rowid().executeAsOne()
+                            senseQueries.insertSenseSourceTag(senseId, sourceId)
+                        }
+                        sense.dialects?.forEach { dialect ->
+                            dialectQueries.insertDialect(dialect.value)
+                            val dialectId = dialectQueries.rowid(dialect.value).executeAsOne()
+                            senseQueries.insertSenseDialectTag(senseId, dialectId)
+                        }
+                        sense.glosses?.forEach { gloss ->
+                            glossQueries.insertGloss(gloss.value, gloss.language, gloss.gender)
+                            val glossId = glossQueries.rowid().executeAsOne()
+                            senseQueries.insertSenseGlossTag(senseId, glossId)
+                        }
+                    }
+
+                    // XReference forces a dependency on Kanji & Reading
+                    entry.translations?.forEach { translation ->
+                        translationQueries.insertTranslation()
+                        val translationId = translationQueries.rowid().executeAsOne()
+                        entryQueries.insertEntryTranslationTag(entry.id, translationId)
+
+                        translation.nameTypes?.forEach { nameType ->
+                            nameTypeQueries.insertNameType(nameType.value, nameType.get())
+                            val nameTypeId = nameTypeQueries.rowid(nameType.value).executeAsOne()
+                            translationQueries.insertTranslationNameTypeTag(translationId, nameTypeId)
+                        }
+
+                        translation.crossReferences?.forEach { xref ->
+                            xReferenceQueries.insertXReference(xref.value)
+                            val xrefId = xReferenceQueries.rowid().executeAsOne()
+                            translationQueries.insertTranslationXRefTag(translationId, xrefId)
+                        }
+
+                        translation.translationDetails?.forEach { detail ->
+                            translationDetailQueries.insertTranslationDetail(detail.value)
+                            val detailId = translationDetailQueries.rowid().executeAsOne()
+                            translationQueries.insertTranslationDetailTag(translationId, detailId)
+                        }
+                    }
+                }
+            }
+
         }
 
         fun extractKRadFiles(files: Array<File>) {
             val kradparser = KRadParser()
             files.forEach {
                 val krad = kradparser.parse(it)
-                // TODO: insert kanji/radicals into db
+                insertKrad(krad)
+            }
+        }
 
+        fun insertKrad(krad: Map<Char, List<Char>>) = with(database) {
+            transaction(noEnclosing = true) {
+                krad.forEach { (kanji, radicals) ->
+                    kanjiRadicalQueries.insertKanji(kanji.toString())
+                    val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
+                    radicals.forEach { radical ->
+                        try {
+                            val radicalId = kanjiRadicalQueries.radicalId(radical.toString()).executeAsOne()
+                            kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
+                        } catch (e: NullPointerException) {
+                            // omit any failures for now
+                            println("$radical couldn't be found, used in $kanji")
+                        }
+                    }
+                }
             }
         }
 
@@ -229,106 +270,44 @@ class JishoDB {
             val radkparser = RadKParser()
             files.forEach {
                 val radicals = radkparser.parse(it)
-                insertRadicals(radicals)
+                insertRadk(radicals)
             }
         }
 
-        fun insertRadicals(radicals: List<Radical>) {
-            DriverManager.getConnection("jdbc:sqlite:jishodb/build/jisho.sqlite").use { connection ->
-                val statement = connection.createStatement()
-                // TODO: create tables using room
-                statement.perform("CREATE TABLE IF NOT EXISTS Radical(value TEXT NOT NULL PRIMARY KEY, strokes INTEGER NOT NULL)")
-                statement.perform("CREATE TABLE IF NOT EXISTS Kanji(value TEXT NOT NULL PRIMARY KEY)")
-                statement.perform("CREATE TABLE IF NOT EXISTS KanjiRadical(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, kanji TEXT NOT NULL, radical TEXT NOT NULL, " +
-                        "FOREIGN KEY(kanji) REFERENCES Kanji(value), FOREIGN KEY(radical) REFERENCES Radical(value))")
-
+        fun insertRadk(radicals: List<Radical>) = with(database) {
+            transaction(noEnclosing = true) {
                 radicals.forEach { radical ->
-                    connection.prepareStatement("INSERT OR IGNORE INTO Radical(value, strokes) VALUES(?, ?)").apply {
-                        setString(1, radical.value.toString())
-                        setInt(2, radical.strokes)
-                    }.performUpdate()
+                    kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
+                    val radicalId = kanjiRadicalQueries.radicalId(radical.value.toString()).executeAsOne()
                     radical.kanji.forEach { kanji ->
-                        connection.prepareStatement("INSERT OR IGNORE INTO Kanji(value) VALUES(?)").apply {
-                            setString(1, kanji.toString())
-                        }.performUpdate()
-                        connection.prepareStatement("INSERT INTO KanjiRadical(kanji, radical) VALUES(?, ?)").apply {
-                            setString(1, kanji.toString())
-                            setString(2, radical.value.toString())
-                        }.performUpdate()
+                        kanjiRadicalQueries.insertKanji(kanji.toString())
+                        val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
+                        kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
                     }
                 }
             }
         }
 
-        fun createDictionaryTables(file: File) {
-            val inputStream = file.inputStream()
-            val source = Buffer().readFrom(inputStream)
+        fun extractKanji(files: Array<File>) {
+            files.forEach { file ->
+                val inputStream = file.inputStream()
+                val source = Buffer().readFrom(inputStream)
 
-            val parseStart = System.currentTimeMillis()
+                val parseStart = System.currentTimeMillis()
 
-            println("Parsing ${file.name}...")
-
-            val schema = try {
-                Moshi.Builder()
-                        .add(KotlinJsonAdapterFactory())
+                val dictionary: KanjiDictionary = TikXml.Builder()
+                        .exceptionOnUnreadXml(false)
                         .build()
-                        .adapter(RoomSchema::class.java)
-                        .fromJson(source)
-            } finally {
+                        .read(source, KanjiDictionary::class.java)
                 source.clear()
                 inputStream.close()
+
+                val parseEnd = System.currentTimeMillis()
+
+                println("${file.name}: Parsing ${dictionary.characters?.size} entries took ${(parseEnd - parseStart)}ms")
             }
-
-            val parseEnd = System.currentTimeMillis()
-
-            println("${file.name}: Parsing took ${(parseEnd - parseStart)}ms")
-
-            if (schema == null) {
-                throw NullPointerException("Resulting database schema was null")
-            }
-
-            println("Creating database...")
-            val transactionStart = System.currentTimeMillis()
-
-            DriverManager.getConnection("jdbc:sqlite:jishodb/build/jisho.sqlite").use { connection ->
-                val statement = connection.createStatement()
-                statement.perform(schema.database.createSql()) // schema is pre-sanitized
-            }
-
-            val transactionEnd = System.currentTimeMillis()
-
-            println("Database: Creation took ${(transactionEnd - transactionStart)}ms")
         }
+
     }
 
-}
-
-private fun Statement.perform(query: String) {
-    if (debug) {
-        println(query)
-    }
-    try {
-        executeUpdate(query)
-    } catch (e: Exception) {
-        throw RuntimeException(query, e)
-    }
-}
-
-private fun PreparedStatement.performUpdate() {
-    if (debug) {
-        println(this)
-    }
-    try {
-        executeUpdate()
-    } catch (e: Exception) {
-        throw RuntimeException(this.toString(), e)
-    }
-}
-
-private fun Boolean.toInt(): Int {
-    return if (this) {
-        1
-    } else {
-        0
-    }
 }

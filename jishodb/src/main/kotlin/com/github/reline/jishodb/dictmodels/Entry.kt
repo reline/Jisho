@@ -23,7 +23,7 @@ open class Entry {
 
     /** A unique numeric sequence number for each entry **/
     @PropertyElement(name = "ent_seq")
-    var id: Int = 0
+    var id: Long = 0
 
     @Element
     var kanji: MutableList<Kanji>? = null

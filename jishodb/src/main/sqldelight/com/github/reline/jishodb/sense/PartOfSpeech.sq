@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS PartOfSpeech(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE
+);
+
+insertPartOfSpeech:
+INSERT OR IGNORE INTO PartOfSpeech (value)
+VALUES (?);
+
+rowid:
+SELECT
+CASE
+WHEN (SELECT 1 FROM PartOfSpeech WHERE value = :pos) == 1 THEN
+    (SELECT id FROM PartOfSpeech WHERE value = :pos)
+ELSE
+    (SELECT last_insert_rowid())
+END;

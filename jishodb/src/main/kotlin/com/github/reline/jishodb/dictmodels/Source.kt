@@ -41,6 +41,7 @@ class Source {
      */
     @Attribute(name = "ls_type")
     var type = "full"
+    fun isFullDescription() = type == "full"
 
     /**
      * The ls_wasei attribute indicates that the Japanese word
@@ -50,5 +51,6 @@ class Source {
      */
     @Attribute(name = "la_wasei")
     var waseieigo = "n" // n for false, y for true
+    fun isWaseieigo() = waseieigo == "y"
 
 }
