@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS TranslationDetail(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL
+);
+
+insertTranslationDetail:
+INSERT INTO TranslationDetail (value)
+VALUES (?);
+
+rowid:
+SELECT last_insert_rowid();

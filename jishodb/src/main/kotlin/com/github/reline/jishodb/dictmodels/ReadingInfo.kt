@@ -22,8 +22,6 @@ open class ReadingInfo {
     @TextContent
     lateinit var value: String
 
-    val statement: String
-        get() {
-            return ""
-        }
+    val info get() = Info.get(value)
+
 }

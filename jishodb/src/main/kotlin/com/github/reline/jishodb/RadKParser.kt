@@ -1,5 +1,6 @@
 package com.github.reline.jishodb
 
+import com.github.reline.jishodb.dictmodels.Radical
 import java.io.File
 
 class RadKParser {
@@ -23,12 +24,44 @@ class RadKParser {
 
                 // new radical
                 currentRadical = it[2]
-                strokes = Integer.parseInt(it[4].toString())
+                val start = nextNonWhitespace(3, it)
+                val end = nextWhitespace(start, it)
+                strokes = Integer.parseInt(it.substring(start, end))
             } else {
                 // line with just kanji on it
                 kanji.addAll(it.toList())
             }
         }
+
+        // save the last radical. I know, nasty.
+        currentRadical?.let { radical ->
+            radk.add(Radical(radical, strokes, kanji))
+        }
+
         return radk
+    }
+
+    private fun nextNonWhitespace(startIndex: Int, s: String): Int {
+        if (s.length <= startIndex) {
+            throw IllegalArgumentException("No non-whitespace character after $startIndex in $s")
+        }
+        val c = s[startIndex]
+        return if (c == '\n' || c == ' ' || c == '\r' || c == '\t') {
+            nextNonWhitespace(startIndex + 1, s)
+        } else {
+            startIndex
+        }
+    }
+
+    private fun nextWhitespace(startIndex: Int, s: String): Int {
+        if (s.length <= startIndex) {
+            return startIndex
+        }
+        val c = s[startIndex]
+        return if (c == '\n' || c == ' ' || c == '\r' || c == '\t') {
+            startIndex
+        } else {
+            nextWhitespace(startIndex + 1, s)
+        }
     }
 }

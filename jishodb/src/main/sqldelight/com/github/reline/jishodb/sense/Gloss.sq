@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS Gloss(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL,
+    language TEXT NOT NULL, -- ISO 639-2 standard, bibliographic (B) codes
+    gender TEXT
+);
+
+insertGloss:
+INSERT INTO Gloss (value, language, gender)
+VALUES (?, ?, ?);
+
+rowid:
+SELECT last_insert_rowid();

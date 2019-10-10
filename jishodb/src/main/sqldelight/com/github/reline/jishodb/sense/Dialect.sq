@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS Dialect(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE
+);
+
+insertDialect:
+INSERT INTO Dialect (value)
+VALUES (?);
+
+rowid:
+SELECT
+CASE
+WHEN (SELECT 1 FROM Dialect WHERE value = :dialect) == 1 THEN
+    (SELECT id FROM Dialect WHERE value = :dialect)
+ELSE
+    (SELECT last_insert_rowid())
+END;

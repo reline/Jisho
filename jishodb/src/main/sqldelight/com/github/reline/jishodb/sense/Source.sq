@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS Source(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL,
+    language TEXT NOT NULL, -- ISO 639-2 standard, bibliographic (B) codes
+    is_full_description INTEGER AS Boolean NOT NULL,
+    is_waseieigo INTEGER AS Boolean NOT NULL
+);
+
+insertSource:
+INSERT INTO Source (value, language, is_full_description, is_waseieigo)
+VALUES (?, ?, ?, ?);
+
+rowid:
+SELECT last_insert_rowid();

@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS KanjiElement(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL,
+    is_common INTEGER AS Boolean NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS KanjiInfoTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    kanji_id INTEGER NOT NULL,
+    info_id INTEGER NOT NULL,
+    FOREIGN KEY (kanji_id) REFERENCES KanjiElement(id),
+    FOREIGN KEY (info_id) REFERENCES Info(id)
+);
+
+CREATE TABLE IF NOT EXISTS KanjiPriorityTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    kanji_id INTEGER NOT NULL,
+    priority_id INTEGER NOT NULL,
+    FOREIGN KEY (kanji_id) REFERENCES KanjiElement(id),
+    FOREIGN KEY (priority_id) REFERENCES Priority(id)
+);
+
+insertKanji:
+INSERT INTO KanjiElement (value, is_common)
+VALUES (?, ?);
+
+rowid:
+SELECT last_insert_rowid();
+
+insertKanjiInfoTag:
+INSERT INTO KanjiInfoTag (kanji_id, info_id)
+VALUES (?, ?);
+
+insertKanjiPriorityTag:
+INSERT INTO KanjiPriorityTag (kanji_id, priority_id)
+VALUES (?, ?);
