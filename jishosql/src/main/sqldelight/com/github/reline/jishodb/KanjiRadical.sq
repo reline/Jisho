@@ -35,4 +35,20 @@ insertKanjiRadicalTag:
 INSERT INTO KanjiRadical (kanji_id, radical_id)
 VALUES (?, ?);
 
--- todo: write some select queries!
+radicalsForKanji:
+SELECT Radical.value
+FROM Radical
+INNER JOIN KanjiRadical
+    ON Radical.id = KanjiRadical.radical_id
+INNER JOIN Kanji
+    ON Kanji.id = KanjiRadical.kanji_id
+WHERE Kanji.value = ?;
+
+kanjiForRadical:
+SELECT Kanji.value
+FROM Kanji
+INNER JOIN KanjiRadical
+    ON Kanji.id = KanjiRadical.kanji_id
+INNER JOIN Radical
+    ON Radical.id = KanjiRadical.radical_id
+WHERE Radical.value = ?;
