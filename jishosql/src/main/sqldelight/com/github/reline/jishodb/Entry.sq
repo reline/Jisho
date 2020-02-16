@@ -61,7 +61,7 @@ FROM Entry
 LEFT JOIN EntryKanjiTag
     ON Entry.id = EntryKanjiTag.entry_id
 LEFT JOIN KanjiElement
-    ON KanjiElement.value = EntryKanjiTag.kanji_id
+    ON KanjiElement.id = EntryKanjiTag.kanji_id
 INNER JOIN EntryReadingTag
     ON Entry.id = EntryReadingTag.entry_id
 INNER JOIN Reading
@@ -74,6 +74,6 @@ INNER JOIN SenseGlossTag
     ON Sense.id = SenseGlossTag.sense_id
 INNER JOIN Gloss
     ON Gloss.id = SenseGlossTag.gloss_id
-WHERE KanjiElement.value LIKE :keyword
-    OR Reading.value LIKE :keyword
-    OR Gloss.value LIKE :keyword;
+WHERE KanjiElement.value LIKE '%'||:keyword||'%'
+    OR Reading.value LIKE '%'||:keyword||'%'
+    OR Gloss.value LIKE '%'||:keyword||'%';
