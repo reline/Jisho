@@ -6,19 +6,19 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * The sense-information elements provided for additional
-information to be recorded about a sense. Typical usage would
-be to indicate such things as level of currency of a sense, the
-regional variations, etc.
+ * Part-of-speech information about the entry/sense. Should use
+appropriate entity codes. In general where there are multiple senses
+in an entry, the part-of-speech of an earlier sense will apply to
+later senses unless there is a new part-of-speech indicated.
  */
-@Xml(name = "s_inf")
-class SenseInfo {
+@Xml(name = "pos")
+class PartOfSpeech {
 
     @TextContent
     lateinit var value: String

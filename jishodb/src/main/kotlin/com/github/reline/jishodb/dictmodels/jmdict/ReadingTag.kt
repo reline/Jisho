@@ -6,22 +6,18 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- *  General coded information pertaining to the specific reading.
-    Typically it will be used to indicate some unusual aspect of
-    the reading.
+ *  Indicates that the sense is restricted
+    to the lexeme represented by the reb.
  */
-@Xml(name = "re_inf")
-open class ReadingInfo {
+@Xml(name = "stagr")
+class ReadingTag {
 
     @TextContent
     lateinit var value: String
-
-    val info get() = Info.get(value)
-
 }

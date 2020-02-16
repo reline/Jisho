@@ -6,18 +6,21 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- *  Indicates that the sense is restricted
-    to the lexeme represented by the reb.
+ * This element is used to indicate when the reading only applies
+to a subset of the keb elements in the entry. In its absence, all
+readings apply to all kanji elements. The contents of this element
+must exactly match those of one of the keb elements.
  */
-@Xml(name = "stagr")
-class ReadingTag {
+@Xml(name = "re_restr")
+open class ReadingRestriction {
 
     @TextContent
-    lateinit var value: String
+    lateinit var kanji: String
+
 }

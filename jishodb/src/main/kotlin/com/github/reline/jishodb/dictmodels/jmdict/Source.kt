@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.Attribute
 import com.tickaroo.tikxml.annotation.TextContent

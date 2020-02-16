@@ -6,19 +6,22 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- *  For words specifically associated with regional dialects in
-    Japanese, the entity code for that dialect, e.g. ksb for Kansaiben.
+ *  General coded information pertaining to the specific reading.
+    Typically it will be used to indicate some unusual aspect of
+    the reading.
  */
-@Xml(name = "dial")
-class Dialect {
+@Xml(name = "re_inf")
+open class ReadingInfo {
 
     @TextContent
     lateinit var value: String
+
+    val info get() = Info.get(value)
 
 }

@@ -6,20 +6,21 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * Part-of-speech information about the entry/sense. Should use
-appropriate entity codes. In general where there are multiple senses
-in an entry, the part-of-speech of an earlier sense will apply to
-later senses unless there is a new part-of-speech indicated.
+ * This element is used for other relevant information about
+the entry/sense. As with part-of-speech, information will usually
+apply to several senses.
  */
-@Xml(name = "pos")
-class PartOfSpeech {
+@Xml(name = "misc")
+class Misc {
 
     @TextContent
     lateinit var value: String
+
+    fun getTag() = Info.get(value)
 }
