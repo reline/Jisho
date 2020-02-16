@@ -1,6 +1,7 @@
 package com.github.reline.jishodb
 
 import com.github.reline.jisho.JishoDatabase
+import com.github.reline.jisho.sql.JISHO_DB
 import com.github.reline.jishodb.JishoDB.Companion.extractKRadFiles
 import com.github.reline.jishodb.dictmodels.Radical
 import com.github.reline.jishodb.dictmodels.jmdict.Dictionary
@@ -11,7 +12,7 @@ import com.tickaroo.tikxml.TikXml
 import okio.Buffer
 import java.io.File
 
-private const val runDictionaries = false
+private const val runDictionaries = true
 private const val runRadicals = true
 private const val runKanji = true
 
@@ -22,7 +23,7 @@ fun main() {
     // load the JDBC driver first to check if it's working
     Class.forName("org.sqlite.JDBC")
 
-    val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:jishodb/build/jisho.sqlite")
+    val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:jishodb/build/$JISHO_DB")
     JishoDatabase.Schema.create(driver)
     database = JishoDatabase(driver)
 
@@ -94,6 +95,7 @@ class JishoDB {
             }
         }
 
+        // fixme: OOM
         fun insertDictionary(dictionary: Dictionary) = with(database) {
             println("Inserting Entries & Kanji...")
             transaction {
