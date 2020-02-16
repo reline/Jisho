@@ -1,6 +1,8 @@
 package com.github.reline.jishodb.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.*
+import com.tickaroo.tikxml.annotation.Element
+import com.tickaroo.tikxml.annotation.PropertyElement
+import com.tickaroo.tikxml.annotation.Xml
 
 @Xml(name = "character")
 open class Character {
@@ -9,7 +11,7 @@ open class Character {
      * The character itself in UTF8 coding.
      */
     @PropertyElement(name = "literal")
-    var literal: String? = null
+    lateinit var literal: String
 
     /**
      * The codepoint element states the code of the character in the various

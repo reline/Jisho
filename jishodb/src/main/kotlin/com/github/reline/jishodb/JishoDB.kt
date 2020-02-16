@@ -2,18 +2,17 @@ package com.github.reline.jishodb
 
 import com.github.reline.jisho.JishoDatabase
 import com.github.reline.jishodb.JishoDB.Companion.extractKRadFiles
-import com.github.reline.jishodb.dictmodels.Dictionary
 import com.github.reline.jishodb.dictmodels.Radical
+import com.github.reline.jishodb.dictmodels.jmdict.Dictionary
 import com.github.reline.jishodb.dictmodels.kanji.KanjiDictionary
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.tickaroo.tikxml.TikXml
 import okio.Buffer
 import java.io.File
-import java.lang.NullPointerException
 
 private const val runDictionaries = false
-private const val runRadicals = false
+private const val runRadicals = true
 private const val runKanji = true
 
 private lateinit var database: JishoDatabase
@@ -89,7 +88,7 @@ class JishoDB {
             dictionaries.forEachIndexed { i, dictionary ->
                 val start = System.currentTimeMillis()
                 println("Inserting ${files[i].name} to database...")
-//                insertDictionary(dictionary)
+                insertDictionary(dictionary)
                 val end = System.currentTimeMillis()
                 println("${files[i].name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
             }
@@ -243,8 +242,15 @@ class JishoDB {
         fun extractKRadFiles(files: Array<File>) {
             val kradparser = KRadParser()
             files.forEach {
+                val parseStart = System.currentTimeMillis()
                 val krad = kradparser.parse(it)
+                val parseEnd = System.currentTimeMillis()
+                println("${it.name}: Parsing took ${(parseEnd - parseStart)}ms")
+
+                val insertStart = System.currentTimeMillis()
                 insertKrad(krad)
+                val insertEnd = System.currentTimeMillis()
+                println("${it.name}: Inserting took ${(insertEnd - insertStart)}ms")
             }
         }
 
@@ -258,6 +264,9 @@ class JishoDB {
                             val radicalId = kanjiRadicalQueries.radicalId(radical.toString()).executeAsOne()
                             kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
                         } catch (e: NullPointerException) {
+                            // note: 悒 contains the radical 邑 which isn't in the radfile
+                            // but 悒 explicitly consists of 口 and 巴 which make up 邑
+
                             // omit any failures for now
                             println("$radical couldn't be found, used in $kanji")
                         }
@@ -269,8 +278,15 @@ class JishoDB {
         fun extractRadKFiles(files: Array<File>) {
             val radkparser = RadKParser()
             files.forEach {
+                val parseStart = System.currentTimeMillis()
                 val radicals = radkparser.parse(it)
+                val parseEnd = System.currentTimeMillis()
+                println("${it.name}: Parsing took ${(parseEnd - parseStart)}ms")
+
+                val insertStart = System.currentTimeMillis()
                 insertRadk(radicals)
+                val insertEnd = System.currentTimeMillis()
+                println("${it.name}: Inserting took ${(insertEnd - insertStart)}ms")
             }
         }
 
@@ -289,7 +305,7 @@ class JishoDB {
         }
 
         fun extractKanji(files: Array<File>) {
-            files.forEach { file ->
+            val dictionaries = files.map { file ->
                 val inputStream = file.inputStream()
                 val source = Buffer().readFrom(inputStream)
 
@@ -304,10 +320,27 @@ class JishoDB {
 
                 val parseEnd = System.currentTimeMillis()
 
-                println("${file.name}: Parsing ${dictionary.characters?.size} entries took ${(parseEnd - parseStart)}ms")
+                println("${file.name}: Parsing ${dictionary.characters?.size} kanji took ${(parseEnd - parseStart)}ms")
+
+                return@map dictionary
+            }
+
+            dictionaries.forEachIndexed { i, dictionary ->
+                val start = System.currentTimeMillis()
+                println("Inserting ${files[i].name} to database...")
+                insertKanji(dictionary)
+                val end = System.currentTimeMillis()
+                println("${files[i].name}: Inserting ${dictionary.characters?.size} kanji took ${(end - start)}ms")
             }
         }
 
+        private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
+            transaction {
+                dictionary.characters?.forEach {
+                    kanjiRadicalQueries.insertKanji(it.literal)
+                }
+            }
+        }
     }
 
 }

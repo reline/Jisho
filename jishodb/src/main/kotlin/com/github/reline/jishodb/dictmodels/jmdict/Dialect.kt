@@ -6,19 +6,19 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * This element is used to indicate another entry which is an
-antonym of the current entry/sense. The content of this element
-must exactly match that of a keb or reb element in another entry.
+ *  For words specifically associated with regional dialects in
+    Japanese, the entity code for that dialect, e.g. ksb for Kansaiben.
  */
-@Xml(name = "ant")
-class Antonym {
+@Xml(name = "dial")
+class Dialect {
 
     @TextContent
     lateinit var value: String
+
 }

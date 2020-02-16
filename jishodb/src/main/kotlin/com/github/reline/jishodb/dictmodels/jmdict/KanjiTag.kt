@@ -6,21 +6,18 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * This element is used for other relevant information about
-the entry/sense. As with part-of-speech, information will usually
-apply to several senses.
+ * Indicates that the sense is restricted
+    to the lexeme represented by the keb.
  */
-@Xml(name = "misc")
-class Misc {
+@Xml(name = "stagk")
+class KanjiTag {
 
     @TextContent
     lateinit var value: String
-
-    fun getTag() = Info.get(value)
 }

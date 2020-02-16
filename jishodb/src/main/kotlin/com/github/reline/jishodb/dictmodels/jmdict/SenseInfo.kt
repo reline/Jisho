@@ -6,21 +6,20 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * This element is used to indicate when the reading only applies
-to a subset of the keb elements in the entry. In its absence, all
-readings apply to all kanji elements. The contents of this element
-must exactly match those of one of the keb elements.
+ * The sense-information elements provided for additional
+information to be recorded about a sense. Typical usage would
+be to indicate such things as level of currency of a sense, the
+regional variations, etc.
  */
-@Xml(name = "re_restr")
-open class ReadingRestriction {
+@Xml(name = "s_inf")
+class SenseInfo {
 
     @TextContent
-    lateinit var kanji: String
-
+    lateinit var value: String
 }

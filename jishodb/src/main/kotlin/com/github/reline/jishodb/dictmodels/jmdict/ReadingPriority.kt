@@ -6,10 +6,22 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
+
+import com.tickaroo.tikxml.annotation.TextContent
+import com.tickaroo.tikxml.annotation.Xml
+
 
 /**
- * - news1/2: appears in the "wordfreq" file compiled by Alexandre Girardi
+ *  This and the equivalent ke_pri field are provided to record
+information about the relative priority of the entry,  and consist
+of codes indicating the word appears in various references which
+can be taken as an indication of the frequency with which the word
+is used. This field is intended for use either by applications which
+want to concentrate on entries of  a particular priority, or to
+generate subset files.
+The current values in this field are:
+- news1/2: appears in the "wordfreq" file compiled by Alexandre Girardi
 from the Mainichi Shimbun. (See the Monash ftp archive for a copy.)
 Words in the first 12,000 in that file are marked "news1" and words
 in the second 12,000 are marked "news2".
@@ -26,19 +38,21 @@ the entry can be found, with "01" assigned to the first 500, "02"
 to the second, and so on. (The entries with news1, ichi1, spec1, spec2
 and gai1 values are marked with a "(P)" in the EDICT and EDICT2
 files.)
- */
-object Priority {
-    private const val NEWS1 = "news1"
-    private const val NEWS2 = "news2"
-    private const val ICHI1 = "ichi1"
-    private const val ICHI2 = "ichi2"
-    private const val SPEC1 = "spec1"
-    private const val SPEC2 = "spec2"
-    private const val GAI1 = "gai1"
-    private val priorites = listOf(NEWS1, NEWS2, ICHI1, ICHI2, SPEC1, SPEC2, GAI1)
-    private const val NFXX = """nf\+?\d+"""
 
-    fun isCommon(priority: String): Boolean {
-        return priorites.contains(priority) || priority.matches(Regex(NFXX))
-    }
+The reason both the kanji and reading elements are tagged is because
+on occasions a priority is only associated with a particular
+kanji/reading pair.
+ */
+@Xml(name = "re_pri")
+open class ReadingPriority {
+
+    @TextContent
+    lateinit var value: String
+
+    val statement: String
+        get() {
+            return ""
+        }
+
+    fun isCommon() = Priority.isCommon(value)
 }

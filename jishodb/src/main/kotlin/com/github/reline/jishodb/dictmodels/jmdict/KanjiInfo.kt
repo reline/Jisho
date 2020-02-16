@@ -6,19 +6,21 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * Information about the field of application of the entry/sense.
-When absent, general application is implied. Entity coding for
-specific fields of application.
+ * This is a coded information field related specifically to the
+ * orthography of the keb, and will typically indicate some unusual
+ * aspect, such as okurigana irregularity.
  */
-@Xml(name = "field")
-class Field {
+@Xml(name = "ke_inf")
+open class KanjiInfo {
 
     @TextContent
     lateinit var value: String
+
+    fun getInfo() = Info.get(value)
 }

@@ -6,21 +6,19 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jishodb.dictmodels
+package com.github.reline.jishodb.dictmodels.jmdict
 
 import com.tickaroo.tikxml.annotation.TextContent
 import com.tickaroo.tikxml.annotation.Xml
 
 /**
- * This is a coded information field related specifically to the
- * orthography of the keb, and will typically indicate some unusual
- * aspect, such as okurigana irregularity.
+ * This element is used to indicate another entry which is an
+antonym of the current entry/sense. The content of this element
+must exactly match that of a keb or reb element in another entry.
  */
-@Xml(name = "ke_inf")
-open class KanjiInfo {
+@Xml(name = "ant")
+class Antonym {
 
     @TextContent
     lateinit var value: String
-
-    fun getInfo() = Info.get(value)
 }
