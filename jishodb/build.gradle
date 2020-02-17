@@ -46,6 +46,7 @@ compileTestKotlin {
 
 task prepareDictionaries {
     doLast {
+        // fixme: new dictionaries are skipped
         def outputDir = new File("$buildDir/dict")
         if (outputDir.exists()) {
             return
@@ -96,8 +97,8 @@ task prepareDictionaries {
             }
 
             println(dictionary.absolutePath)
-            // skip xml files, they determine their own encoding format
-            if (dictionary.name.contains(".xml")) {
+            // skip xml & json files
+            if (dictionary.name.endsWith(".xml") || dictionary.name.endsWith(".json")) {
                 continue
             }
             def temp = new File("${outputDir.absolutePath}/temp_${dictionary.name}")

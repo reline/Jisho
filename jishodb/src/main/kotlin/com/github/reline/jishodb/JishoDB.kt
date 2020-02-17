@@ -6,15 +6,23 @@ import com.github.reline.jishodb.JishoDB.Companion.extractKRadFiles
 import com.github.reline.jishodb.dictmodels.Radical
 import com.github.reline.jishodb.dictmodels.jmdict.Dictionary
 import com.github.reline.jishodb.dictmodels.kanji.KanjiDictionary
+import com.github.reline.jishodb.dictmodels.okurigana.OkuriganaEntry
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.tickaroo.tikxml.TikXml
 import okio.Buffer
 import java.io.File
+import java.lang.reflect.Type
 
-private const val runDictionaries = true
-private const val runRadicals = true
-private const val runKanji = true
+
+private const val runDictionaries = false
+private const val runRadicals = false
+private const val runKanji = false
+private const val runOkurigana = true
 
 private lateinit var database: JishoDatabase
 
@@ -55,6 +63,14 @@ fun main() {
         JishoDB.extractDictionaries(arrayOf(
                 File("jishodb/build/dict/JMdict_e.xml"),
                 File("jishodb/build/dict/JMnedict.xml")
+        ))
+    }
+
+    if (runOkurigana) {
+        println("Extracting okurigana...")
+        JishoDB.extractOkurigana(arrayOf(
+                File("jishodb/build/dict/JmdictFurigana.json"),
+                File("jishodb/build/dict/JnedictFurigana.json")
         ))
     }
 }
@@ -341,6 +357,40 @@ class JishoDB {
                 dictionary.characters?.forEach {
                     kanjiRadicalQueries.insertKanji(it.literal)
                 }
+            }
+        }
+
+        /**
+         * See okurigana.json
+         */
+        fun extractOkurigana(files: Array<File>) {
+            val moshi = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+            val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
+            val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
+
+            val entries = files.map { file ->
+                val inputStream = file.inputStream()
+
+                val source = Buffer().readFrom(inputStream)
+
+                val parseStart = System.currentTimeMillis()
+
+                println("Parsing ${file.name}...")
+
+                val entries = try {
+                    adapter.fromJson(source)
+                } finally {
+                    source.clear()
+                    inputStream.close()
+                }
+
+                val parseEnd = System.currentTimeMillis()
+
+                println("${file.name}: Parsing ${entries?.size} okurigana took ${(parseEnd - parseStart)}ms")
+
+                return@map entries
             }
         }
     }
