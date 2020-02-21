@@ -18,7 +18,6 @@ import okio.Buffer
 import java.io.File
 import java.lang.reflect.Type
 
-
 private const val runDictionaries = false
 private const val runRadicals = false
 private const val runKanji = false
@@ -70,7 +69,7 @@ fun main() {
         println("Extracting okurigana...")
         JishoDB.extractOkurigana(arrayOf(
                 File("jishodb/build/dict/JmdictFurigana.json"),
-                File("jishodb/build/dict/JnedictFurigana.json")
+                File("jishodb/build/dict/JmnedictFurigana.json")
         ))
     }
 }
@@ -366,6 +365,7 @@ class JishoDB {
         fun extractOkurigana(files: Array<File>) {
             val moshi = Moshi.Builder()
                     .add(KotlinJsonAdapterFactory())
+                    .add(LenientJsonAdapterFactory.INSTANCE)
                     .build()
             val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
             val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
@@ -374,6 +374,7 @@ class JishoDB {
                 val inputStream = file.inputStream()
 
                 val source = Buffer().readFrom(inputStream)
+                source.skipBom()
 
                 val parseStart = System.currentTimeMillis()
 
