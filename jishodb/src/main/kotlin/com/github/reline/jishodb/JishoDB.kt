@@ -365,7 +365,6 @@ class JishoDB {
         fun extractOkurigana(files: Array<File>) {
             val moshi = Moshi.Builder()
                     .add(KotlinJsonAdapterFactory())
-                    .add(LenientJsonAdapterFactory.INSTANCE)
                     .build()
             val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
             val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
