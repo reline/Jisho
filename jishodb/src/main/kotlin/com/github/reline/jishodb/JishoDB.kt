@@ -380,7 +380,7 @@ class JishoDB {
                 println("Parsing ${file.name}...")
 
                 val entries = try {
-                    adapter.fromJson(source)
+                    adapter.fromJson(source) ?: throw IllegalStateException("Entries were null")
                 } finally {
                     source.clear()
                     inputStream.close()
@@ -388,9 +388,25 @@ class JishoDB {
 
                 val parseEnd = System.currentTimeMillis()
 
-                println("${file.name}: Parsing ${entries?.size} okurigana took ${(parseEnd - parseStart)}ms")
+                println("${file.name}: Parsing ${entries.size} okurigana took ${(parseEnd - parseStart)}ms")
 
                 return@map entries
+            }
+
+            entries.forEach {
+                insertOkurigana(it)
+            }
+        }
+
+        private fun insertOkurigana(okurigana: List<OkuriganaEntry>) = with(database) {
+            okurigana.forEach { entry ->
+                transaction {
+                    entry.furigana.forEach { furigana ->
+                        okuriganaQueries.insertOkurigana(furigana.ruby, furigana.rt)
+                        val id = okuriganaQueries.rowid().executeAsOne();
+                        okuriganaQueries.insertEntryOkuriganaTagForWord(entry.text, id)
+                    }
+                }
             }
         }
     }
