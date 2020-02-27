@@ -56,11 +56,11 @@ INSERT INTO EntryTranslationTag (entry_id, translation_id)
 VALUES (?, ?);
 
 entriesForKeyword:
-SELECT DISTINCT Entry.*
+SELECT DISTINCT Entry.id, Entry.is_common AS isCommon
 FROM Entry
-LEFT JOIN EntryKanjiTag
+INNER JOIN EntryKanjiTag
     ON Entry.id = EntryKanjiTag.entry_id
-LEFT JOIN KanjiElement
+INNER JOIN KanjiElement
     ON KanjiElement.id = EntryKanjiTag.kanji_id
 INNER JOIN EntryReadingTag
     ON Entry.id = EntryReadingTag.entry_id
