@@ -1,0 +1,30 @@
+CREATE TABLE IF NOT EXISTS PartOfSpeech(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE
+);
+
+insertPartOfSpeech:
+INSERT OR IGNORE INTO PartOfSpeech (value)
+VALUES (?);
+
+rowid:
+SELECT
+CASE
+WHEN (SELECT 1 FROM PartOfSpeech WHERE value = :pos) == 1 THEN
+    (SELECT id FROM PartOfSpeech WHERE value = :pos)
+ELSE
+    (SELECT last_insert_rowid())
+END;
+
+partsOfSpeechForEntry:
+SELECT PartOfSpeech.value
+FROM PartOfSpeech
+INNER JOIN SensePartOfSpeechTag
+    ON PartOfSpeech.id = SensePartOfSpeechTag.pos_id
+INNER JOIN Sense
+    ON Sense.id = SensePartOfSpeechTag.sense_id
+INNER JOIN EntrySenseTag
+    ON Sense.id = EntrySenseTag.sense_id
+INNER JOIN Entry
+    ON Entry.id = EntrySenseTag.entry_id
+WHERE Entry.id = :entry;

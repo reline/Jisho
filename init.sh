@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-ROOT="jishodb/src/main/res"
-DIRECTORY=${ROOT}/raw
+ROOT="jishodb/build"
+DIRECTORY=${ROOT}/dict
 
 mkdir ${ROOT}
 mkdir ${DIRECTORY}
 printf "Inflating sources...\n"
-for f in sources/*.zip; do
+SOURCES=jishodb/src/main/res/dict
+# sources can also be found at http://ftp.monash.edu/pub/nihongo/
+for f in ${SOURCES}/*.zip; do
 	unzip -q ${f} -d ${DIRECTORY}
 done
-for f in sources/*.gz; do
+for f in ${SOURCES}/*.gz; do
 	STEM=$(basename "${f}" .gz)
 	gunzip -c "${f}" > ${DIRECTORY}/"${STEM}"
 done

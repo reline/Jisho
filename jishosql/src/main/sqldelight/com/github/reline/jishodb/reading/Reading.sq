@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS Reading(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT UNIQUE NOT NULL,
+    is_not_true_reading INTEGER AS Boolean NOT NULL,
+    is_common INTEGER AS Boolean NOT NULL
+);
+
+-- Reading Restriction
+CREATE TABLE IF NOT EXISTS ReadingKanjiTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    reading_id INTEGER NOT NULL,
+    kanji_id INTEGER NOT NULL,
+    FOREIGN KEY (reading_id) REFERENCES Reading(id),
+    FOREIGN KEY (kanji_id) REFERENCES KanjiElement(id)
+);
+
+CREATE TABLE IF NOT EXISTS ReadingInfoTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    reading_id INTEGER NOT NULL,
+    info_id INTEGER NOT NULL,
+    FOREIGN KEY (reading_id) REFERENCES Reading(id),
+    FOREIGN KEY (info_id) REFERENCES Info(id)
+);
+
+CREATE TABLE IF NOT EXISTS ReadingPriorityTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    reading_id INTEGER NOT NULL,
+    priority_id INTEGER NOT NULL,
+    FOREIGN KEY (reading_id) REFERENCES Reading(id),
+    FOREIGN KEY (priority_id) REFERENCES Priority(id)
+);
+
+insertReading:
+INSERT OR IGNORE INTO Reading (value, is_not_true_reading, is_common)
+VALUES (?, ?, ?);
+
+rowid:
+SELECT last_insert_rowid();
+
+selectReadingByValue:
+SELECT id
+FROM Reading
+WHERE value = ?;
+
+insertReadingRestrictionTag:
+INSERT INTO ReadingKanjiTag (reading_id, kanji_id)
+VALUES (?, (SELECT id FROM KanjiElement WHERE value = ?));
+
+insertReadingInfoTag:
+INSERT INTO ReadingInfoTag (reading_id, info_id)
+VALUES (?, ?);
+
+insertReadingPriorityTag:
+INSERT INTO ReadingPriorityTag (reading_id, priority_id)
+VALUES (?, ?);
