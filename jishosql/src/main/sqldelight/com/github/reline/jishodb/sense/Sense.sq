@@ -83,7 +83,8 @@ CREATE TABLE IF NOT EXISTS SenseGlossTag(
 );
 
 insertSense:
-INSERT INTO Sense DEFAULT VALUES;
+INSERT INTO Sense (id)
+VALUES (?);
 
 rowid:
 SELECT last_insert_rowid();

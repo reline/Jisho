@@ -14,6 +14,7 @@ various information fields.
  */
 object Info {
 
+    // todo: parse these from the xml and insert them into the db properly!!!
     val ENTITIES = hashMapOf(
             Pair("verb", "Verb of any type"),
             Pair("adjective", "Adjective of any type"),
@@ -21,7 +22,7 @@ object Info {
             Pair("abbr", "Abbreviation"),
             Pair("adj-f", "Noun or verb acting prenominally"),
             Pair("adj-i", "I-adjective"),
-            //            Pair("adj-ix", "Adjective (keiyoushi) - yoi/ii class"),
+            Pair("adj-ix", "Adjective (keiyoushi) - yoi/ii class"),
             Pair("adj-kari", "Kari adjective (archaic)"),
             Pair("adj-ku", "Ku-adjective (archaic)"),
             Pair("adj-na", "Na-adjective"),
@@ -95,7 +96,7 @@ object Info {
             Pair("ling", "Linguistics terminology"),
             Pair("lit", "Literaly"),
             Pair("m-sl", "Manga slang"),
-            //            Pair("mahj", "Mahjong term"),
+            Pair("mahj", "Mahjong term"),
             Pair("male", "Male term or language"),
             Pair("male-sl", "Male slang"),
             Pair("math", "Mathematics"),
@@ -131,7 +132,7 @@ object Info {
             Pair("rkb", "Ryuukyuu dialect"),
             Pair("see", "See also"),
             Pair("sens", "Sensitive"),
-            //            Pair("shogi", "Shogi term"),
+            Pair("shogi", "Shogi term"),
             Pair("sl", "Slang"),
             Pair("sports", "Sports term"),
             Pair("suf", "Suffix"),
@@ -143,7 +144,7 @@ object Info {
             Pair("tsug", "Tsugaru dialect"),
             Pair("uK", "Usually written using kanji alone"),
             Pair("uk", "Usually written using kana alone"),
-            //            Pair("unc", "unclassified"),
+            Pair("unc", "unclassified"),
             Pair("v-unspec", "Verb unspecified"),
             Pair("v1", "Ichidan verb"),
             Pair("v1-s", "Ichidan verb - kureru special class"),
@@ -203,7 +204,7 @@ object Info {
             Pair("vs-i", "Suru verb - irregular"),
             Pair("vs-s", "Suru verb - special class"),
             Pair("vt", "Transitive verb"),
-            //            Pair("yoji", "yojijukugo"),
+            Pair("yoji", "yojijukugo"),
             Pair("vulg", "Vulgar"),
             Pair("vz", "Ichidan verb - zuru verb (alternative form of -jiru verbs)"),
             Pair("zool", "Zoology term"),

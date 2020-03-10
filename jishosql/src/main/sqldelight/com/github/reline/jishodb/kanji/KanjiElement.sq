@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS KanjiElement(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    value TEXT NOT NULL,
+    value TEXT UNIQUE NOT NULL,
     is_common INTEGER AS Boolean NOT NULL
 );
 
@@ -21,11 +21,16 @@ CREATE TABLE IF NOT EXISTS KanjiPriorityTag(
 );
 
 insertKanji:
-INSERT INTO KanjiElement (value, is_common)
+INSERT OR REPLACE INTO KanjiElement (value, is_common)
 VALUES (?, ?);
 
 rowid:
 SELECT last_insert_rowid();
+
+selectKanjiByValue:
+SELECT id
+FROM KanjiElement
+WHERE value = ?;
 
 insertKanjiInfoTag:
 INSERT INTO KanjiInfoTag (kanji_id, info_id)

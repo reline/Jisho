@@ -33,8 +33,8 @@ open class Entry {
     @Element
     var senses: MutableList<DictSense> = mutableListOf()
 
-    @Element
-    var translations: MutableList<Translation>? = null
+//    @Element
+//    var translations: MutableList<Translation>? = null
 
     fun isCommon(): Boolean {
         readings.forEach {

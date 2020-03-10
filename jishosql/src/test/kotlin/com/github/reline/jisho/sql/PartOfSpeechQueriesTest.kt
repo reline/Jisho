@@ -29,7 +29,7 @@ class PartOfSpeechQueriesTest {
                 readingQueries.insertReading("おとながい", false, false)
                 val readingId = readingQueries.rowid().executeAsOne()
                 entryQueries.insertEntryReadingTag(ENTRY_ID, readingId)
-                senseQueries.insertSense()
+                senseQueries.insertSense(1)
                 senseId = senseQueries.rowid().executeAsOne()
                 entryQueries.insertEntrySenseTag(ENTRY_ID, senseId)
             }

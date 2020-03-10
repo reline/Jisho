@@ -30,7 +30,7 @@ class OkuriganaQueriesTest {
                 readingQueries.insertReading("おとながい", false, false)
                 val readingId = readingQueries.rowid().executeAsOne()
                 entryQueries.insertEntryReadingTag(ENTRY_ID, readingId)
-                senseQueries.insertSense()
+                senseQueries.insertSense(1)
                 val senseId = senseQueries.rowid().executeAsOne()
                 entryQueries.insertEntrySenseTag(ENTRY_ID, senseId)
                 glossQueries.insertGloss("buying a large amount (esp. of collectible items aimed at kids, such as manga)", "en", null)

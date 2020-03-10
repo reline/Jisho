@@ -20,35 +20,35 @@ import com.tickaroo.tikxml.annotation.Xml
 @Xml(name = "sense")
 open class DictSense {
 
-    @Element
-    var kanjiTags: MutableList<KanjiTag>? = null
+//    @Element
+//    var kanjiTags: MutableList<KanjiTag>? = null
 
-    @Element
-    var readingTags: MutableList<ReadingTag>? = null
+//    @Element
+//    var readingTags: MutableList<ReadingTag>? = null
 
     @Element
     var partsOfSpeech: MutableList<PartOfSpeech>? = null
 
-    @Element
-    var seeAlso: MutableList<XReference>? = null
+//    @Element
+//    var seeAlso: MutableList<XReference>? = null
 
-    @Element
-    var antonyms: MutableList<Antonym>? = null
+//    @Element
+//    var antonyms: MutableList<Antonym>? = null
 
-    @Element
-    var fields: MutableList<Field>? = null
+//    @Element
+//    var fields: MutableList<Field>? = null
 
-    @Element
-    var miscellaneous: MutableList<Misc>? = null
+//    @Element
+//    var miscellaneous: MutableList<Misc>? = null
 
-    @Element
-    var information: MutableList<SenseInfo>? = null
+//    @Element
+//    var information: MutableList<SenseInfo>? = null
 
-    @Element
-    var sources: MutableList<Source>? = null
+//    @Element
+//    var sources: MutableList<Source>? = null
 
-    @Element
-    var dialects: MutableList<Dialect>? = null
+//    @Element
+//    var dialects: MutableList<Dialect>? = null
 
     @Element
     var glosses: MutableList<Gloss>? = null
