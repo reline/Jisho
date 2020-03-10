@@ -43,11 +43,11 @@ open class Reading {
     var isNotTrueReading: Boolean? = null
     fun isNotTrueReading() = isNotTrueReading ?: false
 
-    @Element
-    var restrictions: MutableList<ReadingRestriction>? = null
+//    @Element
+//    var restrictions: MutableList<ReadingRestriction>? = null
 
-    @Element
-    var information: MutableList<ReadingInfo>? = null
+//    @Element
+//    var information: MutableList<ReadingInfo>? = null
 
     @Element
     var priorities: MutableList<ReadingPriority>? = null

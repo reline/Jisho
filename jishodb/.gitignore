@@ -1,5 +1,5 @@
 # the raw dictionary files are large and should be ignored
-src/main/resources/raw
+src/resources/raw
 *.iml
 .idea/workspace.xml
 .idea/tasks.xml

@@ -28,7 +28,7 @@ class EntryQueriesTest {
                 readingQueries.insertReading("こんにちは", false, false)
                 val readingId = readingQueries.rowid().executeAsOne()
                 entryQueries.insertEntryReadingTag(ENTRY_ID, readingId)
-                senseQueries.insertSense()
+                senseQueries.insertSense(1)
                 val senseId = senseQueries.rowid().executeAsOne()
                 entryQueries.insertEntrySenseTag(ENTRY_ID, senseId)
                 glossQueries.insertGloss("hello", "en", null)

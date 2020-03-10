@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Reading(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    value TEXT NOT NULL,
+    value TEXT UNIQUE NOT NULL,
     is_not_true_reading INTEGER AS Boolean NOT NULL,
     is_common INTEGER AS Boolean NOT NULL
 );
@@ -31,11 +31,16 @@ CREATE TABLE IF NOT EXISTS ReadingPriorityTag(
 );
 
 insertReading:
-INSERT INTO Reading (value, is_not_true_reading, is_common)
+INSERT OR IGNORE INTO Reading (value, is_not_true_reading, is_common)
 VALUES (?, ?, ?);
 
 rowid:
 SELECT last_insert_rowid();
+
+selectReadingByValue:
+SELECT id
+FROM Reading
+WHERE value = ?;
 
 insertReadingRestrictionTag:
 INSERT INTO ReadingKanjiTag (reading_id, kanji_id)

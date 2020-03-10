@@ -37,8 +37,8 @@ open class Kanji {
     @PropertyElement(name = "keb")
     lateinit var value: String
 
-    @Element
-    var information: MutableList<KanjiInfo>? = null
+//    @Element
+//    var information: MutableList<KanjiInfo>? = null
 
     @Element
     var priorities: MutableList<KanjiPriority>? = null
