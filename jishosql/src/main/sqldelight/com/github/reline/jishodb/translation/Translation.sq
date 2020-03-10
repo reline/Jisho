@@ -1,0 +1,45 @@
+CREATE TABLE IF NOT EXISTS Translation(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+);
+
+CREATE TABLE IF NOT EXISTS TranslationNameTypeTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    translation_id INTEGER NOT NULL,
+    name_type_id INTEGER NOT NULL,
+    FOREIGN KEY (translation_id) REFERENCES Translation(id),
+    FOREIGN KEY (name_type_id) REFERENCES NameType(id)
+);
+
+CREATE TABLE IF NOT EXISTS TranslationXRefTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    translation_id INTEGER NOT NULL,
+    xref_id INTEGER NOT NULL,
+    FOREIGN KEY (translation_id) REFERENCES Translation(id),
+    FOREIGN KEY (xref_id) REFERENCES XReference(id)
+);
+
+CREATE TABLE IF NOT EXISTS TranslationDetailTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    translation_id INTEGER NOT NULL,
+    detail_id INTEGER NOT NULL,
+    FOREIGN KEY (translation_id) REFERENCES Translation(id),
+    FOREIGN KEY (detail_id) REFERENCES TranslationDetail(id)
+);
+
+insertTranslation:
+INSERT INTO Translation DEFAULT VALUES;
+
+rowid:
+SELECT last_insert_rowid();
+
+insertTranslationNameTypeTag:
+INSERT INTO TranslationNameTypeTag (translation_id, name_type_id)
+VALUES (?, ?);
+
+insertTranslationXRefTag:
+INSERT INTO TranslationXRefTag (translation_id, xref_id)
+VALUES (?, ?);
+
+insertTranslationDetailTag:
+INSERT INTO TranslationDetailTag (translation_id, detail_id)
+VALUES (?, ?);

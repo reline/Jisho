@@ -1,0 +1,79 @@
+CREATE TABLE IF NOT EXISTS Entry (
+  id INTEGER NOT NULL PRIMARY KEY,
+  is_common INTEGER AS Boolean NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS EntryKanjiTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    kanji_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (kanji_id) REFERENCES KanjiElement(id)
+);
+
+CREATE TABLE IF NOT EXISTS EntryReadingTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    reading_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (reading_id) REFERENCES Reading(id)
+);
+
+CREATE TABLE IF NOT EXISTS EntrySenseTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    sense_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (sense_id) REFERENCES Sense(id)
+);
+
+CREATE TABLE IF NOT EXISTS EntryTranslationTag(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    translation_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (translation_id) REFERENCES Translation(id)
+);
+
+insertEntry:
+INSERT OR IGNORE INTO Entry (id, is_common)
+VALUES (?, ?);
+
+insertEntryKanjiTag:
+INSERT INTO EntryKanjiTag (entry_id, kanji_id)
+VALUES (?, ?);
+
+insertEntryReadingTag:
+INSERT INTO EntryReadingTag (entry_id, reading_id)
+VALUES (?, ?);
+
+insertEntrySenseTag:
+INSERT INTO EntrySenseTag (entry_id, sense_id)
+VALUES (?, ?);
+
+insertEntryTranslationTag:
+INSERT INTO EntryTranslationTag (entry_id, translation_id)
+VALUES (?, ?);
+
+entriesForKeyword:
+SELECT DISTINCT Entry.id, Entry.is_common AS isCommon
+FROM Entry
+INNER JOIN EntryKanjiTag
+    ON Entry.id = EntryKanjiTag.entry_id
+INNER JOIN KanjiElement
+    ON KanjiElement.id = EntryKanjiTag.kanji_id
+INNER JOIN EntryReadingTag
+    ON Entry.id = EntryReadingTag.entry_id
+INNER JOIN Reading
+    ON Reading.id = EntryReadingTag.reading_id
+INNER JOIN EntrySenseTag
+    ON Entry.id = EntrySenseTag.entry_id
+INNER JOIN Sense
+    ON Sense.id = EntrySenseTag.sense_id
+INNER JOIN SenseGlossTag
+    ON Sense.id = SenseGlossTag.sense_id
+INNER JOIN Gloss
+    ON Gloss.id = SenseGlossTag.gloss_id
+WHERE KanjiElement.value LIKE '%'||:keyword||'%'
+    OR Reading.value LIKE '%'||:keyword||'%'
+    OR Gloss.value LIKE '%'||:keyword||'%';

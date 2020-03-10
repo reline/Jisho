@@ -1,0 +1,6 @@
+[submodule "JmdictFurigana"]
+	path = JmdictFurigana
+	url = https://github.com/reline/JmdictFurigana
+[submodule "tikxml"]
+	path = tikxml
+	url = git@github.com:reline/tikxml

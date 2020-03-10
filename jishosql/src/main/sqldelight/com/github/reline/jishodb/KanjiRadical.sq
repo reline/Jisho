@@ -1,0 +1,54 @@
+CREATE TABLE IF NOT EXISTS Radical (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE,
+    strokes INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Kanji (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE
+);
+
+CREATE TABLE IF NOT EXISTS KanjiRadical (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    kanji_id INTEGER NOT NULL,
+    radical_id INTEGER NOT NULL,
+    FOREIGN KEY(kanji_id) REFERENCES Kanji(id),
+    FOREIGN KEY(radical_id) REFERENCES Radical(id)
+);
+
+insertRadical:
+INSERT OR IGNORE INTO Radical (value, strokes)
+VALUES (?, ?);
+
+insertKanji:
+INSERT OR IGNORE INTO Kanji (value)
+VALUES (?);
+
+radicalId:
+SELECT id FROM Radical WHERE value = ?;
+
+kanjiId:
+SELECT id FROM Kanji WHERE value = ?;
+
+insertKanjiRadicalTag:
+INSERT INTO KanjiRadical (kanji_id, radical_id)
+VALUES (?, ?);
+
+radicalsForKanji:
+SELECT Radical.value
+FROM Radical
+INNER JOIN KanjiRadical
+    ON Radical.id = KanjiRadical.radical_id
+INNER JOIN Kanji
+    ON Kanji.id = KanjiRadical.kanji_id
+WHERE Kanji.value = ?;
+
+kanjiForRadical:
+SELECT Kanji.value
+FROM Kanji
+INNER JOIN KanjiRadical
+    ON Kanji.id = KanjiRadical.kanji_id
+INNER JOIN Radical
+    ON Radical.id = KanjiRadical.radical_id
+WHERE Radical.value = ?;
