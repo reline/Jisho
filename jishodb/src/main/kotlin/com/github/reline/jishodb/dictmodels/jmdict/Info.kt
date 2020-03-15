@@ -15,6 +15,7 @@ various information fields.
 object Info {
 
     // todo: parse these from the xml and insert them into the db properly!!!
+    // https://xmlwriter.net/xml_guide/entity_declaration.shtml
     val ENTITIES = hashMapOf(
             Pair("verb", "Verb of any type"),
             Pair("adjective", "Adjective of any type"),

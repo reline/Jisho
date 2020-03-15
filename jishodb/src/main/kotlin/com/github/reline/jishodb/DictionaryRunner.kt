@@ -105,8 +105,8 @@ private fun insertSenses(entries: List<Entry>) = with(database) {
         entries.forEach { entry ->
             entry.senses.forEachIndexed { i, sense ->
                 sense.partsOfSpeech?.forEach {
-                    partOfSpeechQueries.insertPartOfSpeech(it.value)
-                    val posId = partOfSpeechQueries.rowid(it.value).executeAsOne()
+                    partOfSpeechQueries.insertPartOfSpeech(it.decoded())
+                    val posId = partOfSpeechQueries.rowid(it.decoded()).executeAsOne()
                     val senseId = "${entry.id}$i".toLong()
                     senseQueries.insertSensePosTag(senseId, posId)
                 }
