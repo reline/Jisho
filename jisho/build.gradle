@@ -53,6 +53,7 @@ dependencies {
 
     implementation project(":jishosql")
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+    implementation "com.squareup.sqldelight:rxjava2-extensions:$sqldelight_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
