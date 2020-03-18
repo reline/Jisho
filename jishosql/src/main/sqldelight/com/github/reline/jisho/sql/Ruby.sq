@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS Ruby (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    japanese TEXT NOT NULL,
+    okurigana TEXT,
+    UNIQUE(japanese, okurigana)
+);
+
+-- https://www.sqlite.org/partialindex.html#unique_partial_indexes
+CREATE UNIQUE INDEX IF NOT EXISTS unique_japanese_null_index
+ON Ruby(japanese)
+WHERE okurigana ISNULL;
+
+insert:
+INSERT OR IGNORE INTO Ruby (japanese, okurigana)
+VALUES (?, ?);
+
+selectRubyId:
+SELECT id FROM Ruby
+WHERE japanese = ?
+    AND okurigana = ?;

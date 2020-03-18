@@ -1,12 +1,12 @@
 package com.github.reline.jishodb.dictmodels.okurigana
 
-class OkuriganaEntry(
+data class OkuriganaEntry(
         val text: String,
         val reading: String,
         val furigana: List<Okurigana>
 )
 
-class Okurigana(
+data class Okurigana(
         val ruby: String,
         val rt: String? = null
 )

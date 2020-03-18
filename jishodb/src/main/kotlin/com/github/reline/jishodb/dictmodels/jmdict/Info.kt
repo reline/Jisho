@@ -14,7 +14,7 @@ various information fields.
  */
 object Info {
 
-    // todo: parse these from the xml and insert them into the db properly!!!
+    // todo: parse these from the xml doctype properly
     // https://xmlwriter.net/xml_guide/entity_declaration.shtml
     val ENTITIES = hashMapOf(
             Pair("verb", "Verb of any type"),
@@ -51,6 +51,7 @@ object Info {
             Pair("chn", "Children's language"),
             Pair("col", "Colloquialism"),
             Pair("comp", "Computer terminology"),
+            Pair("cop-da", "copula"),
             Pair("conj", "Conjunction"),
             Pair("ctr", "Counter"),
             Pair("derog", "Derogatory"),

@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS EntryPosTag (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    pos_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (pos_id) REFERENCES PartOfSpeech(id)
+);
+
+insert:
+INSERT INTO EntryPosTag (entry_id, pos_id)
+VALUES (:entryId, :partOfSpeechId);
+
+selectPosWhereEntryIdEquals:
+SELECT PartOfSpeech.value FROM PartOfSpeech
+INNER JOIN EntryPosTag
+    ON PartOfSpeech.id = EntryPosTag.pos_id
+WHERE EntryPosTag.entry_id = :entryId;

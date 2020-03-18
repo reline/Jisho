@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS PartOfSpeech(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE
+);
+
+insert:
+INSERT OR IGNORE INTO PartOfSpeech (value)
+VALUES (?);
+
+selectPosIdWhereValueEquals:
+SELECT id FROM PartOfSpeech
+WHERE value = ?;
