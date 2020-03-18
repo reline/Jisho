@@ -1,5 +1,6 @@
 git:
   submodules: false
+dist: trusty
 language: android
 jdk: oraclejdk8
 android:
