@@ -22,4 +22,6 @@ class PartOfSpeech {
 
     @TextContent
     lateinit var value: String
+
+    fun decoded() = Info.get(value)
 }
