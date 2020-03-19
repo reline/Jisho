@@ -1,10 +1,12 @@
 CREATE TABLE IF NOT EXISTS Entry (
   id INTEGER NOT NULL PRIMARY KEY,
   is_common INTEGER AS Boolean NOT NULL,
-  -- todo: add indexes to kanji & reading!
   kanji TEXT,
   reading TEXT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS entry_reading_index
+ON Entry (reading);
 
 insert:
 INSERT INTO Entry (id, is_common, kanji, reading)
