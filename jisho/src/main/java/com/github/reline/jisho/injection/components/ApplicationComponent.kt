@@ -11,19 +11,13 @@ package com.github.reline.jisho.injection.components
 import android.app.Application
 import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.injection.modules.ApplicationModule
-import com.github.reline.jisho.injection.modules.MainActivityModule
+import com.github.reline.jisho.main.MainActivity
 import dagger.BindsInstance
 import dagger.Component
-import dagger.android.AndroidInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(
-        modules = [
-            AndroidInjectionModule::class,
-            ApplicationModule::class,
-            MainActivityModule::class]
-)
+@Component(modules = [ApplicationModule::class])
 interface ApplicationComponent {
     @Component.Builder
     interface Builder {
@@ -34,4 +28,5 @@ interface ApplicationComponent {
     }
 
     fun inject(application: Jisho)
+    fun inject(activity: MainActivity)
 }
