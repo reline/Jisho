@@ -8,33 +8,25 @@
 
 package com.github.reline.jisho
 
-import android.app.Activity
 import android.app.Application
+import com.github.reline.jisho.injection.components.ApplicationComponent
 import com.github.reline.jisho.injection.components.DaggerApplicationComponent
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
 import timber.log.Timber
 import javax.inject.Inject
 
-class Jisho : Application(), HasActivityInjector {
+class Jisho : Application() {
 
-    @Inject
-    lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
+    lateinit var appComponent: ApplicationComponent
 
     @Inject
     lateinit var tree: Timber.Tree
 
-    override fun activityInjector(): AndroidInjector<Activity> {
-        return dispatchingActivityInjector
-    }
-
     override fun onCreate() {
         super.onCreate()
-        DaggerApplicationComponent.builder()
+        appComponent = DaggerApplicationComponent.builder()
                 .application(this)
                 .build()
-                .inject(this)
+        appComponent.inject(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
