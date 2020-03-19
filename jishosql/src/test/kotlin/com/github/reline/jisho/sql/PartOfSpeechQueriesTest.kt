@@ -5,12 +5,10 @@ import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
+import kotlin.properties.Delegates
 
 class PartOfSpeechQueriesTest {
-    companion object {
-        private const val ENTRY_ID = 1L
-    }
-
+    private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
 
     @Before
@@ -19,7 +17,9 @@ class PartOfSpeechQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insert(ENTRY_ID, false, "今日は", "こんにちは")
+                entryQueries.insert(1, false, "今日は", "こんにちは")
+                senseQueries.insert(1)
+                senseId = utilQueries.lastInsertRowId().executeAsOne()
             }
         }
     }
@@ -28,10 +28,10 @@ class PartOfSpeechQueriesTest {
     fun test() = with(database) {
         transaction {
             partOfSpeechQueries.insert("interjection")
-            entryPosTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
+            sensePosTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
             partOfSpeechQueries.insert("fake")
-            entryPosTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
-            val pos = entryPosTagQueries.selectPosWhereEntryIdEquals(ENTRY_ID).executeAsList()
+            sensePosTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            val pos = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
             assertArrayEquals(
                     arrayOf("interjection", "fake"),
                     pos.toTypedArray()

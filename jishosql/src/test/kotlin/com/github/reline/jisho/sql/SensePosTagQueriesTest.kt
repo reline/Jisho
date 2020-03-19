@@ -6,12 +6,10 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import kotlin.properties.Delegates
 
-class EntryPosTagQueriesTest {
-    companion object {
-        private const val ENTRY_ID = 1289400L
-    }
-
+class SensePosTagQueriesTest {
+    private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
 
     @Before
@@ -20,10 +18,12 @@ class EntryPosTagQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insert(ENTRY_ID, false, "今日は", "こんにちは")
+                entryQueries.insert(1, false, "今日は", "こんにちは")
+                senseQueries.insert(1)
+                senseId = utilQueries.lastInsertRowId().executeAsOne()
                 partOfSpeechQueries.insert("interjection")
-                entryPosTagQueries.insert(
-                        ENTRY_ID,
+                sensePosTagQueries.insert(
+                        senseId,
                         partOfSpeechQueries.selectPosIdWhereValueEquals("interjection").executeAsOne()
                 )
             }
@@ -32,7 +32,7 @@ class EntryPosTagQueriesTest {
 
     @Test
     fun test() = with(database) {
-        val glosses = entryPosTagQueries.selectPosWhereEntryIdEquals(ENTRY_ID).executeAsList()
+        val glosses = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
         assertArrayEquals(
                 arrayOf("interjection"),
                 glosses.toTypedArray()
@@ -46,14 +46,14 @@ class EntryPosTagQueriesTest {
 
             partOfSpeechQueries.insert("interjection")
             val id = partOfSpeechQueries.selectPosIdWhereValueEquals("interjection").executeAsOne()
-            entryPosTagQueries.insert(666, id)
+            sensePosTagQueries.insert(666, id)
 
-            val glosses = entryPosTagQueries.selectPosWhereEntryIdEquals(ENTRY_ID).executeAsList()
+            val glosses = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
             assertArrayEquals(
                     arrayOf("interjection"),
                     glosses.toTypedArray()
             )
-            assertEquals("interjection", entryPosTagQueries.selectPosWhereEntryIdEquals(666).executeAsOne())
+            assertEquals("interjection", sensePosTagQueries.selectPosWhereSenseIdEquals(666).executeAsOne())
         }
     }
 }

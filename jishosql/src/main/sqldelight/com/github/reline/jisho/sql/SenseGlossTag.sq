@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS SenseGlossTag (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    sense_id INTEGER NOT NULL,
+    gloss_id INTEGER NOT NULL,
+    FOREIGN KEY (sense_id) REFERENCES Sense(id),
+    FOREIGN KEY (gloss_id) REFERENCES Gloss(id)
+);
+
+insert:
+INSERT INTO SenseGlossTag (sense_id, gloss_id)
+VALUES (:senseId, :glossId);
+
+selectGlossWhereSenseIdEquals:
+SELECT Gloss.value FROM Gloss
+INNER JOIN SenseGlossTag
+    ON Gloss.id = SenseGlossTag.gloss_id
+WHERE SenseGlossTag.sense_id = :senseId;

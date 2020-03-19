@@ -66,22 +66,10 @@ private fun insertGlosses(entries: List<Entry>) = with(database) {
             }
         }
     }
-
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEach { sense ->
-                sense.glosses?.forEach { gloss ->
-                    val glossId = glossQueries.selectGlossIdWhereValueEquals(gloss.value).executeAsOne()
-                    entryGlossTagQueries.insert(entry.id, glossId)
-                }
-            }
-        }
-    }
 }
 
-private suspend fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
+private fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
     logger.info("Inserting Parts of Speech...")
-    logger.info("  PartOfSpeech")
     transaction {
         entries.forEach { entry ->
             entry.senses.forEach { sense ->
@@ -91,24 +79,49 @@ private suspend fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
             }
         }
     }
-    gc();gc();gc()
-    // fixme: each sense has glosses and parts of speech; an entry may have multiple parts of speech,
-    // but some of which may not cover all of the glosses.
-    // An entry should have multiple definitions, and each definition should have multiple parts of speech
-    logger.info("  EntryPosTag")
+}
+
+private fun insertSenses(entries: List<Entry>) = with(database) {
+    val list = arrayListOf<Long>()
+
+    logger.info("Inserting Senses...")
+    transaction {
+        entries.forEach { entry ->
+            entry.senses.forEach {
+                senseQueries.insert(entry.id)
+                list.add(utilQueries.lastInsertRowId().executeAsOne())
+            }
+        }
+    }
+
+    var iter = list.iterator()
+
+    logger.info("  SenseGlossTag")
     transaction {
         entries.forEach { entry ->
             entry.senses.forEach { sense ->
+                val senseId = iter.next()
                 sense.glosses?.forEach { gloss ->
                     val glossId = glossQueries.selectGlossIdWhereValueEquals(gloss.value).executeAsOne()
-                    sense.partsOfSpeech?.forEach { pos ->
-                        // todo: glossPosTagQueries.insert(glossId,
-                        entryPosTagQueries.insert(
-                                entry.id,
-                                partOfSpeechQueries.selectPosIdWhereValueEquals(pos.decoded())
-                                        .executeAsOne()
-                        )
-                    }
+                    senseGlossTagQueries.insert(senseId, glossId)
+                }
+            }
+        }
+    }
+
+    iter = list.iterator()
+
+    logger.info("  SensePosTag")
+    transaction {
+        entries.forEach { entry ->
+            entry.senses.forEach { sense ->
+                val senseId = iter.next()
+                sense.partsOfSpeech?.forEach { pos ->
+                    sensePosTagQueries.insert(
+                            senseId,
+                            partOfSpeechQueries.selectPosIdWhereValueEquals(pos.decoded())
+                                    .executeAsOne()
+                    )
                 }
             }
         }
@@ -121,4 +134,6 @@ private suspend fun insertDictionary(entries: List<Entry>) = with(database) {
     insertGlosses(entries)
     gc()
     insertPartsOfSpeech(entries)
+    gc()
+    insertSenses(entries)
 }

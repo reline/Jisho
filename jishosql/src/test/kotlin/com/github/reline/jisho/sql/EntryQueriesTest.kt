@@ -5,6 +5,7 @@ import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class EntryQueriesTest {
@@ -26,8 +27,6 @@ class EntryQueriesTest {
     fun testQueryByKanji() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
-            glossQueries.insert("hello")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("今日は").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -41,8 +40,6 @@ class EntryQueriesTest {
     fun testQueryByLikeKanji() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
-            glossQueries.insert("hello")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("今日").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -56,8 +53,6 @@ class EntryQueriesTest {
     fun testQueryByReading() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
-            glossQueries.insert("hello")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("こんにちは").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -71,8 +66,6 @@ class EntryQueriesTest {
     fun testQueryByLikeReading() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
-            glossQueries.insert("hello")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("こんにち").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -86,8 +79,10 @@ class EntryQueriesTest {
     fun testQueryByGloss() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            senseQueries.insert(ENTRY_ID)
+            val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert("hello")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
+            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("hello").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -101,8 +96,10 @@ class EntryQueriesTest {
     fun testQueryBySimilarGlossEnd() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            senseQueries.insert(ENTRY_ID)
+            val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert("good afternoon")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
+            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("good afterno").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -116,8 +113,10 @@ class EntryQueriesTest {
     fun testQueryBySimilarGlossStart() = with(database) {
         transaction {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            senseQueries.insert(ENTRY_ID)
+            val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert("good afternoon")
-            entryGlossTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
+            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
 
             val entry = entryQueries.selectEntry("afternoon").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -136,6 +135,7 @@ class EntryQueriesTest {
         }
     }
 
+    @Ignore("empty")
     @Test
     fun testOrdered() {
         // todo

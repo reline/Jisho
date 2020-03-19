@@ -16,12 +16,14 @@ WHERE kanji = ?
     AND reading = ?;
 
 selectEntry:
-SELECT DISTINCT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
+SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
 FROM Entry
-INNER JOIN EntryGlossTag
-    ON Entry.id = EntryGlossTag.entry_id
-INNER JOIN Gloss
-    ON EntryGlossTag.gloss_id = Gloss.id
+LEFT JOIN Sense
+    ON Entry.id = Sense.entry_id
+LEFT JOIN SenseGlossTag
+    ON SenseGlossTag.sense_id = Sense.id
+LEFT JOIN Gloss
+    ON SenseGlossTag.gloss_id = Gloss.id
 WHERE Entry.kanji LIKE :keyword||'%'
     OR Entry.reading LIKE :keyword||'%'
     OR Gloss.value LIKE '%'||:keyword||'%';
