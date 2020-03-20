@@ -10,7 +10,9 @@ import java.io.File
 import java.util.logging.Level
 import java.util.logging.Logger
 
-const val url = "jdbc:sqlite:jishodb/build/$JISHO_DB"
+var databasePath = "jishodb/build/$JISHO_DB"
+
+val url: String by lazy { "jdbc:sqlite:$databasePath" }
 
 val logger: Logger by lazy {
     System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -40,7 +42,7 @@ fun main() = runBlocking {
     gc()
     runRadicals()
     gc()
-    runDictionaries()
+    DictionaryRunner.runDictionaries()
     gc()
     runOkurigana()
 }

@@ -39,6 +39,8 @@ dependencies {
     // todo: use codegen instead of reflection
     implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
     implementation "com.squareup.okio:okio:2.4.3"
+
+    testImplementation 'junit:junit:4.12'
 }
 
 compileKotlin {
