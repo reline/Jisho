@@ -37,12 +37,12 @@ private fun extractRadKFiles(files: Array<File>) {
 private fun insertRadk(radicals: List<Radical>) = with(database) {
     transaction(noEnclosing = true) {
         radicals.forEach { radical ->
-            kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
-            val radicalId = kanjiRadicalQueries.radicalId(radical.value.toString()).executeAsOne()
+//            kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
+//            val radicalId = kanjiRadicalQueries.radicalId(radical.value.toString()).executeAsOne()
             radical.kanji.forEach { kanji ->
-                kanjiRadicalQueries.insertKanji(kanji.toString())
-                val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
-                kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
+//                kanjiRadicalQueries.insertKanji(kanji.toString())
+//                val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
+//                kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
             }
         }
     }
@@ -66,12 +66,12 @@ fun extractKRadFiles(files: Array<File>) {
 fun insertKrad(krad: Map<Char, List<Char>>) = with(database) {
     transaction(noEnclosing = true) {
         krad.forEach { (kanji, radicals) ->
-            kanjiRadicalQueries.insertKanji(kanji.toString())
-            val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
+//            kanjiRadicalQueries.insertKanji(kanji.toString())
+//            val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
             radicals.forEach { radical ->
                 try {
-                    val radicalId = kanjiRadicalQueries.radicalId(radical.toString()).executeAsOne()
-                    kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
+//                    val radicalId = kanjiRadicalQueries.radicalId(radical.toString()).executeAsOne()
+//                    kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
                 } catch (e: NullPointerException) {
                     // note: 悒 contains the radical 邑 which isn't in the radfile
                     // but 悒 explicitly consists of 口 and 巴 which make up 邑
