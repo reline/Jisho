@@ -14,8 +14,8 @@ fun main() = runOkurigana()
 fun runOkurigana() {
     println("Extracting okurigana...")
     extractOkurigana(arrayOf(
-            File("jishodb/build/dict/JmdictFurigana.json"),
-            File("jishodb/build/dict/JmnedictFurigana.json")
+            File("jishodb/build/dict/JmdictFurigana.json")
+//            File("jishodb/build/dict/JmnedictFurigana.json")
     ))
 }
 
@@ -59,12 +59,23 @@ private fun extractOkurigana(files: Array<File>) {
 }
 
 private fun insertOkurigana(okurigana: List<OkuriganaEntry>) = with(database) {
-    okurigana.forEach { entry ->
-        transaction {
-            entry.furigana.forEach { furigana ->
-                okuriganaQueries.insertOkurigana(furigana.ruby, furigana.rt)
-                val id = okuriganaQueries.rowid().executeAsOne()
-                okuriganaQueries.insertEntryOkuriganaTagForWord(entry.text, id)
+    logger.info("Inserting okurigana...")
+    transaction {
+        okurigana.forEach { ruby ->
+            ruby.furigana.forEach { furigana ->
+                rubyQueries.insert(furigana.ruby, furigana.rt)
+            }
+        }
+    }
+
+    logger.info("Inserting okurigana tags...")
+    transaction {
+        okurigana.forEach { ruby ->
+            entryQueries.selectEntryIdWhereValuesEqual(ruby.text, ruby.reading).executeAsList().forEach { entryId ->
+                ruby.furigana.forEachIndexed { position, furigana ->
+                    val rubyId = rubyQueries.selectRubyId(furigana.ruby, furigana.rt).executeAsOne()
+                    entryRubyTagQueries.insert(entryId, rubyId, position.toLong())
+                }
             }
         }
     }

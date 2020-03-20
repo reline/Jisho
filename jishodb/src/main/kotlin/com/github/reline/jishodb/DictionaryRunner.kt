@@ -3,21 +3,31 @@ package com.github.reline.jishodb
 import com.github.reline.jishodb.dictmodels.jmdict.Dictionary
 import com.github.reline.jishodb.dictmodels.jmdict.Entry
 import com.tickaroo.tikxml.TikXml
+import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import java.io.File
 
-fun main() = runDictionaries()
+fun main() = DictionaryRunner.runDictionaries()
 
-fun runDictionaries() {
-    logger.info("Extracting dictionaries...")
-    extractDictionaries(arrayOf(
-            File("jishodb/build/dict/JMdict_e.xml")
+object DictionaryRunner {
+
+    fun runDictionaries() = runBlocking {
+        logger.info("Extracting dictionaries...")
+        arrayOf(
+                File("jishodb/build/dict/JMdict_e.xml")
 //            File("jishodb/build/dict/JMnedict.xml")
-    ))
-}
+        ).forEach { file ->
+            val dictionary = extractDictionary(file)
 
-private fun extractDictionaries(files: Array<File>) {
-    files.forEach { file ->
+            val start = System.currentTimeMillis()
+            logger.info("Inserting ${file.name} to database...")
+            insertDictionary(dictionary)
+            val end = System.currentTimeMillis()
+            logger.info("${file.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
+        }
+    }
+
+    fun extractDictionary(file: File): Dictionary {
         val inputStream = file.inputStream()
         val source = Buffer().readFrom(inputStream)
 
@@ -33,341 +43,102 @@ private fun extractDictionaries(files: Array<File>) {
         val parseEnd = System.currentTimeMillis()
 
         logger.info("${file.name}: Parsing ${dictionary.entries.size} entries took ${(parseEnd - parseStart)}ms")
-
-        val start = System.currentTimeMillis()
-        logger.info("Inserting ${file.name} to database...")
-
-        insertDictionary(dictionary.entries)
-        val end = System.currentTimeMillis()
-        logger.info("${file.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
+        return dictionary
     }
-}
 
-private fun insertEntries(entries: List<Entry>) = with(database) {
-    logger.info("Inserting Entries...")
-    transaction {
-        entries.forEach { entry ->
-            entryQueries.insertEntry(entry.id, entry.isCommon())
-        }
-    }
-}
-
-private fun insertKanji(entries: List<Entry>) = with(database) {
-    logger.info("Inserting Kanji...")
-    transaction {
-        entries.forEach { entry ->
-            entry.kanji?.forEach { kanji ->
-                kanjiElementQueries.insertKanji(kanji.value, kanji.isCommon())
-                val kanjiId = kanjiElementQueries.rowid().executeAsOne()
-                entryQueries.insertEntryKanjiTag(entry.id, kanjiId)
-            }
-        }
-    }
-}
-
-private fun insertReadings(entries: List<Entry>) = with(database) {
-    logger.info("Inserting Readings...")
-    transaction {
-        entries.forEach { entry ->
-            entry.readings.forEach { reading ->
-                readingQueries.insertReading(reading.value, reading.isNotTrueReading(), reading.isCommon())
-                val readingId = readingQueries.rowid().executeAsOne()
-                entryQueries.insertEntryReadingTag(entry.id, readingId)
-            }
-        }
-    }
-}
-
-private fun insertSenses(entries: List<Entry>) = with(database) {
-    logger.info("Inserting Senses...")
-//     Kanji and Reading tags force a dependency of Sense on Kanji & Reading
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEachIndexed { i, _ ->
-                val senseId = "${entry.id}$i".toLong()
-                senseQueries.insertSense(senseId)
-                senseQueries.rowid().executeAsOne()
+    fun insertEntries(entries: List<Entry>) = with(database) {
+        logger.info("Inserting Entries...")
+        transaction {
+            entries.forEach { entry ->
+                val kanji = entry.kanji?.firstOrNull()?.value
+                val reading = entry.readings.first().value
+                entryQueries.insert(entry.id, entry.isCommon(), kanji, reading)
             }
         }
     }
 
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEachIndexed { i, _ ->
-                val senseId = "${entry.id}$i".toLong()
-                entryQueries.insertEntrySenseTag(entry.id, senseId)
-            }
-        }
-    }
-
-    logger.info("Inserting Parts of Speech...")
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEachIndexed { i, sense ->
-                sense.partsOfSpeech?.forEach {
-                    partOfSpeechQueries.insertPartOfSpeech(it.decoded())
-                    val posId = partOfSpeechQueries.rowid(it.decoded()).executeAsOne()
-                    val senseId = "${entry.id}$i".toLong()
-                    senseQueries.insertSensePosTag(senseId, posId)
+    fun insertGlosses(entries: List<Entry>) = with(database) {
+        logger.info("Inserting Glosses...")
+        transaction {
+            entries.forEach { entry ->
+                entry.senses.forEach { sense ->
+                    sense.glosses?.forEach { gloss ->
+                        glossQueries.insert(gloss.value)
+                    }
                 }
             }
         }
     }
 
-    logger.info("Inserting Glosses...")
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEachIndexed { i, sense ->
-                sense.glosses?.forEach { gloss ->
-                    glossQueries.insertGloss(gloss.value, gloss.language, gloss.gender)
-                    val glossId = glossQueries.rowid().executeAsOne()
-                    val senseId = "${entry.id}$i".toLong()
-                    senseQueries.insertSenseGlossTag(senseId, glossId)
+    fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
+        logger.info("Inserting Parts of Speech...")
+        transaction {
+            entries.forEach { entry ->
+                entry.senses.forEach { sense ->
+                    sense.partsOfSpeech?.forEach { pos ->
+                        partOfSpeechQueries.insert(pos.decoded())
+                    }
                 }
             }
         }
     }
-}
 
-private fun insertDictionary(entries: List<Entry>) = with(database) {
-    insertEntries(entries)
-    insertKanji(entries)
+    fun insertSenses(entries: List<Entry>) = with(database) {
+        val list = arrayListOf<Long>()
 
-//    transaction {
-//        entries.forEach { entry ->
-//            entry.kanji?.forEach { kanji ->
-//                val kanjiId = kanjiElementQueries.selectKanjiByValue(kanji.value).executeAsOne()
-//                kanji.information?.forEach { info ->
-//                    infoQueries.insertInfo(info.value, info.getInfo())
-//                    val infoId = infoQueries.rowid(info.value).executeAsOne()
-//                    kanjiElementQueries.insertKanjiInfoTag(kanjiId, infoId)
-//                }
-//            }
-//        }
-//    }
+        logger.info("Inserting Senses...")
+        transaction {
+            entries.forEach { entry ->
+                entry.senses.forEach {
+                    senseQueries.insert(entry.id)
+                    list.add(utilQueries.lastInsertRowId().executeAsOne())
+                }
+            }
+        }
 
-//    transaction {
-//        entries.forEach { entry ->
-//            entry.kanji?.forEach { kanji ->
-//                val kanjiId = kanjiElementQueries.selectKanjiByValue(kanji.value).executeAsOne()
-//                kanji.priorities?.forEach { priority ->
-//                    priorityQueries.insertPriority(priority.value, priority.isCommon())
-//                    val priorityId = priorityQueries.rowid(priority.value).executeAsOne()
-//                    kanjiElementQueries.insertKanjiPriorityTag(kanjiId, priorityId)
-//                }
-//            }
-//        }
-//    }
+        var iter = list.iterator()
 
-    // Reading Restriction forces a dependency of Reading on Kanji
-    insertReadings(entries)
+        logger.info("  SenseGlossTag")
+        transaction {
+            entries.forEach { entry ->
+                entry.senses.forEach { sense ->
+                    val senseId = iter.next()
+                    sense.glosses?.forEach { gloss ->
+                        val glossId = glossQueries.selectGlossIdWhereValueEquals(gloss.value).executeAsOne()
+                        senseGlossTagQueries.insert(senseId, glossId)
+                    }
+                }
+            }
+        }
 
-//    logger.info("Inserting Reading restrictions...")
-//    transaction {
-//        entries.forEach { entry ->
-//            entry.readings.forEach { reading ->
-//                val readingId = readingQueries.selectReadingByValue(reading.value).executeAsOne()
-//                reading.restrictions?.forEach { restriction ->
-//                    readingQueries.insertReadingRestrictionTag(readingId, restriction.kanji)
-//                }
-//            }
-//        }
-//    }
+        iter = list.iterator()
 
-//    logger.info("Inserting Reading info...")
-//    transaction {
-//        entries.forEach { entry ->
-//            entry.readings.forEach { reading ->
-//                val readingId = readingQueries.selectReadingByValue(reading.value).executeAsOne()
-//                reading.information?.forEach { info ->
-//                    infoQueries.insertInfo(info.value, info.info)
-//                    val infoId = infoQueries.rowid(info.value).executeAsOne()
-//                    readingQueries.insertReadingInfoTag(readingId, infoId)
-//                }
-//            }
-//        }
-//    }
+        logger.info("  SensePosTag")
+        transaction {
+            entries.forEach { entry ->
+                entry.senses.forEach { sense ->
+                    val senseId = iter.next()
+                    sense.partsOfSpeech?.forEach { pos ->
+                        sensePosTagQueries.insert(
+                                senseId,
+                                partOfSpeechQueries.selectPosIdWhereValueEquals(pos.decoded())
+                                        .executeAsOne()
+                        )
+                    }
+                }
+            }
+        }
+    }
 
-//    logger.info("Inserting Reading priority...")
-//    transaction {
-//        entries.forEach { entry ->
-//            entry.readings.forEach { reading ->
-//                val readingId = readingQueries.selectReadingByValue(reading.value).executeAsOne()
-//                reading.priorities?.forEach { priority ->
-//                    priorityQueries.insertPriority(priority.value, priority.isCommon())
-//                    val priorityId = priorityQueries.rowid(priority.value).executeAsOne()
-//                    readingQueries.insertReadingPriorityTag(readingId, priorityId)
-//                }
-//            }
-//        }
-//    }
+    suspend fun insertDictionary(dictionary: Dictionary) = with(database) {
+        val entries = dictionary.entries
 
-    insertSenses(entries)
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.kanjiTags?.forEach {
-//                    senseQueries.insertSenseKanjiTag(senseId, it.value)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.readingTags?.forEach {
-//                    senseQueries.insertSenseReadingTag(senseId, it.value)
-//                }
-//            }
-//        }
-//    }
-
-    // pos
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.seeAlso?.forEach {
-//                    xReferenceQueries.insertXReference(it.value)
-//                    val xrefId = xReferenceQueries.rowid().executeAsOne()
-//                    senseQueries.insertSenseXRefTag(senseId, xrefId)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.antonyms?.forEach { antonym ->
-//                    antonymQueries.insertAntonym(senseId, antonym.value)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.fields?.forEach {
-//                    fieldQueries.insertField(it.value)
-//                    val fieldId = fieldQueries.rowid(it.value).executeAsOne()
-//                    senseQueries.insertSenseFieldTag(senseId, fieldId)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.miscellaneous?.forEach {
-//                    infoQueries.insertInfo(it.value, it.getTag())
-//                    val miscId = infoQueries.rowid(it.value).executeAsOne()
-//                    senseQueries.insertSenseMiscTag(senseId, miscId)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.information?.forEach {
-//                    senseInfoQueries.insertSenseInfo(it.value)
-//                    val infoId = senseInfoQueries.rowid().executeAsOne()
-//                    senseQueries.insertSenseInfoTag(senseId, infoId)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.sources?.forEach {
-//                    sourceQueries.insertSource(it.value, it.language, it.isFullDescription(), it.isWaseieigo())
-//                    val sourceId = sourceQueries.rowid().executeAsOne()
-//                    senseQueries.insertSenseSourceTag(senseId, sourceId)
-//                }
-//            }
-//        }
-//    }
-
-//    transaction {
-//        senseIds.keys.forEach { entry ->
-//            senseIds[entry]?.forEach { (sense, senseId) ->
-//                sense.dialects?.forEach { dialect ->
-//                    dialectQueries.insertDialect(dialect.value)
-//                    val dialectId = dialectQueries.rowid(dialect.value).executeAsOne()
-//                    senseQueries.insertSenseDialectTag(senseId, dialectId)
-//                }
-//            }
-//        }
-//    }
-
-    // gloss
-
-//    logger.info("Inserting Translations...")
-//    // XReference forces a dependency on Kanji & Reading
-//    data class TranslationWithId(val sense: Translation, val id: Long)
-//    val translationIds = hashMapOf<Entry, ArrayList<TranslationWithId>>()
-//    transaction {
-//        entries.forEach { entry ->
-//            // Kanji and Reading tags force a dependency of Sense on Kanji & Reading
-//            val ids = arrayListOf<TranslationWithId>()
-//            entry.translations?.forEach { translation ->
-//                translationQueries.insertTranslation()
-//                val translationId = translationQueries.rowid().executeAsOne()
-//                ids.add(TranslationWithId(translation, translationId))
-//            }
-//            translationIds[entry] = ids
-//        }
-//    }
-//
-//    transaction {
-//        translationIds.keys.forEach { entry ->
-//            translationIds[entry]?.forEach { (_, translationId) ->
-//                entryQueries.insertEntryTranslationTag(entry.id, translationId)
-//            }
-//        }
-//    }
-//
-//    transaction {
-//        translationIds.keys.forEach { entry ->
-//            translationIds[entry]?.forEach { (translation, translationId) ->
-//                translation.nameTypes?.forEach { nameType ->
-//                    nameTypeQueries.insertNameType(nameType.value, nameType.get())
-//                    val nameTypeId = nameTypeQueries.rowid(nameType.value).executeAsOne()
-//                    translationQueries.insertTranslationNameTypeTag(translationId, nameTypeId)
-//                }
-//            }
-//        }
-//    }
-//
-//    transaction {
-//        translationIds.keys.forEach { entry ->
-//            translationIds[entry]?.forEach { (translation, translationId) ->
-//                translation.crossReferences?.forEach { xref ->
-//                    xReferenceQueries.insertXReference(xref.value)
-//                    val xrefId = xReferenceQueries.rowid().executeAsOne()
-//                    translationQueries.insertTranslationXRefTag(translationId, xrefId)
-//                }
-//            }
-//        }
-//    }
-//
-//    transaction {
-//        translationIds.keys.forEach { entry ->
-//            translationIds[entry]?.forEach { (translation, translationId) ->
-//                translation.translationDetails?.forEach { detail ->
-//                    translationDetailQueries.insertTranslationDetail(detail.value)
-//                    val detailId = translationDetailQueries.rowid().executeAsOne()
-//                    translationQueries.insertTranslationDetailTag(translationId, detailId)
-//                }
-//            }
-//        }
-//    }
+        insertEntries(entries)
+        gc()
+        insertGlosses(entries)
+        gc()
+        insertPartsOfSpeech(entries)
+        gc()
+        insertSenses(entries)
+    }
 }

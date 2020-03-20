@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS Entry (
+  id INTEGER NOT NULL PRIMARY KEY,
+  is_common INTEGER AS Boolean NOT NULL,
+  kanji TEXT,
+  reading TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS entry_reading_index
+ON Entry (reading);
+
+insert:
+INSERT INTO Entry (id, is_common, kanji, reading)
+VALUES (:id, :isCommon, :kanji, :reading);
+
+selectEntryIdWhereValuesEqual:
+SELECT id FROM Entry
+WHERE kanji = ?
+    AND reading = ?;
+
+selectEntry:
+SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
+FROM Entry
+LEFT JOIN Sense
+    ON Entry.id = Sense.entry_id
+LEFT JOIN SenseGlossTag
+    ON SenseGlossTag.sense_id = Sense.id
+LEFT JOIN Gloss
+    ON SenseGlossTag.gloss_id = Gloss.id
+WHERE Entry.kanji LIKE :keyword||'%'
+    OR Entry.reading LIKE :keyword||'%'
+    OR Gloss.value LIKE '%'||:keyword||'%';
