@@ -1,20 +1,15 @@
 package com.github.reline.jisho.sql
 
-import com.github.reline.jisho.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
-import kotlin.properties.Delegates.notNull
+import kotlin.properties.Delegates
 
 class PartOfSpeechQueriesTest {
-    companion object {
-        private const val ENTRY_ID = 1L
-    }
-
+    private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
-    private var senseId by notNull<Long>()
 
     @Before
     fun setup() {
@@ -22,16 +17,9 @@ class PartOfSpeechQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insertEntry(ENTRY_ID, false)
-                kanjiElementQueries.insertKanji("大人買い", false)
-                val kanjiId = kanjiElementQueries.rowid().executeAsOne()
-                entryQueries.insertEntryKanjiTag(ENTRY_ID, kanjiId)
-                readingQueries.insertReading("おとながい", false, false)
-                val readingId = readingQueries.rowid().executeAsOne()
-                entryQueries.insertEntryReadingTag(ENTRY_ID, readingId)
-                senseQueries.insertSense(1)
-                senseId = senseQueries.rowid().executeAsOne()
-                entryQueries.insertEntrySenseTag(ENTRY_ID, senseId)
+                entryQueries.insert(1, false, "今日は", "こんにちは")
+                senseQueries.insert(1)
+                senseId = utilQueries.lastInsertRowId().executeAsOne()
             }
         }
     }
@@ -39,16 +27,15 @@ class PartOfSpeechQueriesTest {
     @Test
     fun test() = with(database) {
         transaction {
-            partOfSpeechQueries.insertPartOfSpeech("Noun")
-            senseQueries.insertSensePosTag(senseId, partOfSpeechQueries.rowid("Noun").executeAsOne())
-            partOfSpeechQueries.insertPartOfSpeech("Suru verb")
-            senseQueries.insertSensePosTag(senseId, partOfSpeechQueries.rowid("Suru verb").executeAsOne())
+            partOfSpeechQueries.insert("interjection")
+            sensePosTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            partOfSpeechQueries.insert("fake")
+            sensePosTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            val pos = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
+            assertArrayEquals(
+                    arrayOf("interjection", "fake"),
+                    pos.toTypedArray()
+            )
         }
-
-        val glosses = partOfSpeechQueries.partsOfSpeechForEntry(ENTRY_ID).executeAsList()
-        assertArrayEquals(
-                arrayOf("Noun", "Suru verb"),
-                glosses.toTypedArray()
-        )
     }
 }

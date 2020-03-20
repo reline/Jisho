@@ -15,7 +15,7 @@ targetCompatibility = "8"
 
 sqldelight {
     JishoDatabase {
-        packageName = "com.github.reline.jisho"
-        schemaOutputDirectory = file("src/main/sqldelight/migrations")
+        packageName = "com.github.reline.jisho.sql"
+        schemaOutputDirectory = file("src/main/sqldelight/com/github/reline/jisho/sql/migrations")
     }
 }

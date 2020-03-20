@@ -1,14 +1,18 @@
 package com.github.reline.jishodb
 
-import com.github.reline.jisho.JishoDatabase
 import com.github.reline.jisho.sql.JISHO_DB
+import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.logging.Level
 import java.util.logging.Logger
 
-const val url = "jdbc:sqlite:jishodb/build/$JISHO_DB"
+var databasePath = "jishodb/build/$JISHO_DB"
+
+val url: String by lazy { "jdbc:sqlite:$databasePath" }
 
 val logger: Logger by lazy {
     System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -21,7 +25,7 @@ fun Logger.debug(s: String) {
 }
 
 val driver: SqlDriver by lazy {
-    println("Loading database driver...")
+    logger.info("Loading database driver...")
     // load the JDBC driver first to check if it's working
     Class.forName("org.sqlite.JDBC")
     JdbcSqliteDriver(url)
@@ -32,10 +36,20 @@ val database: JishoDatabase by lazy {
     JishoDatabase(driver)
 }
 
-fun main() {
+fun main() = runBlocking {
     logger.info("Working directory: ${File(".").absolutePath}")
     runKanji()
+    gc()
     runRadicals()
-    runDictionaries()
+    gc()
+    DictionaryRunner.runDictionaries()
+    gc()
     runOkurigana()
+}
+
+suspend fun gc() {
+    logger.info("gc: start")
+    System.gc()
+    delay(10_000)
+    logger.info("gc: end")
 }

@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS Gloss(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE
+);
+
+insert:
+INSERT OR IGNORE INTO Gloss (value)
+VALUES (?);
+
+selectGlossIdWhereValueEquals:
+SELECT id FROM Gloss
+WHERE value = ?;

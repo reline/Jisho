@@ -47,7 +47,7 @@ private fun extractKanji(files: Array<File>) {
 private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
     transaction {
         dictionary.characters?.forEach {
-            kanjiRadicalQueries.insertKanji(it.literal)
+//            kanjiRadicalQueries.insertKanji(it.literal)
         }
     }
 }
