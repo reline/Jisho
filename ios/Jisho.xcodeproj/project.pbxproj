@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0C292AD242D94C10016A297 /* common.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C292AC242D94C10016A297 /* common.framework */; };
+		D0C292AE242D94C10016A297 /* common.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D0C292AC242D94C10016A297 /* common.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D0D8DE4E242C508700D1488D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D8DE4D242C508700D1488D /* AppDelegate.swift */; };
 		D0D8DE50242C508700D1488D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D8DE4F242C508700D1488D /* SceneDelegate.swift */; };
 		D0D8DE52242C508700D1488D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D8DE51242C508700D1488D /* ContentView.swift */; };
@@ -34,7 +36,22 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D0C292AF242D94C10016A297 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D0C292AE242D94C10016A297 /* common.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D0C292AC242D94C10016A297 /* common.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = common.framework; path = "../common/build/xcode-frameworks/common.framework"; sourceTree = "<group>"; };
 		D0D8DE4A242C508700D1488D /* Jisho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jisho.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D8DE4D242C508700D1488D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0D8DE4F242C508700D1488D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0C292AD242D94C10016A297 /* common.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +94,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D0C292AB242D94C10016A297 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D0C292AC242D94C10016A297 /* common.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D0D8DE41242C508700D1488D = {
 			isa = PBXGroup;
 			children = (
@@ -83,6 +109,7 @@
 				D0D8DE63242C508900D1488D /* JishoTests */,
 				D0D8DE6E242C508900D1488D /* JishoUITests */,
 				D0D8DE4B242C508700D1488D /* Products */,
+				D0C292AB242D94C10016A297 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,9 +170,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D0D8DE74242C508900D1488D /* Build configuration list for PBXNativeTarget "Jisho" */;
 			buildPhases = (
+				D0C292B0242D95970016A297 /* Pack common framework */,
 				D0D8DE46242C508700D1488D /* Sources */,
 				D0D8DE47242C508700D1488D /* Frameworks */,
 				D0D8DE48242C508700D1488D /* Resources */,
+				D0C292AF242D94C10016A297 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -261,6 +290,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D0C292B0242D95970016A297 /* Pack common framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Pack common framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$SRCROOT/..\"\npwd\n./gradlew :common:packForXCode -PXCODE_CONFIGURATION=${CONFIGURATION}\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D0D8DE46242C508700D1488D /* Sources */ = {
@@ -437,6 +487,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Jisho/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../common/build/xcode-frameworks";
 				INFOPLIST_FILE = Jisho/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -456,6 +507,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Jisho/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../common/build/xcode-frameworks";
 				INFOPLIST_FILE = Jisho/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
