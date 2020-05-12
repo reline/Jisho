@@ -51,7 +51,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(":jishosql")
+    implementation project(':common')
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:rxjava2-extensions:$sqldelight_version"
 

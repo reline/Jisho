@@ -20,7 +20,7 @@ configurations {
 }
 
 dependencies {
-    implementation project(":jishosql")
+    implementation project(':common')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     runtimeClasspath files(compileKotlin.destinationDir)
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
