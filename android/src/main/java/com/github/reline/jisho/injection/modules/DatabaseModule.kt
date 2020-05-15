@@ -2,10 +2,9 @@ package com.github.reline.jisho.injection.modules
 
 import android.app.Application
 import android.content.res.AssetManager
-import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.persistence.SqlDelightDao
-import com.github.reline.jisho.sql.JISHO_DB
+import com.github.reline.jisho.JISHO_DB
 import com.github.reline.jisho.sql.JishoDatabase
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
@@ -32,5 +31,5 @@ class DatabaseModule {
     fun provideDatabase(driver: SqlDriver) = JishoDatabase(driver)
 
     @Provides
-    fun provideDao(dao: SqlDelightDao): JapaneseMultilingualDao = dao
+    fun provideDao(database: JishoDatabase) = JapaneseMultilingualDao(database)
 }

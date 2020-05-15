@@ -1,6 +1,6 @@
 package com.github.reline.jishodb
 
-import com.github.reline.jisho.sql.JISHO_DB
+import com.github.reline.jisho.JISHO_DB
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver

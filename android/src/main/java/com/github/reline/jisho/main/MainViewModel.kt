@@ -13,14 +13,19 @@ import androidx.lifecycle.ViewModel
 import com.github.reline.jisho.base.SchedulerProvider
 import com.github.reline.jisho.models.Word
 import com.github.reline.jisho.network.services.SearchApi
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.util.SingleLiveEvent
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiConsumer
 import timber.log.Timber
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
         private val api: SearchApi,
-        private val schedulerProvider: SchedulerProvider
+        private val schedulerProvider: SchedulerProvider,
+        private val dao: JapaneseMultilingualDao
 ) : ViewModel() {
 
     private var disposable: Disposable? = null
