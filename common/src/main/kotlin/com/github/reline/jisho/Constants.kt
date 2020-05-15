@@ -1,3 +1,3 @@
-package com.github.reline.jisho.sql
+package com.github.reline.jisho
 
 const val JISHO_DB = "jisho.sqlite"
