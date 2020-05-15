@@ -1,1 +1,1 @@
-include ':android', ':jishodb', ':common'
+include ':android', ':prepopulator', ':common'
