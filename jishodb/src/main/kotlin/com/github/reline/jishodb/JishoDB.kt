@@ -4,8 +4,6 @@ import com.github.reline.jisho.JISHO_DB
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -36,20 +34,10 @@ val database: JishoDatabase by lazy {
     JishoDatabase(driver)
 }
 
-fun main() = runBlocking {
+fun main() {
     logger.info("Working directory: ${File(".").absolutePath}")
     runKanji()
-    gc()
     runRadicals()
-    gc()
     DictionaryRunner.runDictionaries()
-    gc()
     runOkurigana()
-}
-
-suspend fun gc() {
-    logger.info("gc: start")
-    System.gc()
-    delay(10_000)
-    logger.info("gc: end")
 }

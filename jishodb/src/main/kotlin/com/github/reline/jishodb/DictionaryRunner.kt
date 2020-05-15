@@ -130,15 +130,12 @@ object DictionaryRunner {
         }
     }
 
-    suspend fun insertDictionary(dictionary: Dictionary) = with(database) {
+    fun insertDictionary(dictionary: Dictionary) = with(database) {
         val entries = dictionary.entries
 
         insertEntries(entries)
-        gc()
         insertGlosses(entries)
-        gc()
         insertPartsOfSpeech(entries)
-        gc()
         insertSenses(entries)
     }
 }
