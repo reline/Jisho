@@ -1,15 +1,16 @@
 package com.github.reline.jisho.persistence
 
 import android.content.Context
-import android.os.Build
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import okio.buffer
+import okio.sink
+import okio.source
 import timber.log.Timber
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.nio.ByteBuffer
-import java.nio.channels.Channels
-import java.nio.channels.FileChannel
-import java.nio.channels.ReadableByteChannel
 import java.util.concurrent.locks.ReentrantLock
 
 class SQLiteCopyOpenHelper(
@@ -103,8 +104,8 @@ class SQLiteCopyOpenHelper(
         return FileInputStream(databaseFile).channel.use { input ->
             input.tryLock(60, 4, true)
             input.position(60)
-            val buffer: ByteBuffer = ByteBuffer.allocate(4)
-            val read: Int = input.read(buffer)
+            val buffer = ByteBuffer.allocate(4)
+            val read = input.read(buffer)
             if (read != 4) {
                 throw IOException("Bad database header, unable to read 4 bytes at offset 60")
             }
@@ -115,14 +116,14 @@ class SQLiteCopyOpenHelper(
 
     @Throws(IOException::class)
     private fun copyDatabaseFile(destinationFile: File) {
-        val input: ReadableByteChannel = Channels.newChannel(context.assets.open(copyFromAssetPath))
         // An intermediate file is used so that we never end up with a half-copied database file
         // in the internal directory.
         val intermediateFile = File.createTempFile(
                 "sqlite-copy-helper", ".tmp", context.cacheDir)
         intermediateFile.deleteOnExit()
-        val output: FileChannel = FileOutputStream(intermediateFile).channel
-        copy(input, output)
+        context.assets.open(copyFromAssetPath).source().use { a ->
+            intermediateFile.sink().buffer().use { b -> b.writeAll(a) }
+        }
         val parent = destinationFile.parentFile
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
             throw IOException("Failed to create directories for "
@@ -132,34 +133,6 @@ class SQLiteCopyOpenHelper(
             throw IOException("Failed to move intermediate file ("
                     + intermediateFile.absolutePath + ") to destination ("
                     + destinationFile.absolutePath + ").")
-        }
-    }
-
-    /**
-     * Copies data from the input channel to the output file channel.
-     *
-     * @param input  the input channel to copy.
-     * @param output the output channel to copy.
-     * @throws IOException if there is an I/O error.
-     */
-    @Throws(IOException::class)
-    private fun copy(input: ReadableByteChannel, output: FileChannel) {
-        try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                output.transferFrom(input, 0, Long.MAX_VALUE)
-            } else {
-                val inputStream: InputStream = Channels.newInputStream(input)
-                val outputStream: OutputStream = Channels.newOutputStream(output)
-                val buffer = ByteArray(1024 * 4)
-                do {
-                    val length = inputStream.read(buffer)
-                    outputStream.write(buffer, 0, length)
-                } while(length > 0)
-            }
-            output.force(false)
-        } finally {
-            input.close()
-            output.close()
         }
     }
 
