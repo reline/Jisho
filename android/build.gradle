@@ -14,6 +14,8 @@ android {
         versionCode 3
         versionName "2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "DATABASE_FILE_NAME", "\"${databaseFileName}\"")
     }
     buildTypes {
         release {
@@ -81,3 +83,13 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 }
+
+task verifyDatabase {
+    doFirst {
+        def database = new File("$projectDir/src/main/assets/$databaseFileName")
+        if (!database.exists()) {
+            throw new FileNotFoundException("Did not find $databaseFileName in assets folder")
+        }
+    }
+}
+preBuild.dependsOn(verifyDatabase)
