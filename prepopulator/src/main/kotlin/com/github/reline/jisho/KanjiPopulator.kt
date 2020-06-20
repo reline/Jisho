@@ -5,17 +5,21 @@ import com.tickaroo.tikxml.TikXml
 import okio.Buffer
 import java.io.File
 
-fun main() = runKanji()
+fun main() = KanjiPopulator.run()
 
-fun runKanji() {
-    println("Extracting kanji...")
-    extractKanji(arrayOf(
-            File("$buildDir/dict/kanjidic2.xml")
-    ))
-}
+object KanjiPopulator {
+    fun run() {
+        println("Extracting kanji...")
+        arrayOf(
+                File("$buildDir/dict/kanjidic2.xml")
+        ).forEach { file ->
+            val dictionary = extractKanji(file)
+            insertKanji(dictionary)
+        }
+    }
 
-private fun extractKanji(files: Array<File>) {
-    val dictionaries = files.map { file ->
+    private fun extractKanji(file: File): KanjiDictionary {
+
         val inputStream = file.inputStream()
         val source = Buffer().readFrom(inputStream)
 
@@ -32,22 +36,15 @@ private fun extractKanji(files: Array<File>) {
 
         println("${file.name}: Parsing ${dictionary.characters?.size} kanji took ${(parseEnd - parseStart)}ms")
 
-        return@map dictionary
+        return dictionary
     }
 
-    dictionaries.forEachIndexed { i, dictionary ->
-        val start = System.currentTimeMillis()
-        println("Inserting ${files[i].name} to database...")
-        insertKanji(dictionary)
-        val end = System.currentTimeMillis()
-        println("${files[i].name}: Inserting ${dictionary.characters?.size} kanji took ${(end - start)}ms")
-    }
-}
-
-private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
-    transaction {
-        dictionary.characters?.forEach {
+    private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
+        transaction {
+            dictionary.characters?.forEach {
 //            kanjiRadicalQueries.insertKanji(it.literal)
+            }
         }
     }
 }
+

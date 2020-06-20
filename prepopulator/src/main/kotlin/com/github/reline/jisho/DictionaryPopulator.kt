@@ -7,15 +7,15 @@ import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import java.io.File
 
-fun main() = DictionaryRunner.runDictionaries()
+fun main() = DictionaryPopulator.run()
 
-object DictionaryRunner {
+object DictionaryPopulator {
 
-    fun runDictionaries() = runBlocking {
+    fun run() = runBlocking {
         logger.info("Extracting dictionaries...")
         arrayOf(
-                File("$buildDir/dict/JMdict_e.xml")
-//            File("$buildDir/dict/JMnedict.xml")
+                File("$buildDir/dict/JMdict_e.xml"),
+                File("$buildDir/dict/JMnedict.xml")
         ).forEach { file ->
             val dictionary = extractDictionary(file)
 
