@@ -8,7 +8,7 @@ import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 
-class DictionaryRunnerTest {
+class DictionaryPopulatorTest {
 
     private val jmdict = File("./build/dict/JMdict_e.xml")
     private val testDbPath = "./build/test/jmdict.sqlite"
@@ -30,8 +30,8 @@ class DictionaryRunnerTest {
     @Ignore("Large test")
     @Test
     fun testGlosses() = runBlocking {
-        val dict = DictionaryRunner.extractDictionary(jmdict)
-        DictionaryRunner.insertGlosses(dict.entries)
+        val dict = DictionaryPopulator.extractDictionary(jmdict)
+        DictionaryPopulator.insertGlosses(dict.entries)
         assertFalse(driver.hasDuplicateValues("Gloss", "value"))
     }
 }
