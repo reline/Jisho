@@ -57,7 +57,7 @@ object OkuriganaPopulator {
         return entries
     }
 
-    private fun insertOkurigana(okurigana: List<OkuriganaEntry>) = with(database) {
+    fun insertOkurigana(okurigana: List<OkuriganaEntry>) = with(database) {
         logger.info("Inserting okurigana...")
         transaction {
             okurigana.forEach { ruby ->
