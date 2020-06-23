@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS Japanese (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    value TEXT NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id)
+);
+
+insert:
+INSERT INTO Japanese (entry_id, value)
+VALUES (:entryId, :japanese);
+
+selectJapanese:
+SELECT value
+FROM Japanese
+WHERE entry_id = :entryId;
