@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS Reading (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    value TEXT NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id)
+);
+
+insert:
+INSERT INTO Reading (entry_id, value)
+VALUES (:entryId, :reading);
+
+selectReading:
+SELECT value
+FROM Reading
+WHERE entry_id = :entryId;
