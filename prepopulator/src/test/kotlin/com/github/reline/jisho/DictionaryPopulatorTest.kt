@@ -11,7 +11,7 @@ import java.io.File
 class DictionaryPopulatorTest {
 
     companion object {
-        private val testDbPath = "./build/test/jmdict.sqlite"
+        private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
 
         @BeforeClass @JvmStatic
         fun setupSuite() {
@@ -33,6 +33,8 @@ class DictionaryPopulatorTest {
     @JvmField
     @Rule
     var collector = ErrorCollector()
+
+    // todo: benchmark queries; should take ~250ms
 
     @Test
     fun testHello() = with(database) {
@@ -102,8 +104,7 @@ class DictionaryPopulatorTest {
     fun test家() = with(database) {
         val results = entryQueries.selectEntry("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
-        val expected = listOf("家",/* "屋",*/ "家族", "家庭", /*"屋根",*/ "家具")
-        // missing: 屋, 屋根; todo: insert all keb elements
+        val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
         expected.forEach {
             collector.checkSucceeds {
                 assertTrue("Missing $it", actual.contains(it))
@@ -114,7 +115,7 @@ class DictionaryPopulatorTest {
     @Test
     fun test走った() = with(database) {
         val results = entryQueries.selectEntry("走った").executeAsList()
-        println(results.joinToString(separator = ",") { it.reading })
+        println(results.joinToString(separator = ",") { it.reading!! })
         // fixme: returns no results
     }
 }

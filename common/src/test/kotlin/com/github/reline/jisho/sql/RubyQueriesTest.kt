@@ -22,7 +22,9 @@ class RubyQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+                entryQueries.insert(1, false)
+                japaneseQueries.insert(1, "今日は")
+                readingQueries.insert(1, "こんにちは")
             }
         }
     }

@@ -10,7 +10,7 @@ import java.io.File
 
 class OkuriganaPopulatorTest {
     companion object {
-        private val testDbPath = "./build/test/jmdict.sqlite"
+        private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
         private lateinit var entries: List<Entry>
         private lateinit var okurigana: List<OkuriganaEntry>
 

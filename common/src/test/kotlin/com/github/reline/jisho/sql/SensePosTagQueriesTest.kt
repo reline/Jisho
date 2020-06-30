@@ -18,7 +18,9 @@ class SensePosTagQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insert(1, false, "今日は", "こんにちは")
+                entryQueries.insert(1, false)
+                japaneseQueries.insert(1, "今日は")
+                readingQueries.insert(1, "こんにちは")
                 senseQueries.insert(1)
                 senseId = utilQueries.lastInsertRowId().executeAsOne()
                 partOfSpeechQueries.insert("interjection")
@@ -42,7 +44,7 @@ class SensePosTagQueriesTest {
     @Test
     fun testTagDoesNotUpdate() = with(database) {
         transaction {
-            entryQueries.insert(666, false, null, "fake")
+            entryQueries.insert(666, false)
 
             partOfSpeechQueries.insert("interjection")
             val id = partOfSpeechQueries.selectPosIdWhereValueEquals("interjection").executeAsOne()
