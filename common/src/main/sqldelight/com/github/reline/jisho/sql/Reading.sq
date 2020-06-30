@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS Reading (
     FOREIGN KEY (entry_id) REFERENCES Entry(id)
 );
 
+CREATE INDEX IF NOT EXISTS index_reading_entryid
+ON Reading (entry_id);
+
 insert:
 INSERT INTO Reading (entry_id, value)
 VALUES (:entryId, :reading);

@@ -7,6 +7,12 @@ CREATE TABLE IF NOT EXISTS EntryRubyTag (
     FOREIGN KEY (ruby_id) REFERENCES Ruby(id)
 );
 
+CREATE INDEX IF NOT EXISTS index_ert_entryid
+ON EntryRubyTag (entry_id);
+
+CREATE INDEX IF NOT EXISTS index_ert_rubyid
+ON EntryRubyTag (ruby_id);
+
 insert:
 INSERT INTO EntryRubyTag (entry_id, ruby_id, position)
 VALUES (:entryId, :rubyId, :position);

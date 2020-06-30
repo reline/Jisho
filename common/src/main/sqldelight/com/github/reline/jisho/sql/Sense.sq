@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS Sense (
     FOREIGN KEY (entry_id) REFERENCES Entry(id)
 );
 
+CREATE INDEX IF NOT EXISTS index_sense_entryid
+ON Sense (entry_id);
+
 insert:
 INSERT INTO Sense (entry_id)
 VALUES (:entryId);
