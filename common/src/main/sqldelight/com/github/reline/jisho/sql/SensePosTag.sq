@@ -6,6 +6,12 @@ CREATE TABLE IF NOT EXISTS SensePosTag (
     FOREIGN KEY (pos_id) REFERENCES PartOfSpeech(id)
 );
 
+CREATE INDEX IF NOT EXISTS index_spt_senseid
+ON SensePosTag (sense_id);
+
+CREATE INDEX IF NOT EXISTS index_spt_posid
+ON SensePosTag (pos_id);
+
 insert:
 INSERT INTO SensePosTag (sense_id, pos_id)
 VALUES (:senseId, :partOfSpeechId);

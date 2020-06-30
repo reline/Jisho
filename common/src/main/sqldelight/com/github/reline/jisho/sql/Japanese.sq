@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS Japanese (
     FOREIGN KEY (entry_id) REFERENCES Entry(id)
 );
 
+CREATE INDEX IF NOT EXISTS index_japanese_entryid
+ON Japanese (entry_id);
+
 insert:
 INSERT INTO Japanese (entry_id, value)
 VALUES (:entryId, :japanese);
