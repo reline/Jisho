@@ -57,19 +57,6 @@ object DictionaryPopulator {
         }
     }
 
-    fun insertGlosses(entries: List<Entry>) = with(database) {
-        logger.info("Inserting Glosses...")
-        transaction {
-            entries.forEach { entry ->
-                entry.senses.forEach { sense ->
-                    sense.glosses?.forEach { gloss ->
-                        glossQueries.insert(gloss.value)
-                    }
-                }
-            }
-        }
-    }
-
     fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
         logger.info("Inserting Parts of Speech...")
         transaction {
@@ -86,32 +73,21 @@ object DictionaryPopulator {
     fun insertSenses(entries: List<Entry>) = with(database) {
         val list = arrayListOf<Long>()
 
-        logger.info("Inserting Senses...")
-        transaction {
-            entries.forEach { entry ->
-                entry.senses.forEach {
-                    senseQueries.insert(entry.id)
-                    list.add(utilQueries.lastInsertRowId().executeAsOne())
-                }
-            }
-        }
-
-        var iter = list.iterator()
-
-        logger.info("  SenseGlossTag")
+        logger.info("Inserting Senses and Glosses...")
         transaction {
             entries.forEach { entry ->
                 entry.senses.forEach { sense ->
-                    val senseId = iter.next()
+                    senseQueries.insert(entry.id)
+                    val senseId = utilQueries.lastInsertRowId().executeAsOne()
                     sense.glosses?.forEach { gloss ->
-                        val glossId = glossQueries.selectGlossIdWhereValueEquals(gloss.value).executeAsOne()
-                        senseGlossTagQueries.insert(senseId, glossId)
+                        glossQueries.insert(senseId, gloss.value)
                     }
+                    list.add(senseId)
                 }
             }
         }
 
-        iter = list.iterator()
+        val iter = list.iterator()
 
         logger.info("  SensePosTag")
         transaction {
@@ -134,7 +110,6 @@ object DictionaryPopulator {
         val entries = dictionary.entries
 
         insertEntries(entries)
-        insertGlosses(entries)
         insertPartsOfSpeech(entries)
         insertSenses(entries)
     }

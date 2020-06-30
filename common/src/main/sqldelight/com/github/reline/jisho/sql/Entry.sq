@@ -22,10 +22,8 @@ SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
 FROM Entry
 LEFT JOIN Sense
     ON Entry.id = Sense.entry_id
-LEFT JOIN SenseGlossTag
-    ON SenseGlossTag.sense_id = Sense.id
 LEFT JOIN Gloss
-    ON SenseGlossTag.gloss_id = Gloss.id
+    ON Gloss.sense_id = Sense.id
 WHERE Entry.kanji LIKE :keyword||'%'
     OR Entry.reading LIKE :keyword||'%'
     OR Gloss.value LIKE '%'||:keyword||'%';
