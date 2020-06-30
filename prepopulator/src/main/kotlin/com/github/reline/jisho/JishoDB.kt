@@ -3,7 +3,9 @@ package com.github.reline.jisho
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import org.sqlite.SQLiteConfig
 import java.io.File
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -26,7 +28,12 @@ val driver: SqlDriver by lazy {
     logger.info("Loading database driver...")
     // load the JDBC driver first to check if it's working
     Class.forName("org.sqlite.JDBC")
-    JdbcSqliteDriver(url)
+
+    val properties = Properties().also {
+        // https://www.sqlite.org/compile.html#default_foreign_keys
+        it[SQLiteConfig.Pragma.FOREIGN_KEYS.pragmaName] = "true"
+    }
+    JdbcSqliteDriver(url, properties)
 }
 
 val database: JishoDatabase by lazy {
