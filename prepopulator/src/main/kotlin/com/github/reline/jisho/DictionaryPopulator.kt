@@ -50,9 +50,13 @@ object DictionaryPopulator {
         logger.info("Inserting Entries...")
         transaction {
             entries.forEach { entry ->
-                val kanji = entry.kanji?.firstOrNull()?.value // fixme: insert every keb uniquely with an entry id e.g. id INT PRIMARY KEY - value TEXT NOT NULL - entry_id INT FOREIGN KEY
-                val reading = entry.readings.first().value
-                entryQueries.insert(entry.id, entry.isCommon(), kanji, reading)
+                entryQueries.insert(entry.id, entry.isCommon())
+                entry.kanji?.forEach { kanji ->
+                    japaneseQueries.insert(entry.id, kanji.value)
+                }
+                entry.readings.forEach { reading ->
+                    readingQueries.insert(entry.id, reading.value)
+                }
             }
         }
     }

@@ -26,7 +26,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryByKanji() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
 
             val entry = entryQueries.selectEntry("今日は").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -39,7 +41,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryByLikeKanji() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
 
             val entry = entryQueries.selectEntry("今日").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -52,7 +56,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryByReading() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
 
             val entry = entryQueries.selectEntry("こんにちは").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -65,7 +71,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryByLikeReading() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
 
             val entry = entryQueries.selectEntry("こんにち").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -78,7 +86,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryByGloss() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "hello")
@@ -94,7 +104,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryBySimilarGlossEnd() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "good afternoon")
@@ -110,7 +122,9 @@ class EntryQueriesTest {
     @Test
     fun testQueryBySimilarGlossStart() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
+            japaneseQueries.insert(ENTRY_ID, "今日は")
+            readingQueries.insert(ENTRY_ID, "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "good afternoon")
@@ -120,15 +134,6 @@ class EntryQueriesTest {
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
-        }
-    }
-
-    @Test
-    fun testSelectByValues() = with(database) {
-        transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
-            val id = entryQueries.selectEntryIdWhereValuesEqual("今日は", "こんにちは").executeAsOne()
-            assertEquals(ENTRY_ID, id)
         }
     }
 
