@@ -81,8 +81,7 @@ class EntryQueriesTest {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
-            glossQueries.insert("hello")
-            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            glossQueries.insert(senseId, "hello")
 
             val entry = entryQueries.selectEntry("hello").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -98,8 +97,7 @@ class EntryQueriesTest {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
-            glossQueries.insert("good afternoon")
-            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            glossQueries.insert(senseId, "good afternoon")
 
             val entry = entryQueries.selectEntry("good afterno").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
@@ -115,8 +113,7 @@ class EntryQueriesTest {
             entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
             senseQueries.insert(ENTRY_ID)
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
-            glossQueries.insert("good afternoon")
-            senseGlossTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
+            glossQueries.insert(senseId, "good afternoon")
 
             val entry = entryQueries.selectEntry("afternoon").executeAsList().first()
             assertEquals(ENTRY_ID, entry.id)
