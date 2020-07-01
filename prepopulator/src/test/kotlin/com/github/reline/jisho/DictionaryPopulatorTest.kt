@@ -1,13 +1,11 @@
 package com.github.reline.jisho
 
-import org.junit.AfterClass
+import org.junit.*
 import org.junit.Assert.assertTrue
-import org.junit.BeforeClass
-import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.ErrorCollector
 import java.io.File
 
+@Ignore("Large test")
 class DictionaryPopulatorTest {
 
     companion object {
