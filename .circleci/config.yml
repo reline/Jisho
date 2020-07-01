@@ -9,9 +9,6 @@ jobs:
           name: Download Dependencies
           command: ./gradlew androidDependencies
       - run:
-          name: Lint
-          command: ./gradlew lint
-      - run:
           name: Tests for common module
           command: ./gradlew :common:test
       - run:
