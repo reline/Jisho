@@ -9,8 +9,11 @@ jobs:
           name: Download Dependencies
           command: ./gradlew androidDependencies
       - run:
-          name: Run Tests
-          command: ./gradlew lint test
+          name: Tests for common module
+          command: ./gradlew :common:test
+      - run:
+          name: Tests for prepopulator
+          command: ./gradlew :prepopulator:test
       - store_artifacts:
           path: app/build/reports
           destination: circleci/reports

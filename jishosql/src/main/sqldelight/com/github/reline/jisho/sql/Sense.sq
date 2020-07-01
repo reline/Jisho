@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS Sense (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    entry_id INTEGER NOT NULL,
-    FOREIGN KEY (entry_id) REFERENCES Entry(id)
-);
-
-insert:
-INSERT INTO Sense (entry_id)
-VALUES (:entryId);

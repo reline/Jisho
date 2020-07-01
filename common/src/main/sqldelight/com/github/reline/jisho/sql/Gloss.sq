@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS Gloss(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL,
+    sense_id INTEGER NOT NULL,
+    FOREIGN KEY (sense_id) REFERENCES Sense(id)
+);
+
+CREATE INDEX IF NOT EXISTS index_gloss_senseid
+ON Gloss (sense_id);
+
+insert:
+INSERT OR IGNORE INTO Gloss (sense_id, value)
+VALUES (:senseId, :gloss);
+
+selectGlossIdWhereValueEquals:
+SELECT id FROM Gloss
+WHERE value = ?;
+
+selectGlossWhereSenseIdEquals:
+SELECT value FROM Gloss
+WHERE sense_id = ?;

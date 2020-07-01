@@ -1,0 +1,24 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+apply plugin: 'com.squareup.sqldelight'
+
+archivesBaseName = 'jisho-common'
+
+sqldelight {
+    JishoDatabase {
+        packageName = "com.github.reline.jisho.sql"
+        schemaOutputDirectory = file("src/main/sqldelight/com/github/reline/jisho/sql/migrations")
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation "com.squareup.sqldelight:runtime:$sqldelight_version"
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

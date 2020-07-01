@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS Ruby (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    japanese TEXT NOT NULL, -- 1+ kanji characters OR furigana/katakana
+    okurigana TEXT, -- if null, then the 'japanese' column is furigana/katakana
+    UNIQUE(japanese, okurigana)
+);
+
+-- https://www.sqlite.org/partialindex.html#unique_partial_indexes
+-- declare Ruby entries with null okurigana as unique to reduce duplicate entries
+CREATE UNIQUE INDEX IF NOT EXISTS unique_japanese_null_index
+ON Ruby(japanese)
+WHERE okurigana ISNULL;
+
+insert:
+INSERT OR IGNORE INTO Ruby (japanese, okurigana)
+VALUES (?, ?);
+
+selectRubyId:
+SELECT id FROM Ruby
+WHERE japanese = ?
+    AND okurigana = ?;

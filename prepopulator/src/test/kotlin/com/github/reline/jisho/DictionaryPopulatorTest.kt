@@ -1,0 +1,119 @@
+package com.github.reline.jisho
+
+import org.junit.*
+import org.junit.Assert.assertTrue
+import org.junit.rules.ErrorCollector
+import java.io.File
+
+@Ignore("Large test")
+class DictionaryPopulatorTest {
+
+    companion object {
+        private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
+
+        @BeforeClass @JvmStatic
+        fun setupSuite() {
+            val db = File(testDbPath)
+            db.parentFile.mkdirs()
+            db.delete()
+            db.createNewFile()
+            databasePath = testDbPath
+            DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
+            DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
+        }
+
+        @AfterClass @JvmStatic
+        fun teardownSuite() {
+            File(testDbPath).delete()
+        }
+    }
+
+    @JvmField
+    @Rule
+    var collector = ErrorCollector()
+
+    // todo: benchmark queries; should take ~250ms
+
+    @Test
+    fun testHello() = with(database) {
+        val results = entryQueries.selectEntry("hello").executeAsList()
+        val actual = results.map{ it.kanji ?: it.reading }
+        // missing from dictionary: アンニョンハシムニカ, チョリース, やあやあ, ちわ, いよう, 挨拶まわり
+        /**
+         * <entry>
+        <ent_seq>1924610</ent_seq>
+        <r_ele>
+        <reb>ハローワーク</reb>
+        </r_ele>
+        <r_ele>
+        <reb>ハロー・ワーク</reb>
+        </r_ele>
+        <sense>
+        <pos>&n-pr;</pos>
+        <xref>公共職業安定所</xref>
+        <misc>&col;</misc>
+        <lsource ls_wasei="y"/>
+        <gloss>Hello Work</gloss>
+        <gloss>Public Employment Security Office</gloss>
+        </sense>
+        </entry>
+
+        <entry>
+        <ent_seq>1631140</ent_seq>
+        <k_ele>
+        <keb>公共職業安定所</keb>
+        <ke_pri>news2</ke_pri>
+        <ke_pri>nf25</ke_pri>
+        </k_ele>
+        <r_ele>
+        <reb>こうきょうしょくぎょうあんていじょ</reb>
+        <re_pri>news2</re_pri>
+        <re_pri>nf25</re_pri>
+        </r_ele>
+        <sense>
+        <pos>&n-pr;</pos>
+        <xref>ハローワーク</xref>
+        <gloss>Public Employment Security Office</gloss>
+        <gloss>PESO</gloss>
+        </sense>
+        </entry>
+         */
+        val expected = listOf("今日は", "もしもし", "こんにちわ", "ハイサイ", "アニョハセヨ", "ニーハオ", "ハロー", "どうも", "はいはい", "ハローワーク", "ハローページ", "ポケハロ", "ほいほい"/*, "公共職業安定所" todo: support xref*/)
+        expected.forEach {
+            collector.checkSucceeds {
+                assertTrue("Missing $it", actual.contains(it))
+            }
+        }
+    }
+
+    @Test
+    fun testHouse() = with(database) {
+        val results = entryQueries.selectEntry("house").executeAsList()
+        val actual = results.map{ it.kanji ?: it.reading }
+        val expected = listOf("家", "家屋", "宅", "住まい", "人家", "宿", "参議院", "衆議院", "ハウス", "部族", "一家", "借家", "お宅", "貸家", "番地", "別荘", "満員")
+        expected.forEach {
+            collector.checkSucceeds {
+                assertTrue("Missing $it", actual.contains(it))
+            }
+        }
+    }
+
+    @Test
+    fun test家() = with(database) {
+        val results = entryQueries.selectEntry("家").executeAsList()
+        val actual = results.map{ it.kanji ?: it.reading }
+        val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
+        expected.forEach {
+            collector.checkSucceeds {
+                assertTrue("Missing $it", actual.contains(it))
+            }
+        }
+    }
+
+    @Test
+    fun test走った() = with(database) {
+        val results = entryQueries.selectEntry("走った").executeAsList()
+        println(results.joinToString(separator = ",") { it.reading!! })
+        // fixme: returns no results
+    }
+}
