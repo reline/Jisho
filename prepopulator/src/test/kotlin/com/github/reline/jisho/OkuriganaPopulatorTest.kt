@@ -2,12 +2,10 @@ package com.github.reline.jisho
 
 import com.github.reline.jisho.dictmodels.jmdict.Entry
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
-import org.junit.After
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.*
 import java.io.File
 
+@Ignore("Large test")
 class OkuriganaPopulatorTest {
     companion object {
         private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
