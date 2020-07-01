@@ -1,4 +1,4 @@
-# Jisho [![Build Status](https://travis-ci.org/reline/Jisho.svg?branch=master)](https://travis-ci.org/reline/Jisho)
+# Jisho [![reline](https://circleci.com/gh/reline/Jisho.svg?style=svg)](https://circleci.com/gh/reline/Jisho)
 
 Jisho is a powerful Japanese-English dictionary application utilizing the API from the popular [Jisho.org](https://jisho.org).
 
