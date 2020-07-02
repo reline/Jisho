@@ -50,5 +50,5 @@ class DatabaseModule {
     fun provideDatabase(driver: SqlDriver) = JishoDatabase(driver)
 
     @Provides
-    fun provideDao(database: JishoDatabase) = JapaneseMultilingualDao(database)
+    fun provideDao(database: JishoDatabase) = JapaneseMultilingualDao(database, null!!)
 }

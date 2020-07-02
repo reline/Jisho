@@ -64,6 +64,8 @@ dependencies {
     implementation project(':common')
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
     implementation "com.squareup.sqldelight:rxjava2-extensions:$sqldelight_version"
+    implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
+    implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
@@ -95,7 +97,7 @@ task verifyDatabase {
     doFirst {
         def database = new File("$projectDir/src/main/assets/$databaseFileName")
         if (!database.exists()) {
-            throw new FileNotFoundException("Did not find $databaseFileName in assets folder")
+//            throw new FileNotFoundException("Did not find $databaseFileName in assets folder")
         }
     }
 }
