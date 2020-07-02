@@ -9,9 +9,14 @@
 package com.github.reline.jisho.persistence
 
 import com.github.reline.jisho.sql.JishoDatabase
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
-class JapaneseMultilingualDao(private val database: JishoDatabase) {
-    fun search(query: String) = with(database) {
+class JapaneseMultilingualDao(
+        private val database: JishoDatabase,
+        private val context: CoroutineContext
+) {
+    suspend fun search(query: String) = withContext(context) {
 
     }
 }
