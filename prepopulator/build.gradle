@@ -17,8 +17,6 @@ configurations {
 dependencies {
     implementation project(':common')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    runtimeClasspath files(compileKotlin.destinationDir)
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     implementation 'org.xerial:sqlite-jdbc:3.21.0.1'
@@ -31,8 +29,8 @@ dependencies {
     kapt 'com.tickaroo.tikxml:processor-common:0.8.16-SNAPSHOT'
     kapt 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
 
-    // todo: use codegen instead of reflection
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
     implementation "com.squareup.okio:okio:$okio_version"
 
     testImplementation 'junit:junit:4.12'

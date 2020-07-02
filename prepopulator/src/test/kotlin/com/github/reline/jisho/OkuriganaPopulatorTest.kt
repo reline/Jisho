@@ -11,6 +11,7 @@ package com.github.reline.jisho
 import com.github.reline.jisho.dictmodels.jmdict.Entry
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import org.junit.*
+import org.junit.Assert.assertTrue
 import java.io.File
 
 @Ignore("Large test")
@@ -46,6 +47,8 @@ class OkuriganaPopulatorTest {
 
     @Test
     fun smokeTest() {
+        assertTrue(entries.isNotEmpty())
+        assertTrue(okurigana.isNotEmpty())
         DictionaryPopulator.insertEntries(entries)
         OkuriganaPopulator.insertOkurigana(okurigana)
     }
