@@ -23,7 +23,6 @@ class RubyQueriesTest {
 
     private lateinit var database: JishoDatabase
 
-    // todo: can we write tests to ensure "IF NOT EXISTS" was written?
     @Before
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(IN_MEMORY)
