@@ -32,8 +32,8 @@ dependencies {
     kapt 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
 
     // todo: use codegen instead of reflection
-    implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
-    implementation "com.squareup.okio:okio:2.4.3"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    implementation "com.squareup.okio:okio:$okio_version"
 
     testImplementation 'junit:junit:4.12'
 }
