@@ -50,9 +50,9 @@ class RubyQueriesTest {
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
             assertArrayEquals(
                     arrayOf(
-                        SelectRubies.Impl("今", "こん", 1),
-                        SelectRubies.Impl("日", "にち", 2),
-                        SelectRubies.Impl("は", null, 3)
+                        SelectRubies("今", "こん", 1),
+                        SelectRubies("日", "にち", 2),
+                        SelectRubies("は", null, 3)
                     ),
                     rubies.toTypedArray()
             )
@@ -67,7 +67,7 @@ class RubyQueriesTest {
             entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
             assertArrayEquals(
-                    arrayOf(SelectRubies.Impl("日", "にち", 2)),
+                    arrayOf(SelectRubies("日", "にち", 2)),
                     rubies.toTypedArray()
             )
         }
@@ -82,7 +82,7 @@ class RubyQueriesTest {
             entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
             assertArrayEquals(
-                    arrayOf(SelectRubies.Impl("日", "にち", 2)),
+                    arrayOf(SelectRubies("日", "にち", 2)),
                     rubies.toTypedArray()
             )
         }
