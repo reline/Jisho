@@ -106,4 +106,4 @@ task verifyDatabase {
         }
     }
 }
-preBuild.dependsOn(verifyDatabase)
+assemble.dependsOn(verifyDatabase)
