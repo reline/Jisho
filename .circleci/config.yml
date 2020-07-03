@@ -12,6 +12,7 @@ jobs:
     docker:
       - image: circleci/openjdk:8-buster-node
     steps:
+      - checkout
       - run:
           name: Tests for prepopulator
           command: ./gradlew :prepopulator:test
