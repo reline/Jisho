@@ -18,14 +18,14 @@ jobs:
   android_test:
     docker:
       - image: circleci/android:api-29
-      steps:
-        - checkout
-        - run:
-            name: Download Dependencies
-            command: ./gradlew androidDependencies
-        - run:
-            name: Android Tests
-            command: ./gradlew :android:test
+    steps:
+      - checkout
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - run:
+          name: Android Tests
+          command: ./gradlew :android:test
   build_artifacts:
     docker:
       - image: circleci/android:api-29
