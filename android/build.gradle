@@ -93,11 +93,16 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
+def assetsDir = "$projectDir/src/main/assets"
+task createAssetsDirectory {
+    mkdir assetsDir
+}
+
 task verifyDatabase {
     doFirst {
-        def database = new File("$projectDir/src/main/assets/$databaseFileName")
+        def database = new File("$assetsDir/$databaseFileName")
         if (!database.exists()) {
-//            throw new FileNotFoundException("Did not find $databaseFileName in assets folder")
+            throw new FileNotFoundException("Did not find $databaseFileName in assets folder")
         }
     }
 }
