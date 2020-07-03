@@ -15,14 +15,47 @@ jobs:
           name: Tests for prepopulator
           command: ./gradlew :prepopulator:test
       - store_artifacts:
-          path: app/build/reports
+          path: android/build/reports
           destination: circleci/reports
       - store_test_results:
-          path: app/build/test-results
+          path: android/build/test-results
+  build_artifacts:
+    docker:
+      - image: circleci/android:api-29
+    steps:
+      - checkout
+      - run:
+          name: Prepare Dictionaries
+          command: ./gradlew :prepopulator:prepareDictionaries
+      - run:
+          name: Build Prepopulator
+          command: ./gradlew :prepopulator:shadowJar
+      - run:
+          name: Populate Database
+          command: java -jar prepopulator/build/libs/prepopulator-all.jar && mv prepopulator/build/jisho.sqlite android/src/main/assets/
+      - run:
+          name: Android Tests
+          command: ./gradlew :android:test
+      - run:
+          name: Build APK
+          command: ./gradlew :android:assemble
+      - store_artifacts:
+          path: android/build/outputs/apk/release
+          destination: circleci/apk
+      - store_artifacts:
+          path: android/src/main/assets/jisho.sqlite
+          destination: circleci/database
 workflows:
   pull_request:
     jobs:
       - unit_test
+  build:
+    jobs:
+      - unit_test
+      - build_artifacts:
+        filters:
+          branches:
+            only: master
   nightly:
     triggers:
       - schedule:
