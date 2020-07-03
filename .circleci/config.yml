@@ -58,9 +58,21 @@ workflows:
       - android_test
   build:
     jobs:
-      - sql_test
-      - prepopulator_test
-      - android_test
+      - sql_test:
+          filters:
+            branches:
+              only:
+                - master
+      - prepopulator_test:
+          filters:
+            branches:
+              only:
+                - master
+      - android_test:
+          filters:
+            branches:
+              only:
+                - master
       - build_artifacts:
           requires:
             - sql_test
