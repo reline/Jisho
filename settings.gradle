@@ -1,1 +1,2 @@
 include ':android', ':prepopulator', ':common'
+enableFeaturePreview('GRADLE_METADATA')

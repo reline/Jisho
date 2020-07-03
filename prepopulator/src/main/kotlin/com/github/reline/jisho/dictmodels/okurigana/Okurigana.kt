@@ -8,12 +8,16 @@
 
 package com.github.reline.jisho.dictmodels.okurigana
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class OkuriganaEntry(
         val text: String,
         val reading: String,
         val furigana: List<Okurigana>
 )
 
+@JsonClass(generateAdapter = true)
 data class Okurigana(
         val ruby: String,
         val rt: String? = null

@@ -12,7 +12,6 @@ import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okio.Buffer
 import java.io.File
 import java.lang.reflect.Type
@@ -37,7 +36,6 @@ object OkuriganaPopulator {
      */
     fun extractOkurigana(file: File): List<OkuriganaEntry> {
         val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
                 .build()
         val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
         val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)

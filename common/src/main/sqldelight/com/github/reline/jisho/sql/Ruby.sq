@@ -17,6 +17,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS unique_japanese_null_index
 ON Ruby(japanese)
 WHERE okurigana ISNULL;
 
+CREATE INDEX IF NOT EXISTS index_ruby_japanese
+ON Ruby(japanese);
+
+CREATE INDEX IF NOT EXISTS index_ruby_okurigana
+ON Ruby(okurigana);
+
 insert:
 INSERT OR IGNORE INTO Ruby (japanese, okurigana)
 VALUES (?, ?);

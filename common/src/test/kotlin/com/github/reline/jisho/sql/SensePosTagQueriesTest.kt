@@ -53,17 +53,19 @@ class SensePosTagQueriesTest {
     fun testTagDoesNotUpdate() = with(database) {
         transaction {
             entryQueries.insert(666, false)
+            senseQueries.insert(666)
+            val senseId = utilQueries.lastInsertRowId().executeAsOne()
 
             partOfSpeechQueries.insert("interjection")
             val id = partOfSpeechQueries.selectPosIdWhereValueEquals("interjection").executeAsOne()
-            sensePosTagQueries.insert(666, id)
+            sensePosTagQueries.insert(senseId, id)
 
             val glosses = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
             assertArrayEquals(
                     arrayOf("interjection"),
                     glosses.toTypedArray()
             )
-            assertEquals("interjection", sensePosTagQueries.selectPosWhereSenseIdEquals(666).executeAsOne())
+            assertEquals("interjection", sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsOne())
         }
     }
 }
