@@ -75,4 +75,6 @@ workflows:
               only:
                 - master
     jobs:
-      - unit_test
+      - sql_test
+      - prepopulator_test
+      - android_test
