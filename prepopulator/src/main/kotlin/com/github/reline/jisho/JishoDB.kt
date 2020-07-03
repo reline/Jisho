@@ -47,5 +47,5 @@ fun main() {
     KanjiPopulator.run()
     RadicalPopulator.run()
     DictionaryPopulator.run()
-    OkuriganaPopulator.run()
+//    OkuriganaPopulator.run()
 }
