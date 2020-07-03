@@ -1,27 +1,31 @@
 version: 2.1
 jobs:
-  unit_test:
+  sql_test:
     docker:
-      - image: circleci/android:api-29
+      - image: circleci/openjdk:8-buster-node
     steps:
       - checkout
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - run:
           name: Tests for common module
           command: ./gradlew :common:test
+  prepopulator_test:
+    docker:
+      - image: circleci/openjdk:8-buster-node
+    steps:
       - run:
           name: Tests for prepopulator
           command: ./gradlew :prepopulator:test
-      - run:
-          name: Android Tests
-          command: ./gradlew :android:test
-      - store_artifacts:
-          path: android/build/reports
-          destination: circleci/reports
-      - store_test_results:
-          path: android/build/test-results
+  android_test:
+    docker:
+      - image: circleci/android:api-29
+      steps:
+        - checkout
+        - run:
+            name: Download Dependencies
+            command: ./gradlew androidDependencies
+        - run:
+            name: Android Tests
+            command: ./gradlew :android:test
   build_artifacts:
     docker:
       - image: circleci/android:api-29
@@ -48,14 +52,20 @@ jobs:
 workflows:
   pull_request:
     jobs:
-      - unit_test
+      - sql_test
+      - prepopulator_test
+      - android_test
   build:
     jobs:
       - build_artifacts:
-        filters:
-          branches:
-            only:
-              - master
+          filters:
+            branches:
+              only:
+                - master
+          - requires:
+              - sql_test
+              - prepopulator_test
+              - android_test
   nightly:
     triggers:
       - schedule:
