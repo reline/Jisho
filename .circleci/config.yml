@@ -58,14 +58,14 @@ workflows:
   build:
     jobs:
       - build_artifacts:
+          requires:
+            - sql_test
+            - prepopulator_test
+            - android_test
           filters:
             branches:
               only:
                 - master
-          - requires:
-              - sql_test
-              - prepopulator_test
-              - android_test
   nightly:
     triggers:
       - schedule:
