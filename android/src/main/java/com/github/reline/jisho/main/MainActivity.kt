@@ -10,6 +10,7 @@ package com.github.reline.jisho.main
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -84,8 +85,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
-        val searchItem = menu.findItem(R.id.action_search)
 
+        val offlineModeItem = menu.findItem(R.id.action_offline_mode)
+        offlineModeItem?.isChecked = viewModel.isOfflineModeEnabled
+
+        val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView
         searchView.setQuery(viewModel.searchQuery, false) // restore the query
         searchView.queryHint = getString(R.string.search)
@@ -104,4 +108,14 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_offline_mode -> {
+                item.isChecked = !item.isChecked
+                viewModel.onOfflineModeToggled(item.isChecked)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }
