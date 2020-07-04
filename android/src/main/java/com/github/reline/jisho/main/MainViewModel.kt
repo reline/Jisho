@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.reline.jisho.models.Word
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.persistence.Preferences
 import com.github.reline.jisho.util.call
 import com.github.reline.jisho.util.publishChannel
 import kotlinx.coroutines.Dispatchers
@@ -23,12 +24,15 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
         private val api: SearchApi,
-        private val dao: JapaneseMultilingualDao
+        private val dao: JapaneseMultilingualDao,
+        private val preferences: Preferences
 ) : ViewModel() {
 
     val wordList = MutableLiveData<List<Word>>().apply { value = emptyList() }
     var searchQuery: String? = null
         private set
+    val isOfflineModeEnabled: Boolean
+        get() = preferences.isOfflineModeEnabled()
 
     val showProgressBarCommand = publishChannel<Unit>()
     val hideProgressBarCommand = publishChannel<Unit>()
@@ -65,6 +69,10 @@ class MainViewModel @Inject constructor(
             hideNoMatchViewCommand.call()
             wordList.postValue(response.data)
         }
+    }
+
+    fun onOfflineModeToggled(enabled: Boolean) {
+        preferences.setOfflineMode(enabled)
     }
 
 }
