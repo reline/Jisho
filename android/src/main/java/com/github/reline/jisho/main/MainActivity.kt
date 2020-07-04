@@ -19,9 +19,16 @@ import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
 import com.github.reline.jisho.util.hideKeyboard
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
+
+    private val scope = MainScope()
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -38,32 +45,44 @@ class MainActivity : AppCompatActivity() {
 
         mainActivityRecyclerView.adapter = adapter
 
-        viewModel.hideKeyboardCommand.observe(this, Observer { hideKeyboard() })
-
         viewModel.wordList.observe(this, Observer {
             adapter.updateData(it)
         })
 
-        viewModel.showNoMatchViewCommand.observe(this, Observer {
-            mainActivityNoMatchTextView.visibility = View.VISIBLE
-            mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
-        })
+        scope.launch {
+            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
+        }
 
-        viewModel.hideNoMatchViewCommand.observe(this, Observer {
-            mainActivityNoMatchTextView.visibility = View.GONE
-        })
+        scope.launch {
+            viewModel.showNoMatchViewCommand.asFlow().collect {
+                mainActivityNoMatchTextView.visibility = View.VISIBLE
+                mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
+            }
+        }
 
-        viewModel.showProgressBarCommand.observe(this, Observer {
-            mainActivityProgressBar.visibility = View.VISIBLE
-        })
+        scope.launch {
+            viewModel.hideNoMatchViewCommand.asFlow().collect {
+                mainActivityNoMatchTextView.visibility = View.GONE
+            }
+        }
 
-        viewModel.hideProgressBarCommand.observe(this, Observer {
-            mainActivityProgressBar.visibility = View.GONE
-        })
+        scope.launch {
+            viewModel.showProgressBarCommand.asFlow().collect {
+                mainActivityProgressBar.visibility = View.VISIBLE
+            }
+        }
 
-        viewModel.hideLogoCommand.observe(this, Observer {
-            mainActivityLogoTextView.visibility = View.GONE
-        })
+        scope.launch {
+            viewModel.hideProgressBarCommand.asFlow().collect {
+                mainActivityProgressBar.visibility = View.GONE
+            }
+        }
+
+        scope.launch {
+            viewModel.hideLogoCommand.asFlow().collect {
+                mainActivityLogoTextView.visibility = View.GONE
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -88,4 +107,8 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
+    }
 }
