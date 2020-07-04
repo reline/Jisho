@@ -11,6 +11,7 @@ package com.github.reline.jisho.util
 import android.app.Activity
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import kotlinx.coroutines.channels.SendChannel
 
 fun Activity.hideKeyboard() {
     currentFocus?.windowToken?.let {
@@ -18,3 +19,5 @@ fun Activity.hideKeyboard() {
         context?.hideSoftInputFromWindow(it, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 }
+
+fun SendChannel<Unit>.call() = offer(Unit)

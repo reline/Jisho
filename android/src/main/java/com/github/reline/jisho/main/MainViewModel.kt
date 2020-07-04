@@ -14,11 +14,9 @@ import com.github.reline.jisho.base.SchedulerProvider
 import com.github.reline.jisho.models.Word
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.util.SingleLiveEvent
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
+import com.github.reline.jisho.util.call
+import com.github.reline.jisho.util.publishChannel
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.BiConsumer
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -34,12 +32,12 @@ class MainViewModel @Inject constructor(
     var searchQuery: String? = null
         private set
 
-    val showProgressBarCommand = SingleLiveEvent<Void>()
-    val hideProgressBarCommand = SingleLiveEvent<Void>()
-    val hideNoMatchViewCommand = SingleLiveEvent<Void>()
-    val showNoMatchViewCommand = SingleLiveEvent<String>()
-    val hideLogoCommand = SingleLiveEvent<Void>()
-    val hideKeyboardCommand = SingleLiveEvent<Void>()
+    val showProgressBarCommand = publishChannel<Unit>()
+    val hideProgressBarCommand = publishChannel<Unit>()
+    val hideNoMatchViewCommand = publishChannel<Unit>()
+    val showNoMatchViewCommand = publishChannel<String>()
+    val hideLogoCommand = publishChannel<Unit>()
+    val hideKeyboardCommand = publishChannel<Unit>()
 
     fun onSearchQueryChanged(query: String) {
         searchQuery = query
@@ -55,14 +53,16 @@ class MainViewModel @Inject constructor(
                 .subscribe({ response ->
                     hideProgressBarCommand.call()
                     if (response.data.isEmpty()) {
-                        showNoMatchViewCommand.value = query
+                        wordList.value = emptyList()
+                        showNoMatchViewCommand.offer(query)
                     } else {
                         hideNoMatchViewCommand.call()
                         wordList.value = response.data
                     }
                 }, { t ->
                     hideProgressBarCommand.call()
-                    showNoMatchViewCommand.value = query
+                    wordList.value = emptyList()
+                    showNoMatchViewCommand.offer(query)
                     Timber.e(t, "Search query $query failed")
                 })
     }
