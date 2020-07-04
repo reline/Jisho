@@ -21,8 +21,6 @@ buildscript {
     ext.okhttp_version = '3.14.9'
     ext.okio_version = '2.6.0'
     ext.moshi_version = '1.9.3'
-    ext.rxjava_version = '2.2.19'
-    ext.rxandroid_version= '2.1.1'
     ext.timber_version = '4.7.1'
 
     repositories {
