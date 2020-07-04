@@ -9,11 +9,10 @@
 package com.github.reline.jisho.network.services
 
 import com.github.reline.jisho.network.responses.SearchResponse
-import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface SearchApi {
     @GET("search/words")
-    fun searchQuery(@Query("keyword") query: String): Observable<SearchResponse>
+    suspend fun searchQuery(@Query("keyword") query: String): SearchResponse
 }

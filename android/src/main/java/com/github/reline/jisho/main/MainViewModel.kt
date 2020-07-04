@@ -10,23 +10,21 @@ package com.github.reline.jisho.main
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.github.reline.jisho.base.SchedulerProvider
+import androidx.lifecycle.viewModelScope
 import com.github.reline.jisho.models.Word
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.util.call
 import com.github.reline.jisho.util.publishChannel
-import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
         private val api: SearchApi,
-        private val schedulerProvider: SchedulerProvider,
         private val dao: JapaneseMultilingualDao
 ) : ViewModel() {
-
-    private var disposable: Disposable? = null
 
     val wordList = MutableLiveData<List<Word>>().apply { value = emptyList() }
     var searchQuery: String? = null
@@ -43,28 +41,30 @@ class MainViewModel @Inject constructor(
         searchQuery = query
     }
 
-    fun onSearchClicked(query: String) {
+    fun onSearchClicked(query: String) = viewModelScope.launch(Dispatchers.IO) {
         hideKeyboardCommand.call()
         hideNoMatchViewCommand.call()
         hideLogoCommand.call()
         showProgressBarCommand.call()
-        disposable = api.searchQuery(query)
-                .observeOn(schedulerProvider.mainThread())
-                .subscribe({ response ->
-                    hideProgressBarCommand.call()
-                    if (response.data.isEmpty()) {
-                        wordList.value = emptyList()
-                        showNoMatchViewCommand.offer(query)
-                    } else {
-                        hideNoMatchViewCommand.call()
-                        wordList.value = response.data
-                    }
-                }, { t ->
-                    hideProgressBarCommand.call()
-                    wordList.value = emptyList()
-                    showNoMatchViewCommand.offer(query)
-                    Timber.e(t, "Search query $query failed")
-                })
+
+        val response = try {
+            api.searchQuery(query)
+        } catch (t: Throwable) {
+            hideProgressBarCommand.call()
+            wordList.postValue(emptyList())
+            showNoMatchViewCommand.offer(query)
+            Timber.e(t, "Search query $query failed")
+            return@launch
+        }
+
+        hideProgressBarCommand.call()
+        if (response.data.isEmpty()) {
+            wordList.postValue(emptyList())
+            showNoMatchViewCommand.offer(query)
+        } else {
+            hideNoMatchViewCommand.call()
+            wordList.postValue(response.data)
+        }
     }
 
 }

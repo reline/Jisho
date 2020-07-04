@@ -15,20 +15,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
 import com.github.reline.jisho.util.hideKeyboard
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
-
-    private val scope = MainScope()
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -49,36 +46,36 @@ class MainActivity : AppCompatActivity() {
             adapter.updateData(it)
         })
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
         }
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.showNoMatchViewCommand.asFlow().collect {
                 mainActivityNoMatchTextView.visibility = View.VISIBLE
                 mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
             }
         }
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.hideNoMatchViewCommand.asFlow().collect {
                 mainActivityNoMatchTextView.visibility = View.GONE
             }
         }
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.showProgressBarCommand.asFlow().collect {
                 mainActivityProgressBar.visibility = View.VISIBLE
             }
         }
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.hideProgressBarCommand.asFlow().collect {
                 mainActivityProgressBar.visibility = View.GONE
             }
         }
 
-        scope.launch {
+        lifecycleScope.launch {
             viewModel.hideLogoCommand.asFlow().collect {
                 mainActivityLogoTextView.visibility = View.GONE
             }
@@ -107,8 +104,4 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
-    }
 }
