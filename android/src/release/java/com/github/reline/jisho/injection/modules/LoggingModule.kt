@@ -6,12 +6,17 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.base
+package com.github.reline.jisho.injection.modules
 
+import com.github.reline.jisho.util.NoOpTree
+import dagger.Module
+import dagger.Provides
 import timber.log.Timber
 
-class LogTree : Timber.Tree() {
-    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-        // no-op
+@Module
+class LoggingModule {
+    @Provides
+    fun provideLoggingTree(): Timber.Tree {
+        return NoOpTree()
     }
 }
