@@ -22,16 +22,11 @@ class Jisho : Application() {
     lateinit var tree: Timber.Tree
 
     override fun onCreate() {
+        Timber.plant(tree)
         super.onCreate()
         appComponent = DaggerApplicationComponent.builder()
                 .application(this)
                 .build()
         appComponent.inject(this)
-
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        } else {
-            Timber.plant(tree)
-        }
     }
 }

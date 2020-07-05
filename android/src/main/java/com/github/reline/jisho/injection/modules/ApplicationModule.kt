@@ -12,25 +12,17 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
-import com.github.reline.jisho.base.LogTree
 import com.github.reline.jisho.persistence.Preferences
 import dagger.Module
 import dagger.Provides
-import timber.log.Timber
-import javax.inject.Singleton
 
 @Module(includes = [
     ViewModelModule::class,
     NetworkModule::class,
-    DatabaseModule::class
+    DatabaseModule::class,
+    LoggingModule::class
 ])
 class ApplicationModule {
-
-    @Provides
-    @Singleton
-    fun provideTree(): Timber.Tree {
-        return LogTree()
-    }
 
     @Provides
     fun provideAssets(context: Application): AssetManager {
