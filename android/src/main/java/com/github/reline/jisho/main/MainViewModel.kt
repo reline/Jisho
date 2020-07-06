@@ -11,9 +11,8 @@ package com.github.reline.jisho.main
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.reline.jisho.models.Repository
 import com.github.reline.jisho.models.Word
-import com.github.reline.jisho.network.services.SearchApi
-import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.persistence.Preferences
 import com.github.reline.jisho.util.call
 import com.github.reline.jisho.util.publishChannel
@@ -23,8 +22,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-        private val api: SearchApi,
-        private val dao: JapaneseMultilingualDao,
+        private val repo: Repository,
         private val preferences: Preferences
 ) : ViewModel() {
 
@@ -51,8 +49,8 @@ class MainViewModel @Inject constructor(
         hideLogoCommand.call()
         showProgressBarCommand.call()
 
-        val response = try {
-            api.searchQuery(query)
+        val words = try {
+            repo.search(query)
         } catch (t: Throwable) {
             hideProgressBarCommand.call()
             wordList.postValue(emptyList())
@@ -62,12 +60,12 @@ class MainViewModel @Inject constructor(
         }
 
         hideProgressBarCommand.call()
-        if (response.data.isEmpty()) {
+        if (words.isEmpty()) {
             wordList.postValue(emptyList())
             showNoMatchViewCommand.offer(query)
         } else {
             hideNoMatchViewCommand.call()
-            wordList.postValue(response.data)
+            wordList.postValue(words)
         }
     }
 

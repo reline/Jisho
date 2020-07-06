@@ -11,16 +11,15 @@ package com.github.reline.jisho.persistence
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.sql.SelectEntry
 import kotlin.coroutines.CoroutineContext
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToOne
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class JapaneseMultilingualDao(
         private val database: JishoDatabase,
         private val context: CoroutineContext
 ) {
-    fun search(query: String): Flow<SelectEntry> {
-        return database.entryQueries.selectEntry(query).asFlow().mapToOne(context)
+    suspend fun search(query: String): List<SelectEntry> = withContext(context) {
+        // todo: optimize sql query based on contents of search string
+        return@withContext database.entryQueries.selectEntry(query).executeAsList()
     }
 }
 
