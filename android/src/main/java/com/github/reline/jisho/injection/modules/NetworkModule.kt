@@ -9,6 +9,7 @@
 package com.github.reline.jisho.injection.modules
 
 import com.github.reline.jisho.BuildConfig
+import com.github.reline.jisho.network.adapters.DbpediaAdapter
 import com.github.reline.jisho.network.services.SearchApi
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -26,7 +27,8 @@ class NetworkModule {
     @Singleton
     internal fun provideMoshi(): Moshi {
         return Moshi.Builder()
-            .build()
+                .add(DbpediaAdapter())
+                .build()
     }
 
     @Provides
