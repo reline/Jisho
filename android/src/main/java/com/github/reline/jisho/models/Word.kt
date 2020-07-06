@@ -14,10 +14,10 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Word(
-    val id: Int,
     @field:Json(name = "is_common")
     val isCommon: Boolean,
     val tags: List<String>,
+    val jlpt: List<String>,
     val japanese: List<Japanese>,
     val senses: List<Sense>,
     val attribution: Attribution
