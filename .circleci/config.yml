@@ -27,6 +27,11 @@ jobs:
       - run:
           name: Android Tests
           command: ./gradlew :android:test
+      - store_test_results:
+          path: android/build/test-results
+      - store_artifacts:
+          path: android/build/reports
+          destination: circleci/reports
   build_artifacts:
     docker:
       - image: circleci/android:api-29
