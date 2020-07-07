@@ -6,15 +6,17 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.base
+package com.github.reline.jisho.injection.modules
 
-import io.reactivex.Scheduler
+import com.github.reline.jisho.util.NoOpTree
+import dagger.Module
+import dagger.Provides
+import timber.log.Timber
 
-interface SchedulerProvider {
-    fun mainThread(): Scheduler
-    fun computation(): Scheduler
-    fun io(): Scheduler
-    fun newThread(): Scheduler
-    fun single(): Scheduler
-    fun trampoline(): Scheduler
+@Module
+class LoggingModule {
+    @Provides
+    fun provideLoggingTree(): Timber.Tree {
+        return NoOpTree()
+    }
 }

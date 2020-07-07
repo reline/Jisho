@@ -9,15 +9,19 @@
 package com.github.reline.jisho.models
 
 import android.os.Parcelable
+import com.github.reline.jisho.network.qualifiers.Dbpedia
 import com.squareup.moshi.Json
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class Attribution(
     @field:Json(name = "jmdict")
-    val isJmdict: Boolean,
+    val isJmdict: Boolean = false,
     @field:Json(name = "jmnedict")
-    val isJmnedict: Boolean
-    // Issue #14: data is lost when parceled
-    // val dbpedia: Any // String or boolean
-) : Parcelable
+    val isJmnedict: Boolean = false,
+    @field:Dbpedia
+    val dbpedia: String = false.toString()
+) : Parcelable {
+    val isDbpedia: Boolean
+        get() = dbpedia != false.toString()
+}

@@ -9,36 +9,37 @@
 package com.github.reline.jisho.injection.modules
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.AssetManager
-import com.github.reline.jisho.base.AndroidSchedulerProvider
-import com.github.reline.jisho.base.LogTree
-import com.github.reline.jisho.base.SchedulerProvider
+import com.github.reline.jisho.persistence.Preferences
 import dagger.Module
 import dagger.Provides
-import timber.log.Timber
-import javax.inject.Singleton
 
 @Module(includes = [
     ViewModelModule::class,
     NetworkModule::class,
-    DatabaseModule::class
+    DatabaseModule::class,
+    LoggingModule::class
 ])
 class ApplicationModule {
 
     @Provides
-    @Singleton
-    fun provideSchedulerProvider(): SchedulerProvider {
-        return AndroidSchedulerProvider()
-    }
-
-    @Provides
-    @Singleton
-    fun provideTree(): Timber.Tree {
-        return LogTree()
-    }
-
-    @Provides
     fun provideAssets(context: Application): AssetManager {
         return context.assets
+    }
+
+    @Provides
+    fun provideSharedPreferences(context: Application): SharedPreferences {
+        return context.getSharedPreferences(GENERAL_PREFERENCES, Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    fun providePrefs(sharedPreferences: SharedPreferences): Preferences {
+        return Preferences(sharedPreferences)
+    }
+
+    companion object {
+        private const val GENERAL_PREFERENCES = "general_preferences.xml"
     }
 }

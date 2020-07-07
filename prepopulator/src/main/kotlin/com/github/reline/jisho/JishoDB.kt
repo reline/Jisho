@@ -44,8 +44,8 @@ val database: JishoDatabase by lazy {
 
 fun main() {
     logger.info("Working directory: ${File(".").absolutePath}")
-    KanjiPopulator.run()
-    RadicalPopulator.run()
+//    KanjiPopulator.run()
+//    RadicalPopulator.run()
     DictionaryPopulator.run()
 //    OkuriganaPopulator.run()
 }

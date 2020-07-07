@@ -10,17 +10,17 @@ package com.github.reline.jisho.sql
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import kotlin.properties.Delegates
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class SensePosTagQueriesTest {
     private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         JishoDatabase.Schema.create(driver)
@@ -43,10 +43,11 @@ class SensePosTagQueriesTest {
     @Test
     fun test() = with(database) {
         val glosses = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
-        assertArrayEquals(
-                arrayOf("interjection"),
-                glosses.toTypedArray()
-        )
+        assertTrue {
+            glosses.toTypedArray().contentEquals(
+                    arrayOf("interjection")
+            )
+        }
     }
 
     @Test
@@ -61,10 +62,11 @@ class SensePosTagQueriesTest {
             sensePosTagQueries.insert(senseId, id)
 
             val glosses = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
-            assertArrayEquals(
-                    arrayOf("interjection"),
-                    glosses.toTypedArray()
-            )
+            assertTrue {
+                glosses.toTypedArray().contentEquals(
+                        arrayOf("interjection")
+                )
+            }
             assertEquals("interjection", sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsOne())
         }
     }

@@ -10,15 +10,20 @@ package com.github.reline.jisho.main
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
 import com.github.reline.jisho.util.hideKeyboard
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -38,38 +43,53 @@ class MainActivity : AppCompatActivity() {
 
         mainActivityRecyclerView.adapter = adapter
 
-        viewModel.hideKeyboardCommand.observe(this, Observer { hideKeyboard() })
-
         viewModel.wordList.observe(this, Observer {
             adapter.updateData(it)
         })
 
-        viewModel.showNoMatchViewCommand.observe(this, Observer {
-            mainActivityNoMatchTextView.visibility = View.VISIBLE
-            mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
-        })
+        lifecycleScope.launch {
+            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
+        }
 
-        viewModel.hideNoMatchViewCommand.observe(this, Observer {
-            mainActivityNoMatchTextView.visibility = View.GONE
-        })
+        lifecycleScope.launch {
+            viewModel.showNoMatchViewCommand.asFlow().collect {
+                mainActivityNoMatchTextView.visibility = View.VISIBLE
+                mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
+            }
+        }
 
-        viewModel.showProgressBarCommand.observe(this, Observer {
-            mainActivityProgressBar.visibility = View.VISIBLE
-        })
+        lifecycleScope.launch {
+            viewModel.hideNoMatchViewCommand.asFlow().collect {
+                mainActivityNoMatchTextView.visibility = View.GONE
+            }
+        }
 
-        viewModel.hideProgressBarCommand.observe(this, Observer {
-            mainActivityProgressBar.visibility = View.GONE
-        })
+        lifecycleScope.launch {
+            viewModel.showProgressBarCommand.asFlow().collect {
+                mainActivityProgressBar.visibility = View.VISIBLE
+            }
+        }
 
-        viewModel.hideLogoCommand.observe(this, Observer {
-            mainActivityLogoTextView.visibility = View.GONE
-        })
+        lifecycleScope.launch {
+            viewModel.hideProgressBarCommand.asFlow().collect {
+                mainActivityProgressBar.visibility = View.GONE
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.hideLogoCommand.asFlow().collect {
+                mainActivityLogoTextView.visibility = View.GONE
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
-        val searchItem = menu.findItem(R.id.action_search)
 
+        val offlineModeItem = menu.findItem(R.id.action_offline_mode)
+        offlineModeItem?.isChecked = viewModel.isOfflineModeEnabled
+
+        val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView
         searchView.setQuery(viewModel.searchQuery, false) // restore the query
         searchView.queryHint = getString(R.string.search)
@@ -88,4 +108,14 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_offline_mode -> {
+                item.isChecked = !item.isChecked
+                viewModel.onOfflineModeToggled(item.isChecked)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }

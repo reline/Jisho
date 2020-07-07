@@ -28,10 +28,6 @@ class Jisho : Application() {
                 .build()
         appComponent.inject(this)
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        } else {
-            Timber.plant(tree)
-        }
+        Timber.plant(tree)
     }
 }

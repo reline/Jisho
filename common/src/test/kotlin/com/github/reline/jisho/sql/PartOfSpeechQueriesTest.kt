@@ -10,16 +10,17 @@ package com.github.reline.jisho.sql
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import org.junit.Assert.assertArrayEquals
-import org.junit.Before
 import org.junit.Test
 import kotlin.properties.Delegates
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class PartOfSpeechQueriesTest {
     private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         JishoDatabase.Schema.create(driver)
@@ -42,10 +43,11 @@ class PartOfSpeechQueriesTest {
             partOfSpeechQueries.insert("fake")
             sensePosTagQueries.insert(senseId, utilQueries.lastInsertRowId().executeAsOne())
             val pos = sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
-            assertArrayEquals(
-                    arrayOf("interjection", "fake"),
-                    pos.toTypedArray()
-            )
+            assertTrue {
+                pos.toTypedArray().contentEquals(
+                        arrayOf("interjection", "fake")
+                )
+            }
         }
     }
 }

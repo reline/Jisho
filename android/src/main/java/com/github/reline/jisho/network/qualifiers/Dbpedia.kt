@@ -6,12 +6,10 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.base
+package com.github.reline.jisho.network.qualifiers
 
-import timber.log.Timber
+import com.squareup.moshi.JsonQualifier
 
-class LogTree : Timber.Tree() {
-    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-        // no-op
-    }
-}
+@Retention(AnnotationRetention.RUNTIME)
+@JsonQualifier
+annotation class Dbpedia

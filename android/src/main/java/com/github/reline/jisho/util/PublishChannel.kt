@@ -6,13 +6,12 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.network.services
+package com.github.reline.jisho.util
 
-import com.github.reline.jisho.network.responses.SearchResponse
-import retrofit2.http.GET
-import retrofit2.http.Query
+import kotlinx.coroutines.channels.BroadcastChannel
 
-interface SearchApi {
-    @GET("search/words")
-    suspend fun searchQuery(@Query("keyword") query: String): SearchResponse
-}
+/**
+ * Create a BroadcastChannel that behaves like an Rx PublishSubject
+ * Use an ArrayBroadcastChannel with a capacity of one instead of the default 64
+ */
+fun <T> publishChannel() = BroadcastChannel<T>(1)

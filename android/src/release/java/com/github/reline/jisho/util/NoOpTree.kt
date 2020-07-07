@@ -6,13 +6,12 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.network.services
+package com.github.reline.jisho.util
 
-import com.github.reline.jisho.network.responses.SearchResponse
-import retrofit2.http.GET
-import retrofit2.http.Query
+import timber.log.Timber
 
-interface SearchApi {
-    @GET("search/words")
-    suspend fun searchQuery(@Query("keyword") query: String): SearchResponse
+class NoOpTree : Timber.Tree() {
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        // no-op
+    }
 }

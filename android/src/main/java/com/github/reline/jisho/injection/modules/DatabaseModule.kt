@@ -20,6 +20,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Module
@@ -50,5 +51,5 @@ class DatabaseModule {
     fun provideDatabase(driver: SqlDriver) = JishoDatabase(driver)
 
     @Provides
-    fun provideDao(database: JishoDatabase) = JapaneseMultilingualDao(database, null!!)
+    fun provideDao(database: JishoDatabase) = JapaneseMultilingualDao(database, Dispatchers.IO)
 }

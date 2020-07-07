@@ -9,15 +9,14 @@
 package com.github.reline.jisho.injection.modules
 
 import com.github.reline.jisho.BuildConfig
+import com.github.reline.jisho.network.adapters.DbpediaAdapter
 import com.github.reline.jisho.network.services.SearchApi
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
-import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
@@ -28,7 +27,8 @@ class NetworkModule {
     @Singleton
     internal fun provideMoshi(): Moshi {
         return Moshi.Builder()
-            .build()
+                .add(DbpediaAdapter())
+                .build()
     }
 
     @Provides
@@ -48,7 +48,6 @@ class NetworkModule {
     internal fun provideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .callFactory(okHttpClient)
             .build()
