@@ -10,18 +10,18 @@ package com.github.reline.jisho.sql
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import org.junit.Assert
-import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import kotlin.properties.Delegates
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class GlossQueriesTest {
 
     private var senseId by Delegates.notNull<Long>()
     private lateinit var database: JishoDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         JishoDatabase.Schema.create(driver)
@@ -52,9 +52,10 @@ class GlossQueriesTest {
     @Test
     fun test() = with(database) {
         val glosses = glossQueries.selectGlossWhereSenseIdEquals(senseId).executeAsList()
-        Assert.assertArrayEquals(
-                arrayOf("hello", "good day (daytime greeting)"),
-                glosses.toTypedArray()
-        )
+        assertTrue {
+            glosses.toTypedArray().contentEquals(
+                    arrayOf("hello", "good day (daytime greeting)")
+            )
+        }
     }
 }

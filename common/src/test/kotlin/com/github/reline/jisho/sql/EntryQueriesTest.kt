@@ -10,11 +10,11 @@ package com.github.reline.jisho.sql
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class EntryQueriesTest {
 
@@ -24,7 +24,7 @@ class EntryQueriesTest {
 
     private lateinit var database: JishoDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         JishoDatabase.Schema.create(driver)
