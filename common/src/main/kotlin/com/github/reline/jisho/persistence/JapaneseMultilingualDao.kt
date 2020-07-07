@@ -8,6 +8,7 @@
 
 package com.github.reline.jisho.persistence
 
+import com.github.reline.jisho.utils.checkCJK
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.sql.SelectEntry
 import kotlin.coroutines.CoroutineContext
@@ -18,7 +19,23 @@ class JapaneseMultilingualDao(
         private val context: CoroutineContext
 ) {
     suspend fun search(query: String): List<SelectEntry> = withContext(context) {
-        // todo: optimize sql query based on contents of search string
+        val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
+        if (containsRoomaji) {
+            // fixme: do we need both checks?
+            if (containsKana || containsKanji) {
+                // todo: query for combination
+                return@withContext database.entryQueries.selectEntry(query).executeAsList()
+            } else {
+                // todo: query for english only
+            }
+        } else {
+            if (containsKanji) {
+                // todo: query for kanji & kana
+            } else if (containsKana) {
+                // todo: query for kana only
+            }
+        }
+        // default
         return@withContext database.entryQueries.selectEntry(query).executeAsList()
     }
 }
