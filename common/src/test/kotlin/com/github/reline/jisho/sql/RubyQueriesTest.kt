@@ -11,9 +11,10 @@ package com.github.reline.jisho.sql
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver.Companion.IN_MEMORY
-import org.junit.Assert.assertArrayEquals
-import org.junit.Before
 import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class RubyQueriesTest {
 
@@ -23,7 +24,7 @@ class RubyQueriesTest {
 
     private lateinit var database: JishoDatabase
 
-    @Before
+    @BeforeTest
     fun setup() {
         val driver: SqlDriver = JdbcSqliteDriver(IN_MEMORY)
         JishoDatabase.Schema.create(driver)
@@ -47,14 +48,15 @@ class RubyQueriesTest {
             entryRubyTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne(), 3)
 
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
-            assertArrayEquals(
-                    arrayOf(
-                        SelectRubies("今", "こん", 1),
-                        SelectRubies("日", "にち", 2),
-                        SelectRubies("は", null, 3)
-                    ),
-                    rubies.toTypedArray()
-            )
+            assertTrue {
+                rubies.toTypedArray().contentEquals(
+                        arrayOf(
+                                SelectRubies("今", "こん", 1),
+                                SelectRubies("日", "にち", 2),
+                                SelectRubies("は", null, 3)
+                        )
+                )
+            }
         }
     }
 
@@ -65,10 +67,11 @@ class RubyQueriesTest {
             val rubyId = rubyQueries.selectRubyId("日", "にち").executeAsOne()
             entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
-            assertArrayEquals(
-                    arrayOf(SelectRubies("日", "にち", 2)),
-                    rubies.toTypedArray()
-            )
+            assertTrue {
+                rubies.toTypedArray().contentEquals(
+                        arrayOf(SelectRubies("日", "にち", 2))
+                )
+            }
         }
     }
 
@@ -80,10 +83,11 @@ class RubyQueriesTest {
             val rubyId = rubyQueries.selectRubyId("日", "にち").executeAsOne()
             entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
             val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
-            assertArrayEquals(
-                    arrayOf(SelectRubies("日", "にち", 2)),
-                    rubies.toTypedArray()
-            )
+            assertTrue {
+                rubies.toTypedArray().contentEquals(
+                        arrayOf(SelectRubies("日", "にち", 2))
+                )
+            }
         }
     }
 
