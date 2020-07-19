@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.utils
+package com.github.reline.jisho.linguist
 
 /**
  * http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml

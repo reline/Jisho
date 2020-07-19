@@ -4,3 +4,6 @@
 [submodule "tikxml"]
 	path = tikxml
 	url = git@github.com:reline/tikxml
+[submodule "ve"]
+	path = ve
+	url = git@github.com:reline/ve.git
