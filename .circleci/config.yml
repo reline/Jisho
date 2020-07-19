@@ -1,26 +1,21 @@
 version: 2.1
 jobs:
-  sql_test:
-    docker:
-      - image: circleci/openjdk:8-buster-node
-    steps:
-      - checkout
-      - run:
-          name: Tests for common module
-          command: ./gradlew :common:test
-  prepopulator_test:
-    docker:
-      - image: circleci/openjdk:8-buster-node
-    steps:
-      - checkout
-      - run:
-          name: Tests for prepopulator
-          command: ./gradlew :prepopulator:test
-  android_test:
+  unit_test:
     docker:
       - image: circleci/android:api-29
     steps:
       - checkout
+      - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule init
+            git submodule update --remote
+      - run:
+          name: Tests for common module
+          command: ./gradlew :common:test
+      - run:
+          name: Tests for prepopulator
+          command: ./gradlew :prepopulator:test
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
@@ -58,31 +53,17 @@ jobs:
 workflows:
   pull_request:
     jobs:
-      - sql_test
-      - prepopulator_test
-      - android_test
+      - unit_test
   build:
     jobs:
-      - sql_test:
-          filters:
-            branches:
-              only:
-                - master
-      - prepopulator_test:
-          filters:
-            branches:
-              only:
-                - master
-      - android_test:
+      - unit_test:
           filters:
             branches:
               only:
                 - master
       - build_artifacts:
           requires:
-            - sql_test
-            - prepopulator_test
-            - android_test
+            - unit_test
           filters:
             branches:
               only:
@@ -96,6 +77,4 @@ workflows:
               only:
                 - master
     jobs:
-      - sql_test
-      - prepopulator_test
-      - android_test
+      - unit_test
