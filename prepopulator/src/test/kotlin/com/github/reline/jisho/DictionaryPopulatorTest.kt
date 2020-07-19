@@ -8,6 +8,8 @@
 
 package com.github.reline.jisho
 
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.Assert.assertTrue
 import org.junit.rules.ErrorCollector
@@ -119,9 +121,15 @@ class DictionaryPopulatorTest {
     }
 
     @Test
-    fun test走った() = with(database) {
-        val results = entryQueries.selectEntry("走った").executeAsList()
-        println(results.joinToString(separator = ",") { it.reading!! })
-        // fixme: returns no results
+    fun test走った() = runBlocking {
+        val dao = JapaneseMultilingualDao(database, coroutineContext)
+        val results = dao.search("走った")
+        val actual = results.joinToString(separator = ",") { it.japanese }
+        val expected = listOf("走る", "奔る", "趨る")
+        expected.forEach {
+            collector.checkSucceeds {
+                assertTrue("Missing $it", actual.contains(it))
+            }
+        }
     }
 }

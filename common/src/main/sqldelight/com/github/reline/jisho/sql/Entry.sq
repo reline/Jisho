@@ -45,3 +45,53 @@ WHERE e1.id IN (
         OR Reading.value LIKE :keyword||'%'
         OR Gloss.value LIKE '%'||:keyword||'%'
 );
+
+selectEntriesByGloss:
+SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
+FROM Entry AS e1
+LEFT JOIN Japanese
+    ON e1.id = Japanese.entry_id
+LEFT JOIN Reading
+    ON e1.id = Reading.entry_id
+WHERE e1.id IN (
+    SELECT e2.id
+    FROM Entry AS e2
+    LEFT JOIN Sense
+        ON e2.id = Sense.entry_id
+    LEFT JOIN Gloss
+        ON Gloss.sense_id = Sense.id
+    WHERE Gloss.value LIKE '%'||:keyword||'%'
+);
+
+selectEntriesByComplexJapanese:
+SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
+FROM Entry AS e1
+LEFT JOIN Japanese
+    ON e1.id = Japanese.entry_id
+LEFT JOIN Reading
+    ON e1.id = Reading.entry_id
+WHERE e1.id IN (
+    SELECT e2.id
+    FROM Entry AS e2
+    LEFT JOIN Japanese
+        ON e2.id = Japanese.entry_id
+    WHERE Japanese.value LIKE :keyword||'%'
+);
+
+selectEntriesBySimpleJapanese:
+SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
+FROM Entry AS e1
+LEFT JOIN Japanese
+    ON e1.id = Japanese.entry_id
+LEFT JOIN Reading
+    ON e1.id = Reading.entry_id
+WHERE e1.id IN (
+    SELECT e2.id
+    FROM Entry AS e2
+    LEFT JOIN Japanese
+            ON e2.id = Japanese.entry_id
+    LEFT JOIN Reading
+        ON e2.id = Reading.entry_id
+    WHERE Japanese.value LIKE :keyword||'%'
+        OR Reading.value LIKE :keyword||'%'
+);

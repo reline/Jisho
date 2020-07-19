@@ -8,9 +8,9 @@
 
 package com.github.reline.jisho.persistence
 
-import com.github.reline.jisho.utils.checkCJK
-import com.github.reline.jisho.sql.JishoDatabase
-import com.github.reline.jisho.sql.SelectEntry
+import com.github.reline.jisho.linguist.asLemmas
+import com.github.reline.jisho.linguist.checkCJK
+import com.github.reline.jisho.sql.*
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.withContext
 
@@ -18,25 +18,71 @@ class JapaneseMultilingualDao(
         private val database: JishoDatabase,
         private val context: CoroutineContext
 ) {
-    suspend fun search(query: String): List<SelectEntry> = withContext(context) {
+    suspend fun search(query: String): List<Result> = withContext(context) {
         val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
-        if (containsRoomaji) {
-            // fixme: do we need both checks?
+        return@withContext if (containsRoomaji) {
             if (containsKana || containsKanji) {
-                // todo: query for combination
-                return@withContext database.entryQueries.selectEntry(query).executeAsList()
+                database.entryQueries.selectEntry(query)
+                        .executeAsList()
+                        .map { it.toResult() }
             } else {
-                // todo: query for english only
+                database.entryQueries.selectEntriesByGloss(query)
+                        .executeAsList()
+                        .map { it.toResult() }
             }
+        } else if (containsKanji) {
+            database.entryQueries.selectEntriesByComplexJapanese(query.asLemmas())
+                    .executeAsList()
+                    .map { it.toResult() }
+        } else if (containsKana) {
+            database.entryQueries.selectEntriesBySimpleJapanese(query.asLemmas())
+                    .executeAsList()
+                    .map { it.toResult() }
         } else {
-            if (containsKanji) {
-                // todo: query for kanji & kana
-            } else if (containsKana) {
-                // todo: query for kana only
-            }
+            // this should never happen
+            database.entryQueries.selectEntry(query)
+                    .executeAsList()
+                    .map { it.toResult() }
         }
-        // default
-        return@withContext database.entryQueries.selectEntry(query).executeAsList()
     }
 }
 
+data class Result(
+        val japanese: String,
+        val okurigana: String?,
+        val rubies: List<Pair<String, String>>,
+        val definitions: List<String>,
+        val partsOfSpeech: List<String>
+)
+
+fun SelectEntry.toResult() = Result(
+        this.kanji ?: this.reading!!,
+        if (this.kanji != null) this.reading!! else null,
+        emptyList(),
+        emptyList(),
+        emptyList()
+)
+
+fun SelectEntriesByGloss.toResult() = Result(
+        this.kanji ?: this.reading!!,
+        if (this.kanji != null) this.reading!! else null,
+        emptyList(),
+        emptyList(),
+        emptyList()
+)
+
+fun SelectEntriesBySimpleJapanese.toResult() = Result(
+        this.kanji ?: this.reading!!,
+        if (this.kanji != null) this.reading!! else null,
+        emptyList(),
+        emptyList(),
+        emptyList()
+)
+
+fun SelectEntriesByComplexJapanese.toResult() = Result(
+        this.kanji ?: this.reading!!,
+        if (this.kanji != null) this.reading!! else null,
+        emptyList(),
+        emptyList(),
+        emptyList()
+)
