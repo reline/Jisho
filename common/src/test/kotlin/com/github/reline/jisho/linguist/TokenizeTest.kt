@@ -19,4 +19,16 @@ class TokenizeTest {
         // The .toString() method of each Word is generally the most useful. It shows the surface form of the Tokens.
         assertEquals(arrayListOf("お金", "が", "なければいけない", "です", "。"), stringOfJapanese.tokenize().map { it.toString() })
     }
+
+    @Test
+    fun lemmaTest() {
+        val actual = "走った".tokenize().joinToString(separator = " ") { it.lemma }
+        assertEquals("走る", actual)
+    }
+
+    @Test
+    fun lemmas() {
+        val actual = "走った".asLemmas()
+        assertEquals("走る", actual)
+    }
 }

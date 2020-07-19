@@ -22,14 +22,15 @@ class Repository @Inject constructor(
         return if (preferences.isOfflineModeEnabled()) {
             dao.search(query).map {
                 Word(
-                        it.isCommon,
+                        true,
                         emptyList(),
                         emptyList(),
-                        listOf(Japanese(it.kanji, it.reading)),
+                        listOf(),
                         emptyList(),
                         Attribution()
                 )
             }
+            emptyList()
         } else {
             api.searchQuery(query).data
         }

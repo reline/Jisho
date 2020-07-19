@@ -23,3 +23,5 @@ fun String.tokenize(): List<Word> {
     // Get the Tokens out as 'Words'.
     return parser.words()
 }
+
+fun String.asLemmas() = tokenize().joinToString(separator = " ") { it.lemma }
