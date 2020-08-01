@@ -46,8 +46,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun testHello() = with(database) {
-        val ids = entryQueries.selectEntryIds("hello").executeAsList()
-        val results = entryQueries.selectEntries(ids).executeAsList()
+        val results = entryQueries.selectEntries("hello").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         // missing from dictionary: アンニョンハシムニカ, チョリース, やあやあ, ちわ, いよう, 挨拶まわり
         /**
@@ -104,8 +103,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun testHouse() = with(database) {
-        val ids = entryQueries.selectEntryIds("house").executeAsList()
-        val results = entryQueries.selectEntries(ids).executeAsList()
+        val results = entryQueries.selectEntries("house").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "家屋", "宅", "住まい", "人家", "宿", "参議院", "衆議院", "ハウス", "部族", "一家", "借家", "お宅", "貸家", "番地", "別荘", "満員")
         expected.forEach {
@@ -117,8 +115,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun test家() = with(database) {
-        val ids = entryQueries.selectEntryIds("家").executeAsList()
-        val results = entryQueries.selectEntries(ids).executeAsList()
+        val results = entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
         expected.forEach {

@@ -20,23 +20,23 @@ class JapaneseMultilingualDao(
 ) {
     suspend fun search(query: String): List<Entry> = withContext(context) {
         val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
-        val ids = if (containsRoomaji) {
+        data class Mapper(val id: Long, val isCommon: Boolean, val kanji: String?, val reading: String)
+        val entries = if (containsRoomaji) {
             if (containsKana || containsKanji) {
-                database.entryQueries.selectEntryIds(query).executeAsList()
+                database.entryQueries.selectEntries(query, ::Mapper).executeAsList()
             } else {
-                database.entryQueries.selectEntryIdsByGloss(query).executeAsList()
+                database.entryQueries.selectEntriesByGloss(query, ::Mapper).executeAsList()
             }
         } else if (containsKanji) {
-            database.entryQueries.selectEntryIdsByComplexJapanese(query.asLemmas()).executeAsList()
+            database.entryQueries.selectEntriesByComplexJapanese(query.asLemmas(), ::Mapper).executeAsList()
         } else if (containsKana) {
-            database.entryQueries.selectEntryIdsBySimpleJapanese(query.asLemmas()).executeAsList()
+            database.entryQueries.selectEntriesBySimpleJapanese(query.asLemmas(), ::Mapper).executeAsList()
         } else {
             // this should never happen
-            database.entryQueries.selectEntryIds(query).executeAsList()
+            database.entryQueries.selectEntries(query, ::Mapper).executeAsList()
         }
 
-        return@withContext database.entryQueries.selectEntries(ids)
-                .executeAsList()
+        return@withContext entries
                 .map { entry ->
                     // avoid queries when possible, no kanji means no rubies
                     val rubies = if (entry.kanji == null) {
