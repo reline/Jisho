@@ -13,28 +13,26 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.github.reline.jisho.R
+import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.models.Sense
-import com.github.reline.jisho.models.Word
 import kotlinx.android.synthetic.main.card_word.view.*
 
 class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    fun bind(word: Word) {
+    fun bind(result: Result) {
         with(itemView) {
-            val japanese = word.japanese[0] // always use the first result
-            if (japanese.word != null) {
+            if (result.okurigana != null) {
                 cardFuriganaTextView.visibility = View.VISIBLE
-                cardFuriganaTextView.text = japanese.reading
-                cardReadingTextView.text = japanese.word
+                cardFuriganaTextView.text = result.okurigana
             } else {
                 cardFuriganaTextView.visibility = View.GONE
-                cardReadingTextView.text = japanese.reading
             }
+            cardReadingTextView.text = result.japanese
 
-            cardCommonTextView.visibility = if (word.isCommon) View.VISIBLE else View.GONE
+            cardCommonTextView.visibility = if (result.isCommon) View.VISIBLE else View.GONE
 
-            bindTags(word.tags)
-            bindSenses(word.senses)
+            bindTags(result.tags)
+            bindSenses(result.senses)
         }
     }
 

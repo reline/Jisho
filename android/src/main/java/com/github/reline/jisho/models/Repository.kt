@@ -18,21 +18,42 @@ class Repository @Inject constructor(
         private val api: SearchApi,
         private val dao: JapaneseMultilingualDao
 ) {
-    suspend fun search(query: String): List<Word> {
+    suspend fun search(query: String): List<Result> {
         return if (preferences.isOfflineModeEnabled()) {
             dao.search(query).map {
-                Word(
-                        true,
-                        emptyList(),
-                        emptyList(),
-                        listOf(),
-                        emptyList(),
-                        Attribution()
+                Result(
+                        it.isCommon,
+                        japanese = it.japanese,
+                        okurigana = it.okurigana,
+                        rubies = it.rubies
                 )
             }
-            emptyList()
         } else {
-            api.searchQuery(query).data
+            api.searchQuery(query).data.map {
+                val japanese = it.japanese[0]
+                Result(
+                        isCommon = it.isCommon,
+                        japanese = japanese.word ?: japanese.reading,
+                        okurigana = if (japanese.word != null) japanese.reading else null,
+                        tags = it.tags,
+                        jlpt = it.jlpt,
+                        senses = it.senses,
+                        attribution = it.attribution
+                )
+            }
         }
     }
 }
+
+data class Result(
+        val isCommon: Boolean,
+        val japanese: String,
+        val okurigana: String?,
+        val rubies: List<Pair<String, String?>> = emptyList(),
+        val definitions: List<String> = emptyList(), // todo: might need to be required
+        val partsOfSpeech: List<String> = emptyList(), // todo: might need to be required
+        val senses: List<Sense> = emptyList(), // todo: might need to be required
+        val tags: List<String> = emptyList(),
+        val jlpt: List<String> = emptyList(),
+        val attribution: Attribution = Attribution()
+)

@@ -58,7 +58,7 @@ object DictionaryPopulator {
         logger.info("Inserting Entries...")
         transaction {
             entries.forEach { entry ->
-                entryQueries.insert(entry.id, entry.isCommon())
+                entryQueries.insert(entry.id, entry.isCommon(), entry.kanji?.firstOrNull()?.value, entry.readings.first().value)
                 entry.kanji?.forEach { kanji ->
                     japaneseQueries.insert(entry.id, kanji.value)
                 }

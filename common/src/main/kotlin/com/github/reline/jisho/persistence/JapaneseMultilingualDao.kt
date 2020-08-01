@@ -18,71 +18,43 @@ class JapaneseMultilingualDao(
         private val database: JishoDatabase,
         private val context: CoroutineContext
 ) {
-    suspend fun search(query: String): List<Result> = withContext(context) {
+    suspend fun search(query: String): List<Entry> = withContext(context) {
         val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
-        return@withContext if (containsRoomaji) {
+        val ids = if (containsRoomaji) {
             if (containsKana || containsKanji) {
-                database.entryQueries.selectEntry(query)
-                        .executeAsList()
-                        .map { it.toResult() }
+                database.entryQueries.selectEntryIds(query).executeAsList()
             } else {
-                database.entryQueries.selectEntriesByGloss(query)
-                        .executeAsList()
-                        .map { it.toResult() }
+                database.entryQueries.selectEntryIdsByGloss(query).executeAsList()
             }
         } else if (containsKanji) {
-            database.entryQueries.selectEntriesByComplexJapanese(query.asLemmas())
-                    .executeAsList()
-                    .map { it.toResult() }
+            database.entryQueries.selectEntryIdsByComplexJapanese(query.asLemmas()).executeAsList()
         } else if (containsKana) {
-            database.entryQueries.selectEntriesBySimpleJapanese(query.asLemmas())
-                    .executeAsList()
-                    .map { it.toResult() }
+            database.entryQueries.selectEntryIdsBySimpleJapanese(query.asLemmas()).executeAsList()
         } else {
             // this should never happen
-            database.entryQueries.selectEntry(query)
-                    .executeAsList()
-                    .map { it.toResult() }
+            database.entryQueries.selectEntryIds(query).executeAsList()
         }
+
+        return@withContext database.entryQueries.selectEntries(ids)
+                .executeAsList()
+                .map { entry ->
+                    // avoid queries when possible, no kanji means no rubies
+                    val rubies = if (entry.kanji == null) {
+                        emptyList()
+                    } else {
+                        database.entryRubyTagQueries.selectRubies(entry.id)
+                                .executeAsList()
+                                .map { Pair(it.japanese, it.okurigana) }
+                    }
+                    Entry(entry.id, entry.isCommon, entry.kanji ?: entry.reading, entry.reading, rubies)
+                }
     }
 }
 
-data class Result(
+data class Entry(
+        val id: Long,
+        val isCommon: Boolean,
         val japanese: String,
         val okurigana: String?,
-        val rubies: List<Pair<String, String>>,
-        val definitions: List<String>,
-        val partsOfSpeech: List<String>
-)
-
-fun SelectEntry.toResult() = Result(
-        this.kanji ?: this.reading!!,
-        if (this.kanji != null) this.reading!! else null,
-        emptyList(),
-        emptyList(),
-        emptyList()
-)
-
-fun SelectEntriesByGloss.toResult() = Result(
-        this.kanji ?: this.reading!!,
-        if (this.kanji != null) this.reading!! else null,
-        emptyList(),
-        emptyList(),
-        emptyList()
-)
-
-fun SelectEntriesBySimpleJapanese.toResult() = Result(
-        this.kanji ?: this.reading!!,
-        if (this.kanji != null) this.reading!! else null,
-        emptyList(),
-        emptyList(),
-        emptyList()
-)
-
-fun SelectEntriesByComplexJapanese.toResult() = Result(
-        this.kanji ?: this.reading!!,
-        if (this.kanji != null) this.reading!! else null,
-        emptyList(),
-        emptyList(),
-        emptyList()
+        val rubies: List<Pair<String, String?>>
 )
