@@ -38,8 +38,7 @@ class EntryQueriesTest {
             japaneseQueries.insert(ENTRY_ID, "今日は")
             readingQueries.insert(ENTRY_ID, "こんにちは")
 
-            val ids = entryQueries.selectEntryIds("今日は").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("今日は").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -53,8 +52,7 @@ class EntryQueriesTest {
             japaneseQueries.insert(ENTRY_ID, "今日は")
             readingQueries.insert(ENTRY_ID, "こんにちは")
 
-            val ids = entryQueries.selectEntryIds("今日").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("今日").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -68,8 +66,7 @@ class EntryQueriesTest {
             japaneseQueries.insert(ENTRY_ID, "今日は")
             readingQueries.insert(ENTRY_ID, "こんにちは")
 
-            val ids = entryQueries.selectEntryIds("こんにちは").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("こんにちは").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -83,8 +80,7 @@ class EntryQueriesTest {
             japaneseQueries.insert(ENTRY_ID, "今日は")
             readingQueries.insert(ENTRY_ID, "こんにちは")
 
-            val ids = entryQueries.selectEntryIds("こんにち").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("こんにち").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -101,8 +97,7 @@ class EntryQueriesTest {
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "hello")
 
-            val ids = entryQueries.selectEntryIds("hello").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("hello").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -119,8 +114,7 @@ class EntryQueriesTest {
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "good afternoon")
 
-            val ids = entryQueries.selectEntryIds("good afterno").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("good afterno").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
@@ -137,8 +131,7 @@ class EntryQueriesTest {
             val senseId = utilQueries.lastInsertRowId().executeAsOne()
             glossQueries.insert(senseId, "good afternoon")
 
-            val ids = entryQueries.selectEntryIds("afternoon").executeAsList()
-            val entry = entryQueries.selectEntries(ids).executeAsList().first()
+            val entry = entryQueries.selectEntries("afternoon").executeAsList().first()
             assertTrue(entry.isCommon)
             assertEquals("今日は", entry.kanji)
             assertEquals("こんにちは", entry.reading)
