@@ -25,7 +25,8 @@ class Repository @Inject constructor(
                         it.isCommon,
                         japanese = it.japanese,
                         okurigana = it.okurigana,
-                        rubies = it.rubies
+                        rubies = it.rubies,
+                        senses = it.senses.map { sense -> Definition(sense.glosses, sense.partsOfSpeech) }
                 )
             }
         } else {
@@ -37,7 +38,7 @@ class Repository @Inject constructor(
                         okurigana = if (japanese.word != null) japanese.reading else null,
                         tags = it.tags,
                         jlpt = it.jlpt,
-                        senses = it.senses,
+                        senses = it.senses.map { sense -> Definition(sense.englishDefinitions, sense.partsOfSpeech) },
                         attribution = it.attribution
                 )
             }
@@ -50,10 +51,13 @@ data class Result(
         val japanese: String,
         val okurigana: String?,
         val rubies: List<Pair<String, String?>> = emptyList(),
-        val definitions: List<String> = emptyList(), // todo: might need to be required
-        val partsOfSpeech: List<String> = emptyList(), // todo: might need to be required
-        val senses: List<Sense> = emptyList(), // todo: might need to be required
+        val senses: List<Definition>,
         val tags: List<String> = emptyList(),
         val jlpt: List<String> = emptyList(),
         val attribution: Attribution = Attribution()
+)
+
+data class Definition(
+        val values: List<String>,
+        val partsOfSpeech: List<String>
 )

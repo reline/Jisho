@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.github.reline.jisho.R
+import com.github.reline.jisho.models.Definition
 import com.github.reline.jisho.models.Result
-import com.github.reline.jisho.models.Sense
 import kotlinx.android.synthetic.main.card_word.view.*
 
 class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -47,7 +47,7 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         }
     }
 
-    private fun bindSenses(senses: List<Sense>) {
+    private fun bindSenses(senses: List<Definition>) {
         with(itemView) {
             cardSensesLayout.removeAllViews()
             for (i in senses.indices) {
@@ -57,7 +57,7 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
                 val definitionTextView = TextView(context)
                 val definition = StringBuilder().append(i + 1).append(" ")
-                val englishDefinitions = sense.englishDefinitions
+                val englishDefinitions = sense.values
                 for (k in englishDefinitions.indices) {
                     val separator = if (k < englishDefinitions.size - 1) "; " else ""
                     definition.append(englishDefinitions[k]).append(separator)
