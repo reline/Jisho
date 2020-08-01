@@ -6,12 +6,14 @@
 
 CREATE TABLE IF NOT EXISTS Entry (
   id INTEGER NOT NULL PRIMARY KEY,
-  is_common INTEGER AS Boolean NOT NULL
+  is_common INTEGER AS Boolean NOT NULL,
+  kanji TEXT,
+  reading TEXT NOT NULL
 );
 
 insert:
-INSERT INTO Entry (id, is_common)
-VALUES (:id, :isCommon);
+INSERT INTO Entry (id, is_common, kanji, reading)
+VALUES (:id, :isCommon, :kanji, :reading);
 
 selectEntryIdWhereValuesEqual:
 SELECT Entry.id
@@ -23,75 +25,48 @@ LEFT JOIN Reading
 WHERE Japanese.value = :japanese
     AND Reading.value = :reading;
 
-selectEntry:
-SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
-FROM Entry AS e1
-LEFT JOIN Japanese
-    ON e1.id = Japanese.entry_id
-LEFT JOIN Reading
-    ON e1.id = Reading.entry_id
-WHERE e1.id IN (
-    SELECT e2.id
-    FROM Entry AS e2
-    LEFT JOIN Japanese
-        ON e2.id = Japanese.entry_id
-    LEFT JOIN Reading
-        ON e2.id = Reading.entry_id
-    LEFT JOIN Sense
-        ON e2.id = Sense.entry_id
-    LEFT JOIN Gloss
-        ON Gloss.sense_id = Sense.id
-    WHERE Japanese.value LIKE :keyword||'%'
-        OR Reading.value LIKE :keyword||'%'
-        OR Gloss.value LIKE '%'||:keyword||'%'
-);
+selectEntries:
+SELECT DISTINCT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
+FROM Entry
+WHERE Entry.id IN :entry_ids;
 
-selectEntriesByGloss:
-SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
-FROM Entry AS e1
+selectEntryIds:
+SELECT DISTINCT Entry.id
+FROM Entry
 LEFT JOIN Japanese
-    ON e1.id = Japanese.entry_id
+    ON Entry.id = Japanese.entry_id
 LEFT JOIN Reading
-    ON e1.id = Reading.entry_id
-WHERE e1.id IN (
-    SELECT e2.id
-    FROM Entry AS e2
-    LEFT JOIN Sense
-        ON e2.id = Sense.entry_id
-    LEFT JOIN Gloss
-        ON Gloss.sense_id = Sense.id
-    WHERE Gloss.value LIKE '%'||:keyword||'%'
-);
+    ON Entry.id = Reading.entry_id
+LEFT JOIN Sense
+    ON Entry.id = Sense.entry_id
+LEFT JOIN Gloss
+    ON Gloss.sense_id = Sense.id
+WHERE Japanese.value LIKE :keyword||'%'
+    OR Reading.value LIKE :keyword||'%'
+    OR Gloss.value LIKE '%'||:keyword||'%';
 
-selectEntriesByComplexJapanese:
-SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
-FROM Entry AS e1
-LEFT JOIN Japanese
-    ON e1.id = Japanese.entry_id
-LEFT JOIN Reading
-    ON e1.id = Reading.entry_id
-WHERE e1.id IN (
-    SELECT e2.id
-    FROM Entry AS e2
-    LEFT JOIN Japanese
-        ON e2.id = Japanese.entry_id
-    WHERE Japanese.value LIKE :keyword||'%'
-);
+selectEntryIdsByGloss:
+SELECT Entry.id
+FROM Entry
+LEFT JOIN Sense
+    ON Entry.id = Sense.entry_id
+LEFT JOIN Gloss
+    ON Gloss.sense_id = Sense.id
+WHERE Gloss.value LIKE '%'||:keyword||'%';
 
-selectEntriesBySimpleJapanese:
-SELECT e1.is_common AS isCommon, Japanese.value AS kanji, Reading.value AS reading
-FROM Entry AS e1
+selectEntryIdsByComplexJapanese:
+SELECT Entry.id
+FROM Entry
 LEFT JOIN Japanese
-    ON e1.id = Japanese.entry_id
+    ON Entry.id = Japanese.entry_id
+WHERE Japanese.value LIKE :keyword||'%';
+
+selectEntryIdsBySimpleJapanese:
+SELECT Entry.id
+FROM Entry
+LEFT JOIN Japanese
+    ON Entry.id = Japanese.entry_id
 LEFT JOIN Reading
-    ON e1.id = Reading.entry_id
-WHERE e1.id IN (
-    SELECT e2.id
-    FROM Entry AS e2
-    LEFT JOIN Japanese
-            ON e2.id = Japanese.entry_id
-    LEFT JOIN Reading
-        ON e2.id = Reading.entry_id
-    WHERE Japanese.value LIKE :keyword||'%'
-        OR Reading.value LIKE :keyword||'%'
-);
+    ON Entry.id = Reading.entry_id
+WHERE Japanese.value LIKE :keyword||'%'
+    OR Reading.value LIKE :keyword||'%';

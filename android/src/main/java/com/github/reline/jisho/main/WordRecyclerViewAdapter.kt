@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.github.reline.jisho.R
-import com.github.reline.jisho.models.Word
+import com.github.reline.jisho.models.Result
 
 class WordRecyclerViewAdapter(
-        private var wordList: List<Word> = emptyList()
+        private var wordList: List<Result> = emptyList()
 ) : RecyclerView.Adapter<WordViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): WordViewHolder {
@@ -34,7 +34,7 @@ class WordRecyclerViewAdapter(
         return wordList.size
     }
 
-    fun updateData(wordList: List<Word>?) {
+    fun updateData(wordList: List<Result>?) {
         val oldSize = itemCount
         this.wordList = wordList.orEmpty()
         val newSize = itemCount
