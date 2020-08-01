@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.utils
+package com.github.reline.jisho.linguist
 
 import org.junit.Test
 import kotlin.test.assertFalse

@@ -48,10 +48,13 @@ allprojects {
             url 'https://www.jitpack.io'
         }
         maven {
-            url "http://jcenter.bintray.com"
+            url "https://jcenter.bintray.com"
         }
         maven {
-            url 'http://oss.sonatype.org/content/repositories/snapshots'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+        maven {
+            url 'https://www.atilika.org/nexus/content/repositories/atilika'
         }
     }
 }
