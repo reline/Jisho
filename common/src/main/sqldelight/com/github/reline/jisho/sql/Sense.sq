@@ -16,3 +16,7 @@ ON Sense (entry_id);
 insert:
 INSERT INTO Sense (entry_id)
 VALUES (:entryId);
+
+selectSenses:
+SELECT id FROM Sense
+WHERE entry_id = :entryId;

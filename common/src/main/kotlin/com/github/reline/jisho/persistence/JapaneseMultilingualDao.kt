@@ -46,7 +46,19 @@ class JapaneseMultilingualDao(
                                 .executeAsList()
                                 .map { Pair(it.japanese, it.okurigana) }
                     }
-                    Entry(entry.id, entry.isCommon, entry.kanji ?: entry.reading, entry.reading, rubies)
+                    val senses = database.senseQueries.selectSenses(entry.id).executeAsList().map { senseId ->
+                        val pos = database.sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()
+                        val glosses = database.glossQueries.selectGlossWhereSenseIdEquals(senseId).executeAsList()
+                        Sense(glosses, pos)
+                    }
+                    Entry(
+                            entry.id,
+                            entry.isCommon,
+                            entry.kanji ?: entry.reading,
+                            if (entry.kanji != null) entry.reading else null,
+                            rubies,
+                            senses
+                    )
                 }
     }
 }
@@ -56,5 +68,11 @@ data class Entry(
         val isCommon: Boolean,
         val japanese: String,
         val okurigana: String?,
-        val rubies: List<Pair<String, String?>>
+        val rubies: List<Pair<String, String?>>,
+        val senses: List<Sense>
+)
+
+data class Sense(
+        val glosses: List<String>,
+        val partsOfSpeech: List<String>
 )
