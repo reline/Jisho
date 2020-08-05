@@ -8,8 +8,8 @@
 
 package com.github.reline.jisho.persistence
 
-//import com.github.reline.jisho.linguist.asLemmas
-//import com.github.reline.jisho.linguist.checkCJK
+import com.github.reline.jisho.linguist.asLemmas
+import com.github.reline.jisho.linguist.checkCJK
 import com.github.reline.jisho.sql.*
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.withContext
@@ -19,7 +19,7 @@ class JapaneseMultilingualDao(
         private val context: CoroutineContext
 ) {
     suspend fun search(query: String): List<Entry> = withContext(context) {
-        val (containsRoomaji, containsKana, containsKanji) = Triple(true, true, true) // checkCJK(query)
+        val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
         data class Mapper(val id: Long, val isCommon: Boolean, val kanji: String?, val reading: String)
         val entries = if (containsRoomaji) {
             if (containsKana || containsKanji) {
@@ -28,9 +28,9 @@ class JapaneseMultilingualDao(
                 database.entryQueries.selectEntriesByGloss(query, ::Mapper).executeAsList()
             }
         } else if (containsKanji) {
-            database.entryQueries.selectEntriesByComplexJapanese(query/*.asLemmas()*/, ::Mapper).executeAsList()
+            database.entryQueries.selectEntriesByComplexJapanese(query.asLemmas(), ::Mapper).executeAsList()
         } else if (containsKana) {
-            database.entryQueries.selectEntriesBySimpleJapanese(query/*.asLemmas()*/, ::Mapper).executeAsList()
+            database.entryQueries.selectEntriesBySimpleJapanese(query.asLemmas(), ::Mapper).executeAsList()
         } else {
             // this should never happen
             database.entryQueries.selectEntries(query, ::Mapper).executeAsList()

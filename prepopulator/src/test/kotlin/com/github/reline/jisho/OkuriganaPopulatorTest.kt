@@ -17,7 +17,7 @@ import java.io.File
 @Ignore("Large test")
 class OkuriganaPopulatorTest {
     companion object {
-        private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}"
+        private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
         private lateinit var entries: List<Entry>
         private lateinit var okurigana: List<OkuriganaEntry>
 
@@ -37,7 +37,7 @@ class OkuriganaPopulatorTest {
         db.parentFile.mkdirs()
         db.delete()
         db.createNewFile()
-        buildDir = testDbPath
+        databasePath = testDbPath
     }
 
     @After
