@@ -35,6 +35,15 @@ private const val KATAKANA_END_CODEPOINT = 0x30FF
 private const val CJK_STARTING_CODEPOINT = 0x4E00
 private const val CJK_ENDING_CODEPOINT = 0x9FAF
 
+data class Result(
+        // really this just means that at least one character is not a kana and not a kanji
+        val containsRoomaji: Boolean,
+        // HIRAGANA_STARTING_CODEPOINT..KATAKANA_END_CODEPOINT
+        val containsKana: Boolean,
+        // CJK_STARTING_CODEPOINT..CJK_ENDING_CODEPOINT
+        val containsKanji: Boolean
+)
+
 /**
  * Check if a word contains roomaji, kana, or kanji in a single pass
  */
