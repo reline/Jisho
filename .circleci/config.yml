@@ -41,11 +41,8 @@ jobs:
           name: Prepare Dictionaries
           command: ./gradlew :prepopulator:prepareDictionaries
       - run:
-          name: Build Prepopulator
-          command: ./gradlew :prepopulator:shadowJar
-      - run:
           name: Populate Database
-          command: java -jar prepopulator/build/libs/prepopulator-all.jar && mv prepopulator/build/jisho.sqlite android/src/main/assets/
+          command: ./gradlew :prepopulator:execute && mv prepopulator/build/jisho.sqlite android/src/main/assets/
       - run:
           name: Build APK
           command: ./gradlew :android:assemble
