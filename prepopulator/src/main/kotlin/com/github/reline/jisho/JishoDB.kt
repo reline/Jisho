@@ -16,7 +16,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 var buildDir = "prepopulator/build"
-var databasePath = "$buildDir/$JISHO_DB"
+val databasePath by lazy { "$buildDir/$JISHO_DB" }
 
 val url: String by lazy { "jdbc:sqlite:$databasePath" }
 
@@ -42,7 +42,8 @@ val database: JishoDatabase by lazy {
     JishoDatabase(driver)
 }
 
-fun main() {
+fun main(args: Array<String>) {
+    buildDir = args.first()
     logger.info("Working directory: ${File(".").absolutePath}")
 //    KanjiPopulator.run()
 //    RadicalPopulator.run()

@@ -19,7 +19,7 @@ import java.io.File
 class DictionaryPopulatorTest {
 
     companion object {
-        private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
+        private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}"
 
         @BeforeClass @JvmStatic
         fun setupSuite() {
@@ -27,7 +27,7 @@ class DictionaryPopulatorTest {
             db.parentFile.mkdirs()
             db.delete()
             db.createNewFile()
-            databasePath = testDbPath
+            buildDir = testDbPath
             DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
             DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
         }
