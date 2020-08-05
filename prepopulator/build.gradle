@@ -133,4 +133,5 @@ task execute(type: JavaExec) {
             tasks.named("compileJava"),
             configurations.named("runtimeClasspath")
     )
+    args = [buildDir]
 }
