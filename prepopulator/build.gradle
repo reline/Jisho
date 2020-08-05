@@ -1,5 +1,5 @@
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'application'
+apply plugin: 'java'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'kotlin-kapt'
 
@@ -14,10 +14,6 @@ jar {
     manifest {
         attributes 'Main-Class': 'com.github.reline.jisho.JishoDBKt'
     }
-}
-
-application {
-    mainClassName = "com.github.reline.jisho.JishoDBKt"
 }
 
 configurations {
@@ -71,8 +67,8 @@ task prepareDictionaries {
         def dictZips = dictResourcesDir.listFiles(new FilenameFilter() {
             @Override
             boolean accept(File dir, String name) {
-            return name.endsWith(".zip")
-        }
+                return name.endsWith(".zip")
+            }
         })
         for (zip in dictZips) {
             println(zip.absolutePath)
@@ -85,13 +81,13 @@ task prepareDictionaries {
         def dictGunZips = dictResourcesDir.listFiles(new FilenameFilter() {
             @Override
             boolean accept(File dir, String name) {
-            return name.endsWith(".gz")
-        }
+                return name.endsWith(".gz")
+            }
         })
         for (gunZip in dictGunZips) {
             println(gunZip.absolutePath)
             def filename = gunZip.name
-                    def basename = filename.take(filename.lastIndexOf('.'))
+            def basename = filename.take(filename.lastIndexOf('.'))
             def file = new File("${outputDir.absolutePath}/${basename}")
             file.withOutputStream { os ->
                 os << resources.gzip(gunZip.path).read()
@@ -125,13 +121,3 @@ task prepareDictionaries {
 
 // prepare dictionaries after building
 assemble.finalizedBy(prepareDictionaries)
-
-task execute(type: JavaExec) {
-    main = "com.github.reline.jisho.JishoDBKt"
-    classpath = objects.fileCollection().from(
-            tasks.named("compileKotlin"),
-            tasks.named("compileJava"),
-            configurations.named("runtimeClasspath")
-    )
-    args = [buildDir]
-}
