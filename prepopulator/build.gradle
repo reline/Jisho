@@ -1,0 +1,136 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'application'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'kotlin-kapt'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.github.reline.jisho.JishoDBKt'
+    }
+}
+
+application {
+    mainClassName = "com.github.reline.jisho.JishoDBKt"
+}
+
+configurations {
+    compile.exclude group: 'stax'
+    compile.exclude group: 'xpp3'
+}
+
+dependencies {
+    implementation project(':common')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+    implementation 'org.xerial:sqlite-jdbc:3.21.0.1'
+    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+
+    implementation files('libs/tikxml-core-issue-131-SNAPSHOT.jar')
+    implementation ('com.tickaroo.tikxml:annotation:0.8.16-SNAPSHOT') {
+        exclude group: 'com.tickaroo.tikxml', module: 'core'
+    }
+    kapt 'com.tickaroo.tikxml:processor-common:0.8.16-SNAPSHOT'
+    kapt 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
+
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
+    implementation "com.squareup.okio:okio:$okio_version"
+
+    testImplementation 'junit:junit:4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task prepareDictionaries {
+    doLast {
+        // fixme: new dictionaries are skipped
+        def outputDir = new File("$buildDir/dict")
+        if (outputDir.exists()) {
+            return
+        }
+
+        println("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
+
+        outputDir.mkdir()
+
+        def dictResourcesDir = new File("$projectDir/src/main/res/dict")
+
+        def dictZips = dictResourcesDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+            return name.endsWith(".zip")
+        }
+        })
+        for (zip in dictZips) {
+            println(zip.absolutePath)
+            copy {
+                from zipTree(zip)
+                into outputDir
+            }
+        }
+
+        def dictGunZips = dictResourcesDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+            return name.endsWith(".gz")
+        }
+        })
+        for (gunZip in dictGunZips) {
+            println(gunZip.absolutePath)
+            def filename = gunZip.name
+                    def basename = filename.take(filename.lastIndexOf('.'))
+            def file = new File("${outputDir.absolutePath}/${basename}")
+            file.withOutputStream { os ->
+                os << resources.gzip(gunZip.path).read()
+            }
+        }
+        println("Converting files to UTF-8 format...")
+        // EUC-JP [csEUCPkdFmtjapanese, x-euc-jp, eucjis, Extended_UNIX_Code_Packed_Format_for_Japanese, euc_jp, eucjp, x-eucjp] to UTF-8
+        for (dictionary in outputDir.listFiles()) {
+            // we don't care about the intro files
+            if (dictionary.name.contains("intro")) {
+                dictionary.delete()
+                continue
+            }
+
+            println(dictionary.absolutePath)
+            // skip xml & json files
+            if (dictionary.name.endsWith(".xml") || dictionary.name.endsWith(".json")) {
+                continue
+            }
+            def temp = new File("${outputDir.absolutePath}/temp_${dictionary.name}")
+            new FileOutputStream(temp).withWriter("UTF-8") { writer ->
+                new FileInputStream(dictionary).withReader("EUC-JP") { reader ->
+                    writer << reader
+                }
+            }
+            dictionary.delete()
+            temp.renameTo(dictionary)
+        }
+    }
+}
+
+// prepare dictionaries after building
+assemble.finalizedBy(prepareDictionaries)
+
+task execute(type: JavaExec) {
+    main = "com.github.reline.jisho.JishoDBKt"
+    classpath = objects.fileCollection().from(
+            tasks.named("compileKotlin"),
+            tasks.named("compileJava"),
+            configurations.named("runtimeClasspath")
+    )
+}
