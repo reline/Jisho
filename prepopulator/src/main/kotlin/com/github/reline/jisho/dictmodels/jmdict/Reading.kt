@@ -41,7 +41,6 @@ open class Reading {
      */
     @PropertyElement(name = "re_nokanji")
     var isNotTrueReading: Boolean? = null
-    fun isNotTrueReading() = isNotTrueReading ?: false
 
 //    @Element
 //    var restrictions: MutableList<ReadingRestriction>? = null
