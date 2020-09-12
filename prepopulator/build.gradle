@@ -31,12 +31,10 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.21.0.1'
     implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
 
-    implementation files('libs/tikxml-core-issue-131-SNAPSHOT.jar')
-    implementation ('com.tickaroo.tikxml:annotation:0.8.16-SNAPSHOT') {
-        exclude group: 'com.tickaroo.tikxml', module: 'core'
-    }
-    kapt 'com.tickaroo.tikxml:processor-common:0.8.16-SNAPSHOT'
-    kapt 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
+    implementation "com.tickaroo.tikxml:core:$tikxml_version"
+    implementation ("com.tickaroo.tikxml:annotation:$tikxml_version")
+    kapt "com.tickaroo.tikxml:processor-common:$tikxml_version"
+    kapt "com.tickaroo.tikxml:processor:$tikxml_version"
 
     implementation "com.squareup.moshi:moshi:$moshi_version"
     kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
