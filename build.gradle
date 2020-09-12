@@ -23,6 +23,8 @@ buildscript {
     ext.moshi_version = '1.9.3'
     ext.timber_version = '4.7.1'
 
+    ext.jmdictfurigana_version = '2.2.1'
+
     repositories {
         jcenter()
         google()
