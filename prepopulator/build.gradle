@@ -52,10 +52,10 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-def outputDir = new File("$buildDir/dict")
+final outputDir = new File("$buildDir/dict")
+outputDir.mkdirs()
 
-final furiganaAssets = ["JmdictFurigana.json", "JmnedictFurigana.json"]
-task fetchDictionaries {
+task fetchFuriganaDictionaries {
     doLast {
         // https://docs.github.com/en/rest/reference/repos#get-a-release-by-tag-name
         println("Downloading furigana sources...")
@@ -64,31 +64,29 @@ task fetchDictionaries {
         final assets = json['assets'] as List<Object>
         final downloads = new HashMap<String, String>()
         for (asset in assets) {
-            final name = asset['name']
-            if (furiganaAssets.contains(name)) {
+            final String name = asset['name']
+            if (name.endsWith(".json")) {
                 downloads.put(name, asset["browser_download_url"])
             }
         }
         for (download in downloads) {
-            println(download.value)
             final downloadUrl = new URL(download.value)
-            new File("$outputDir/${download.key}").withOutputStream { out ->
+            final dictionary = new File("$outputDir/${download.key}")
+            if (dictionary.exists()) {
+                println("${dictionary.name} already exists, skipping")
+                continue
+            }
+            println(download.value)
+            dictionary.withOutputStream { out ->
                 downloadUrl.withInputStream { from ->  out << from }
             }
         }
     }
 }
 
-task prepareDictionaries {
+task prepareMonashDictionaries {
     doLast {
-        // fixme: new dictionaries are skipped
-        if (outputDir.exists()) {
-            return
-        }
-
         println("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
-
-        outputDir.mkdir()
 
         def dictResourcesDir = new File("$projectDir/src/main/res/dict")
 
@@ -130,11 +128,12 @@ task prepareDictionaries {
                 continue
             }
 
-            println(dictionary.absolutePath)
             // skip xml & json files
             if (dictionary.name.endsWith(".xml") || dictionary.name.endsWith(".json")) {
                 continue
             }
+
+            println(dictionary.absolutePath)
             def temp = new File("${outputDir.absolutePath}/temp_${dictionary.name}")
             new FileOutputStream(temp).withWriter("UTF-8") { writer ->
                 new FileInputStream(dictionary).withReader("EUC-JP") { reader ->
@@ -147,5 +146,6 @@ task prepareDictionaries {
     }
 }
 
+task prepareDictionaries(dependsOn: ['fetchFuriganaDictionaries', 'prepareMonashDictionaries']) {}
 // prepare dictionaries after building
 assemble.finalizedBy(prepareDictionaries)
