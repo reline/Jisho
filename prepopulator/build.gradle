@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'org.jetbrains.kotlin.jvm'
@@ -50,10 +52,36 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+def outputDir = new File("$buildDir/dict")
+
+final furiganaAssets = ["JmdictFurigana.json", "JmnedictFurigana.json"]
+task fetchDictionaries {
+    doLast {
+        // https://docs.github.com/en/rest/reference/repos#get-a-release-by-tag-name
+        println("Downloading furigana sources...")
+        final String url = "https://api.github.com/repos/Doublevil/JmdictFurigana/releases/tags/$jmdictfurigana_version"
+        final json = new JsonSlurper().parseText(url.toURL().text)
+        final assets = json['assets'] as List<Object>
+        final downloads = new HashMap<String, String>()
+        for (asset in assets) {
+            final name = asset['name']
+            if (furiganaAssets.contains(name)) {
+                downloads.put(name, asset["browser_download_url"])
+            }
+        }
+        for (download in downloads) {
+            println(download.value)
+            final downloadUrl = new URL(download.value)
+            new File("$outputDir/${download.key}").withOutputStream { out ->
+                downloadUrl.withInputStream { from ->  out << from }
+            }
+        }
+    }
+}
+
 task prepareDictionaries {
     doLast {
         // fixme: new dictionaries are skipped
-        def outputDir = new File("$buildDir/dict")
         if (outputDir.exists()) {
             return
         }
