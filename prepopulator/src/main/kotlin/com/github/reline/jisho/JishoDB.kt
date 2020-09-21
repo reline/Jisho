@@ -9,7 +9,6 @@
 package com.github.reline.jisho
 
 import com.github.reline.jisho.sql.JishoDatabase
-import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import java.io.File
 import java.util.logging.Level
@@ -18,7 +17,7 @@ import java.util.logging.Logger
 var buildDir = "prepopulator/build"
 var databasePath = "$buildDir/$JISHO_DB"
 
-val url: String by lazy { "jdbc:sqlite:$databasePath" }
+val url: String get() = "jdbc:sqlite:$databasePath"
 
 val logger: Logger by lazy {
     System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -30,22 +29,23 @@ fun Logger.debug(s: String) {
     log(Level.ALL, s)
 }
 
-val driver: SqlDriver by lazy {
-    logger.info("Loading database driver...")
-    // load the JDBC driver first to check if it's working
-    Class.forName("org.sqlite.JDBC")
-    JdbcSqliteDriver(url)
-}
-
-val database: JishoDatabase by lazy {
-    JishoDatabase.Schema.create(driver)
-    JishoDatabase(driver)
-}
+val database: JishoDatabase
+    get() {
+        logger.info("Loading database driver...")
+        // load the JDBC driver first to check if it's working
+        Class.forName("org.sqlite.JDBC")
+        val driver = JdbcSqliteDriver(url)
+        JishoDatabase.Schema.create(driver)
+        return JishoDatabase(driver)
+    }
 
 fun main() {
     logger.info("Working directory: ${File(".").absolutePath}")
+
+    val db = database
 //    KanjiPopulator.run()
 //    RadicalPopulator.run()
-    DictionaryPopulator.run()
-//    OkuriganaPopulator.run()
+    DictionaryPopulator(db, OkuriganaPopulator(db)).run()
+
+    logger.info("Done!")
 }

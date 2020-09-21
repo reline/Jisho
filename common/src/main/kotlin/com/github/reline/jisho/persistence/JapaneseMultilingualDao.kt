@@ -42,9 +42,8 @@ class JapaneseMultilingualDao(
                     val rubies = if (entry.kanji == null) {
                         emptyList()
                     } else {
-                        database.entryRubyTagQueries.selectRubies(entry.id)
+                        database.rubyQueries.selectRubies(entry.id) { japanese, okurigana -> Pair(japanese, okurigana) }
                                 .executeAsList()
-                                .map { Pair(it.japanese, it.okurigana) }
                     }
                     val senses = database.senseQueries.selectSenses(entry.id).executeAsList().map { senseId ->
                         val pos = database.sensePosTagQueries.selectPosWhereSenseIdEquals(senseId).executeAsList()

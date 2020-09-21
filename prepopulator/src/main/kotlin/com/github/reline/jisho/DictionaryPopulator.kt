@@ -10,28 +10,32 @@ package com.github.reline.jisho
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
+import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import java.io.File
 
-fun main() = DictionaryPopulator.run()
-
-object DictionaryPopulator {
+class DictionaryPopulator(private val database: JishoDatabase, private val okuriganaPopulator: OkuriganaPopulator) {
 
     fun run() = runBlocking {
         logger.info("Extracting dictionaries...")
         arrayOf(
-                File("$buildDir/dict/JMdict_e.xml"),
-                File("$buildDir/dict/JMnedict.xml")
-        ).forEach { file ->
-            val dictionary = extractDictionary(file)
+                Pair(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JmdictFurigana.json")),
+                Pair(File("$buildDir/dict/JMnedict.xml"), File("$buildDir/dict/JmnedictFurigana.json"))
+        ).forEach { (dict, furigana) ->
+            val dictionary = extractDictionary(dict)
 
             val start = System.currentTimeMillis()
-            logger.info("Inserting ${file.name} to database...")
+            logger.info("Inserting ${dict.name} to database...")
             insertDictionary(dictionary)
             val end = System.currentTimeMillis()
-            logger.info("${file.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
+            logger.info("${dict.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
+
+            logger.info("Extracting okurigana...")
+            val okurigana = okuriganaPopulator.extractOkurigana(furigana)
+            logger.info("Inserting okurigana...")
+            okuriganaPopulator.insertOkurigana(dictionary, okurigana)
         }
     }
 
