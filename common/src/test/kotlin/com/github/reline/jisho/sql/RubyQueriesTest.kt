@@ -40,20 +40,17 @@ class RubyQueriesTest {
     @Test
     fun testSelectOkuriganaForEntry() = with(database) {
         transaction {
-            rubyQueries.insert("今", "こん")
-            entryRubyTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne(), 1)
-            rubyQueries.insert("日", "にち")
-            entryRubyTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne(), 2)
-            rubyQueries.insert("は", null)
-            entryRubyTagQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne(), 3)
+            rubyQueries.insert(ENTRY_ID, "今", "こん")
+            rubyQueries.insert(ENTRY_ID, "日", "にち")
+            rubyQueries.insert(ENTRY_ID, "は", null)
 
-            val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
+            val rubies = rubyQueries.selectRubies(ENTRY_ID).executeAsList()
             assertTrue {
                 rubies.toTypedArray().contentEquals(
                         arrayOf(
-                                SelectRubies("今", "こん", 1),
-                                SelectRubies("日", "にち", 2),
-                                SelectRubies("は", null, 3)
+                                SelectRubies("今", "こん"),
+                                SelectRubies("日", "にち"),
+                                SelectRubies("は", null)
                         )
                 )
             }
@@ -63,49 +60,13 @@ class RubyQueriesTest {
     @Test
     fun test() = with(database) {
         transaction {
-            rubyQueries.insert("日", "にち")
-            val rubyId = rubyQueries.selectRubyId("日", "にち").executeAsOne()
-            entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
-            val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
+            rubyQueries.insert(ENTRY_ID, "日", "にち")
+            val rubies = rubyQueries.selectRubies(ENTRY_ID).executeAsList()
             assertTrue {
                 rubies.toTypedArray().contentEquals(
-                        arrayOf(SelectRubies("日", "にち", 2))
+                        arrayOf(SelectRubies("日", "にち"))
                 )
             }
-        }
-    }
-
-    @Test
-    fun testDuplicate() = with(database) {
-        transaction {
-            rubyQueries.insert("日", "にち")
-            rubyQueries.insert("日", "にち")
-            val rubyId = rubyQueries.selectRubyId("日", "にち").executeAsOne()
-            entryRubyTagQueries.insert(ENTRY_ID, rubyId, 2)
-            val rubies = entryRubyTagQueries.selectRubies(ENTRY_ID).executeAsList()
-            assertTrue {
-                rubies.toTypedArray().contentEquals(
-                        arrayOf(SelectRubies("日", "にち", 2))
-                )
-            }
-        }
-    }
-
-    @Test
-    fun testDuplicateNull() = with(database) {
-        transaction {
-            rubyQueries.insert("ゼロ", null)
-            rubyQueries.insert("ゼロ", null)
-            rubyQueries.selectRubyId("ゼロ", null).executeAsOne()
-        }
-    }
-
-    @Test
-    fun testDuplicateJapanese() = with(database) {
-        transaction {
-            rubyQueries.insert("ゼロ", "0")
-            rubyQueries.insert("ゼロ", "zero")
-            rubyQueries.selectRubyId("ゼロ", "zero").executeAsOne()
         }
     }
 }

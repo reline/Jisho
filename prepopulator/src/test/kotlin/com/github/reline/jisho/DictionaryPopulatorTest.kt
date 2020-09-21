@@ -28,8 +28,9 @@ class DictionaryPopulatorTest {
             db.delete()
             db.createNewFile()
             databasePath = testDbPath
-            DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
-            DictionaryPopulator.insertDictionary(DictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
+            val dictionaryPopulator = DictionaryPopulator(database, OkuriganaPopulator(database))
+            dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
+            dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
         }
 
         @AfterClass @JvmStatic

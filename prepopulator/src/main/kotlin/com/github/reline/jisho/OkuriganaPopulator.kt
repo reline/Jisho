@@ -8,7 +8,10 @@
 
 package com.github.reline.jisho
 
+import com.github.reline.jisho.dictmodels.jmdict.Dictionary
+import com.github.reline.jisho.dictmodels.jmdict.Entry
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
+import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -16,25 +19,12 @@ import okio.Buffer
 import java.io.File
 import java.lang.reflect.Type
 
-fun main() = OkuriganaPopulator.run()
-
-object OkuriganaPopulator {
-
-    fun run() {
-        println("Extracting okurigana...")
-        arrayOf(
-                File("$buildDir/dict/JmdictFurigana.json"),
-                File("$buildDir/dict/JmnedictFurigana.json")
-        ).forEach { file ->
-            val entries = extractOkurigana(file)
-            insertOkurigana(entries)
-        }
-    }
+class OkuriganaPopulator(private val database: JishoDatabase) {
 
     /**
      * See okurigana.json
      */
-    fun extractOkurigana(file: File): List<OkuriganaEntry> {
+    fun extractOkurigana(file: File): OkuriganaEntries {
         val moshi = Moshi.Builder()
                 .build()
         val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
@@ -47,7 +37,7 @@ object OkuriganaPopulator {
 
         val parseStart = System.currentTimeMillis()
 
-        println("Parsing ${file.name}...")
+        logger.info("Parsing ${file.name}...")
 
         val entries = try {
             adapter.fromJson(source) ?: throw IllegalStateException("Entries were null")
@@ -58,32 +48,31 @@ object OkuriganaPopulator {
 
         val parseEnd = System.currentTimeMillis()
 
-        println("${file.name}: Parsing ${entries.size} okurigana took ${(parseEnd - parseStart)}ms")
-
-        return entries
-    }
-
-    fun insertOkurigana(okurigana: List<OkuriganaEntry>) = with(database) {
-        logger.info("Inserting okurigana...")
-        transaction {
-            okurigana.forEach { ruby ->
-                ruby.furigana.forEach { furigana ->
-                    rubyQueries.insert(furigana.ruby, furigana.rt)
-                }
-            }
+        val map = OkuriganaEntries()
+        entries.forEach {
+            map.addOkurigana(it)
         }
 
-        logger.info("Inserting okurigana tags...")
+        logger.info("${file.name}: Parsing ${entries.size} okurigana took ${(parseEnd - parseStart)}ms")
+        return map
+    }
+
+    fun insertOkurigana(dictionary: Dictionary, furigana: OkuriganaEntries) = with(database) {
         transaction {
-            okurigana.forEach { ruby ->
-                entryQueries.selectEntryIdWhereValuesEqual(ruby.text, ruby.reading).executeAsList().forEach { entryId ->
-                    ruby.furigana.forEachIndexed { position, furigana ->
-                        val rubyId = rubyQueries.selectRubyId(furigana.ruby, furigana.rt).executeAsOne()
-                        entryRubyTagQueries.insert(entryId, rubyId, position.toLong())
-                    }
+            dictionary.entries.forEach { entry ->
+                val match = furigana.getOkurigana(entry) ?: return@forEach
+                match.furigana.forEach { okurigana ->
+                    rubyQueries.insert(entry.id, okurigana.ruby, okurigana.rt)
                 }
             }
         }
     }
 }
 
+typealias OkuriganaEntries = HashMap<String, OkuriganaEntry>
+fun OkuriganaEntries.getOkurigana(entry: Entry): OkuriganaEntry? {
+    return get(entry.readings.firstOrNull()?.value + entry.kanji?.firstOrNull()?.value)
+}
+fun OkuriganaEntries.addOkurigana(entry: OkuriganaEntry) {
+    put(entry.reading+entry.text, entry)
+}

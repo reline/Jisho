@@ -8,8 +8,7 @@
 
 package com.github.reline.jisho
 
-import com.github.reline.jisho.dictmodels.jmdict.Entry
-import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
+import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import org.junit.*
 import org.junit.Assert.assertTrue
 import java.io.File
@@ -18,16 +17,25 @@ import java.io.File
 class OkuriganaPopulatorTest {
     companion object {
         private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
-        private lateinit var entries: List<Entry>
-        private lateinit var okurigana: List<OkuriganaEntry>
+        private val dictionaries = arrayListOf<Pair<Dictionary, OkuriganaEntries>>()
+        private lateinit var okuriganaPopulator: OkuriganaPopulator
+        private lateinit var dictionaryPopulator: DictionaryPopulator
 
         @BeforeClass
         @JvmStatic
         fun setupSuite() {
-            entries = DictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")).entries +
-                    DictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")).entries
-            okurigana = OkuriganaPopulator.extractOkurigana(File("./build/dict/JmdictFurigana.json")) +
-                    OkuriganaPopulator.extractOkurigana(File("./build/dict/JmnedictFurigana.json"))
+            databasePath = testDbPath
+
+            okuriganaPopulator = OkuriganaPopulator(database)
+            dictionaryPopulator = DictionaryPopulator(database, okuriganaPopulator)
+            dictionaries.add(Pair(
+                    dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")),
+                    okuriganaPopulator.extractOkurigana(File("./build/dict/JmdictFurigana.json"))
+            ))
+            dictionaries.add(Pair(
+                    dictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")),
+                    okuriganaPopulator.extractOkurigana(File("./build/dict/JmnedictFurigana.json"))
+            ))
         }
     }
 
@@ -37,7 +45,6 @@ class OkuriganaPopulatorTest {
         db.parentFile.mkdirs()
         db.delete()
         db.createNewFile()
-        databasePath = testDbPath
     }
 
     @After
@@ -47,9 +54,10 @@ class OkuriganaPopulatorTest {
 
     @Test
     fun smokeTest() {
-        assertTrue(entries.isNotEmpty())
-        assertTrue(okurigana.isNotEmpty())
-        DictionaryPopulator.insertEntries(entries)
-        OkuriganaPopulator.insertOkurigana(okurigana)
+        assertTrue(dictionaries.isNotEmpty())
+        dictionaries.forEach { (dict, okurigana) ->
+            dictionaryPopulator.insertEntries(dict.entries)
+            okuriganaPopulator.insertOkurigana(dict, okurigana)
+        }
     }
 }
