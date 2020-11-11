@@ -14,7 +14,8 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import com.github.reline.jisho.BuildConfig
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.persistence.SQLiteCopyOpenHelper
+import com.github.reline.sqlite.db.CopyFromAssetPath
+import com.github.reline.sqlite.db.SQLiteCopyOpenHelper
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
@@ -30,7 +31,7 @@ class DatabaseModule {
     fun provideSQLiteOpenHelperFactory(context: Application): SupportSQLiteOpenHelper.Factory {
         return SQLiteCopyOpenHelper.Factory(
                 context,
-                BuildConfig.DATABASE_FILE_NAME, // assets path name,
+                CopyFromAssetPath(BuildConfig.DATABASE_FILE_NAME),
                 FrameworkSQLiteOpenHelperFactory()
         )
     }
