@@ -54,6 +54,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':common')
+    implementation 'com.github.reline:sqlitecopyopenhelper:0.1.0'
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
     implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
     implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
