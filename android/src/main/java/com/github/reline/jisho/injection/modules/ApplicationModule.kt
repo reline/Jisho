@@ -8,35 +8,27 @@
 
 package com.github.reline.jisho.injection.modules
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
-import com.github.reline.jisho.persistence.Preferences
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 
-@Module(includes = [
-    ViewModelModule::class,
-    NetworkModule::class,
-    DatabaseModule::class,
-    LoggingModule::class
-])
+@Module
+@InstallIn(SingletonComponent::class)
 class ApplicationModule {
 
     @Provides
-    fun provideAssets(context: Application): AssetManager {
+    fun provideAssets(@ApplicationContext context: Context): AssetManager {
         return context.assets
     }
 
     @Provides
-    fun provideSharedPreferences(context: Application): SharedPreferences {
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences(GENERAL_PREFERENCES, Context.MODE_PRIVATE)
-    }
-
-    @Provides
-    fun providePrefs(sharedPreferences: SharedPreferences): Preferences {
-        return Preferences(sharedPreferences)
     }
 
     companion object {

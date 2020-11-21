@@ -18,14 +18,15 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.setContent
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
 import com.github.reline.jisho.util.hideKeyboard
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     @Inject
@@ -34,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (applicationContext as Jisho).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
         setContent {
