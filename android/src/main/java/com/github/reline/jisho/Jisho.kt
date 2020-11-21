@@ -9,25 +9,18 @@
 package com.github.reline.jisho
 
 import android.app.Application
-import com.github.reline.jisho.injection.components.ApplicationComponent
-import com.github.reline.jisho.injection.components.DaggerApplicationComponent
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
 
+@HiltAndroidApp
 class Jisho : Application() {
-
-    lateinit var appComponent: ApplicationComponent
 
     @Inject
     lateinit var tree: Timber.Tree
 
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerApplicationComponent.builder()
-                .application(this)
-                .build()
-        appComponent.inject(this)
-
         Timber.plant(tree)
     }
 }

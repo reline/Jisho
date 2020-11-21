@@ -9,8 +9,9 @@
 package com.github.reline.jisho.persistence
 
 import android.content.SharedPreferences
+import javax.inject.Inject
 
-class Preferences(private val sharedPreferences: SharedPreferences) {
+class Preferences @Inject constructor(private val sharedPreferences: SharedPreferences) {
     fun setOfflineMode(enabled: Boolean) {
         sharedPreferences.edit()
                 .putBoolean(OFFLINE_MODE, enabled)

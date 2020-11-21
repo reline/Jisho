@@ -8,12 +8,13 @@
 
 package com.github.reline.jisho.injection.modules
 
-import com.github.reline.jisho.BuildConfig
 import com.github.reline.jisho.network.adapters.DbpediaAdapter
 import com.github.reline.jisho.network.services.SearchApi
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -21,10 +22,10 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class NetworkModule {
 
     @Provides
-    @Singleton
     internal fun provideMoshi(): Moshi {
         return Moshi.Builder()
                 .add(DbpediaAdapter())
@@ -33,14 +34,10 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    internal fun provideHttpClient(): OkHttpClient {
-        val httpClientBuilder = OkHttpClient.Builder()
-        if (BuildConfig.DEBUG) {
-            val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
-            httpClientBuilder.addInterceptor(loggingInterceptor)
-        }
-        return httpClientBuilder.build()
+    internal fun provideHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .build()
     }
 
     @Provides
