@@ -8,6 +8,7 @@
 
 package com.github.reline.jisho.main
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,17 +27,23 @@ class MainViewModel @Inject constructor(
         private val preferences: Preferences
 ) : ViewModel() {
 
-    val wordList = MutableLiveData<List<Result>>().apply { value = emptyList() }
+    private val results = MutableLiveData<List<Result>>()
+    val wordList: LiveData<List<Result>> = results
+
+    private val showProgressBarData = MutableLiveData<Boolean>()
+    val showProgressBar: LiveData<Boolean> = showProgressBarData
+
+    private val showNoMatchData = MutableLiveData<String?>()
+    val showNoMatch: LiveData<String?> = showNoMatchData
+
+    private val showLogoData = MutableLiveData<Boolean>()
+    val showLogo: LiveData<Boolean> = showLogoData
+
     var searchQuery: String? = null
         private set
     val isOfflineModeEnabled: Boolean
         get() = preferences.isOfflineModeEnabled()
 
-    val showProgressBarCommand = publishChannel<Unit>()
-    val hideProgressBarCommand = publishChannel<Unit>()
-    val hideNoMatchViewCommand = publishChannel<Unit>()
-    val showNoMatchViewCommand = publishChannel<String>()
-    val hideLogoCommand = publishChannel<Unit>()
     val hideKeyboardCommand = publishChannel<Unit>()
 
     fun onSearchQueryChanged(query: String) {
@@ -45,27 +52,24 @@ class MainViewModel @Inject constructor(
 
     fun onSearchClicked(query: String) = viewModelScope.launch(Dispatchers.IO) {
         hideKeyboardCommand.call()
-        hideNoMatchViewCommand.call()
-        hideLogoCommand.call()
-        showProgressBarCommand.call()
+        showNoMatchData.postValue(null)
+        showLogoData.postValue(false)
+        showProgressBarData.postValue(true)
 
         val words = try {
             repo.search(query)
         } catch (t: Throwable) {
-            hideProgressBarCommand.call()
-            wordList.postValue(emptyList())
-            showNoMatchViewCommand.offer(query)
             Timber.e(t, "Search query $query failed")
-            return@launch
+            emptyList()
         }
 
-        hideProgressBarCommand.call()
+        showProgressBarData.postValue(false)
         if (words.isEmpty()) {
-            wordList.postValue(emptyList())
-            showNoMatchViewCommand.offer(query)
+            results.postValue(emptyList())
+            showNoMatchData.postValue(query)
         } else {
-            hideNoMatchViewCommand.call()
-            wordList.postValue(words)
+            showNoMatchData.postValue(null)
+            results.postValue(words)
         }
     }
 

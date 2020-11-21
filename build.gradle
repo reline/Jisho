@@ -4,7 +4,7 @@ ext {
 }
 
 buildscript {
-    ext.kotlin_version = '1.3.72'
+    ext.kotlin_version = '1.4.10'
     ext.coroutines_version = '1.3.7'
     ext.sqldelight_version = '1.4.0'
     ext.sqlite_version = '2.1.0'
@@ -15,6 +15,7 @@ buildscript {
     ext.moshi_version = '1.9.3'
     ext.tikxml_version = '0.9.3-SNAPSHOT'
     ext.timber_version = '4.7.1'
+    ext.compose_version = "1.0.0-alpha07"
 
     ext.jmdictfurigana_version = '2.2.1'
 
@@ -24,7 +25,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.2.0-alpha16'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
