@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   unit_test:
     docker:
-      - image: circleci/android:api-29
+      - image: circleci/android:api-30
     steps:
       - checkout
       - run:
