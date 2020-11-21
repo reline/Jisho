@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 29
@@ -42,6 +43,10 @@ configurations {
     compile.exclude group: 'xpp3'
 }
 
+kapt {
+    correctErrorTypes true
+}
+
 dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:rules:1.2.0'
@@ -78,8 +83,8 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:$timber_version"
 
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation "com.google.dagger:hilt-android:$dagger_version"
+    kapt "com.google.dagger:hilt-android-compiler:$dagger_version"
 }
 
 def assetsDir = "$projectDir/src/main/assets"

@@ -15,10 +15,12 @@ import com.github.reline.jisho.main.MainViewModel
 import com.github.reline.jisho.util.JishoViewModelFactory
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 
-@Suppress("UNUSED")
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class ViewModelModule {
 
     @Binds

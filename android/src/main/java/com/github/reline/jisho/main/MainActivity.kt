@@ -17,15 +17,16 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
 import com.github.reline.jisho.databinding.ActivityMainBinding
 import com.github.reline.jisho.util.hideKeyboard
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     @Inject
@@ -36,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private val adapter = WordRecyclerViewAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (applicationContext as Jisho).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
