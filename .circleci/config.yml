@@ -20,9 +20,6 @@ jobs:
           name: Tests for prepopulator
           command: ./gradlew :prepopulator:test
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - run:
           name: Android Tests
           command: ./gradlew :android:test
       - store_test_results:
