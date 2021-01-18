@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             val results by viewModel.wordList.observeAsState(listOf())
             val showProgressBar by viewModel.showProgressBar.observeAsState(false)
             val noMatch by viewModel.showNoMatch.observeAsState()
-            val showLogo by viewModel.showLogo.observeAsState(true)
+            val showLogo by viewModel.showLogo.observeAsState(false)
             MainContent(showLogo = showLogo, showProgressBar = showProgressBar, results = results, noMatch = noMatch)
         }
 
