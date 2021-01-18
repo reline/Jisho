@@ -32,12 +32,12 @@ import com.github.reline.jisho.models.Result
 @Composable
 fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Result>, noMatch: String?) {
     Box(
-            alignment = Alignment.Center,
+            contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
     ) {
         when {
             showLogo -> {
-                Image(asset = imageResource(id = R.drawable.banner))
+                Image(bitmap = imageResource(id = R.drawable.banner))
             }
             noMatch != null -> {
                 Text(text = stringResource(id = R.string.no_match).format(noMatch))
