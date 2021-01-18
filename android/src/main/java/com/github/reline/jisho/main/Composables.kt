@@ -11,7 +11,7 @@ package com.github.reline.jisho.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
@@ -58,17 +58,19 @@ fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Resul
 
 @Composable
 fun DictionaryEntries(words: List<Result>) {
-    LazyColumnFor(items = words, contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)) { word ->
-        Card(
-                elevation = 2.dp,
-                shape = RoundedCornerShape(2.dp),
-                modifier = Modifier.fillMaxWidth()
-                        .then(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-        ) {
-            Column(modifier = Modifier.padding(4.dp)) {
-                DictionaryEntry(word)
-                Tags(word)
-                Senses(word.senses)
+    LazyColumn(contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)) {
+        items(words) { word ->
+            Card(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(2.dp),
+                    modifier = Modifier.fillMaxWidth()
+                            .then(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            ) {
+                Column(modifier = Modifier.padding(4.dp)) {
+                    DictionaryEntry(word)
+                    Tags(word)
+                    Senses(word.senses)
+                }
             }
         }
     }
