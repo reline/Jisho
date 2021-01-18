@@ -27,6 +27,27 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
+
+    flavorDimensions "environment"
+    productFlavors {
+        mock {
+            dimension "environment"
+            applicationIdSuffix ".mock"
+            versionNameSuffix "-mock"
+        }
+        prod {
+            dimension "environment"
+        }
+    }
+
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if (variant.buildType.name == 'release' && names.contains("mock")) {
+            // Gradle ignores any variants that satisfy the conditions above.
+            setIgnore(true)
+        }
+    }
+
     lintOptions {
         abortOnError false
     }
