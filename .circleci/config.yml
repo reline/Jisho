@@ -51,7 +51,7 @@ jobs:
           command: java -jar prepopulator/build/libs/prepopulator-all.jar && mv prepopulator/build/jisho.sqlite android/src/main/assets/
       - run:
           name: Build APK
-          command: ./gradlew :android:assembleRelease --no-daemon
+          command: ./gradlew :android:assembleRelease --no-daemon --max-workers 4
       - store_artifacts:
           path: android/build/outputs/apk/release
           destination: circleci/apk
