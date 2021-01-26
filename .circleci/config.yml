@@ -61,17 +61,7 @@ jobs:
 workflows:
   pull_request:
     jobs:
-      - sql_test:
-          filters:
-            branches:
-              ignore:
-                - master
-      - prepopulator_test:
-          filters:
-            branches:
-              ignore:
-                - master
-      - android_test:
+      - unit_test:
           filters:
             branches:
               ignore:
