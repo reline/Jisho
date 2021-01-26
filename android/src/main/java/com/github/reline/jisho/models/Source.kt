@@ -8,11 +8,7 @@
 
 package com.github.reline.jisho.models
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
-
-@Parcelize
 data class Source(
     val language: String,
     val word: String
-) : Parcelable
+)

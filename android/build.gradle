@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
@@ -70,10 +69,6 @@ android {
         kotlinCompilerVersion "${kotlin_version}"
         kotlinCompilerExtensionVersion "${compose_version}"
     }
-}
-
-androidExtensions {
-    experimental = true
 }
 
 configurations {

@@ -8,11 +8,7 @@
 
 package com.github.reline.jisho.models
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
-
-@Parcelize
 data class Link(
     val text: String,
     val url: String
-) : Parcelable
+)

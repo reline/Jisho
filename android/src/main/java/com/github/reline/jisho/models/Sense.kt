@@ -8,11 +8,8 @@
 
 package com.github.reline.jisho.models
 
-import android.os.Parcelable
 import com.squareup.moshi.Json
-import kotlinx.android.parcel.Parcelize
 
-@Parcelize
 data class Sense(
         @field:Json(name = "english_definitions")
         val englishDefinitions: List<String>,
@@ -26,4 +23,4 @@ data class Sense(
         val antonyms: List<String>,
         val source: List<Source>,
         val info: List<String>
-) : Parcelable
+)

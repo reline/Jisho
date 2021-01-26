@@ -8,11 +8,8 @@
 
 package com.github.reline.jisho.models
 
-import android.os.Parcelable
 import com.squareup.moshi.Json
-import kotlinx.android.parcel.Parcelize
 
-@Parcelize
 data class Word(
     @field:Json(name = "is_common")
     val isCommon: Boolean,
@@ -21,4 +18,4 @@ data class Word(
     val japanese: List<Japanese>,
     val senses: List<Sense>,
     val attribution: Attribution
-) : Parcelable
+)

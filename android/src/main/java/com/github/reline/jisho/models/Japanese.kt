@@ -8,11 +8,7 @@
 
 package com.github.reline.jisho.models
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
-
-@Parcelize
 data class Japanese(
     val word: String?,
     val reading: String
-) : Parcelable
+)
