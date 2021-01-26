@@ -12,16 +12,16 @@ jobs:
             git submodule update --remote
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies
+          command: ./gradlew androidDependencies --no-daemon
       - run:
           name: Tests for common module
-          command: ./gradlew :common:test
+          command: ./gradlew :common:test --no-daemon
       - run:
           name: Tests for prepopulator
-          command: ./gradlew :prepopulator:test
+          command: ./gradlew :prepopulator:test --no-daemon
       - run:
           name: Android Tests
-          command: ./gradlew :android:test
+          command: ./gradlew :android:test --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:
@@ -39,19 +39,19 @@ jobs:
             git submodule update --remote
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies
+          command: ./gradlew androidDependencies --no-daemon
       - run:
           name: Prepare Dictionaries
-          command: ./gradlew :prepopulator:prepareDictionaries
+          command: ./gradlew :prepopulator:prepareDictionaries --no-daemon
       - run:
           name: Build Prepopulator
-          command: ./gradlew :prepopulator:shadowJar
+          command: ./gradlew :prepopulator:shadowJar --no-daemon
       - run:
           name: Populate Database
           command: java -jar prepopulator/build/libs/prepopulator-all.jar && mv prepopulator/build/jisho.sqlite android/src/main/assets/
       - run:
           name: Build APK
-          command: ./gradlew :android:assembleRelease
+          command: ./gradlew :android:assembleRelease --no-daemon
       - store_artifacts:
           path: android/build/outputs/apk/release
           destination: circleci/apk
