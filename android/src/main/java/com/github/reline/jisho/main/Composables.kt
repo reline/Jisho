@@ -9,20 +9,25 @@
 package com.github.reline.jisho.main
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.reline.jisho.R
@@ -91,9 +96,9 @@ fun DictionaryEntry(word: Result) {
 fun Reading(japanese: String, okurigana: String?) {
     Column(verticalArrangement = Arrangement.Bottom, horizontalAlignment = Alignment.CenterHorizontally) {
         if (okurigana != null) {
-            Text(text = okurigana, modifier = Modifier.align(Alignment.CenterHorizontally))
+            BasicTextView(text = okurigana, modifier = Modifier.align(Alignment.CenterHorizontally))
         }
-        Text(text = japanese, fontSize = 40.sp)
+        BasicTextView(text = japanese, textStyle = TextStyle(fontSize = 40.sp))
     }
 }
 
@@ -101,9 +106,9 @@ fun Reading(japanese: String, okurigana: String?) {
 fun Tags(word: Result) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         if (word.isCommon) {
-            Text(
+            BasicTextView(
                     text = stringResource(id = R.string.common_word),
-                    color = Color.White,
+                    textStyle = TextStyle(color = Color.White),
                     modifier = Modifier.background(
                             color = colorResource(id = R.color.colorCommon),
                             shape = RoundedCornerShape(size = 5.dp),
@@ -111,9 +116,9 @@ fun Tags(word: Result) {
             )
         }
         for (tag in word.tags) {
-            Text(
+            BasicTextView(
                     text = tag,
-                    color = Color.White,
+                    textStyle = TextStyle(color = Color.White),
                     modifier = Modifier.background(
                             color = colorResource(id = R.color.colorTag),
                             shape = RoundedCornerShape(size = 5.dp),
@@ -131,7 +136,7 @@ fun Senses(senses: List<Definition>) {
 
             val n = i + 1
             val definitions = sense.values.joinToString("; ")
-            Text(text = "$n. $definitions")
+            BasicTextView(text = "$n. $definitions")
         }
     }
 }
@@ -139,9 +144,32 @@ fun Senses(senses: List<Definition>) {
 @Composable
 fun PartsOfSpeech(partsOfSpeech: List<String>) {
     if (partsOfSpeech.isNotEmpty()) {
-        Text(
+        BasicTextView(
                 text = partsOfSpeech.joinToString(", "),
-                color = colorResource(id = R.color.colorAccent)
+                textStyle = TextStyle(color = colorResource(id = R.color.colorAccent))
         )
     }
 }
+
+@Composable
+fun BasicTextView(
+        text: String,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        textStyle: TextStyle = TextStyle.Default,
+        singleLine: Boolean = false,
+        maxLines: Int = Int.MAX_VALUE,
+        onTextLayout: (TextLayoutResult) -> Unit = {},
+        interactionState: InteractionState = remember { InteractionState() },
+) = BasicTextField(
+        value = text,
+        onValueChange = {},
+        readOnly = true,
+        modifier = modifier,
+        enabled = enabled,
+        textStyle = textStyle,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        onTextLayout = onTextLayout,
+        interactionState = interactionState,
+)
