@@ -8,16 +8,17 @@
 
 package com.github.reline.jisho.main
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,12 +31,23 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.github.reline.jisho.R
 import com.github.reline.jisho.models.Definition
 import com.github.reline.jisho.models.Result
 
 @Composable
-fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Result>, noMatch: String?) {
+fun MainContent(
+        showLogo: Boolean,
+        showProgressBar: Boolean,
+        results: List<Result>,
+        noMatch: String?,
+        radicals: List<Radical>,
+        showKanjiBuilder: Boolean,
+        onRadicalSelected: (Char) -> Unit,
+        onKanjiSelected: (Char) -> Unit,
+        onKanjiBuilderDismissed: () -> Unit,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             showLogo -> {
@@ -49,12 +61,51 @@ fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Resul
                 DictionaryEntries(results)
             }
         }
+        if (showKanjiBuilder) {
+            KanjiBuilder(
+                    radicals = radicals,
+                    kanji = emptyList(),
+                    onRadicalSelected = onRadicalSelected,
+                    onKanjiSelected = onKanjiSelected,
+                    onDismissRequest = onKanjiBuilderDismissed,
+            )
+        }
         if (showProgressBar) {
             CircularProgressIndicator(
                     color = colorResource(id = R.color.colorPrimary),
-                    modifier = Modifier.size(76.dp).align(Alignment.Center),
+                    modifier = Modifier
+                            .size(76.dp)
+                            .align(Alignment.Center),
                     strokeWidth = 6.dp
             )
+        }
+    }
+}
+
+// todo: move these
+typealias Radical = Char
+typealias Selected = Boolean
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun KanjiBuilder(radicals: List<Radical>, kanji: List<Char>, onRadicalSelected: (Char) -> Unit, onKanjiSelected: (Char) -> Unit, onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = Color.White,
+                contentColor = contentColorFor(color = Color.White),
+        ) {
+            Column {
+                Text(text = "Title goes here", fontSize = 32.sp)
+                LazyVerticalGrid(cells = GridCells.Fixed(10)) {
+                    items(radicals) { radical ->
+                        // todo: use chips https://material.io/components/chips#filter-chips
+                        TextButton(onClick = { onRadicalSelected(radical) }) {
+                            Text(text = radical.toString())
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -66,7 +117,8 @@ fun DictionaryEntries(words: List<Result>) {
             Card(
                     elevation = 2.dp,
                     shape = RoundedCornerShape(2.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                            .fillMaxWidth()
                             .then(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             ) {
                 Column(modifier = Modifier.padding(4.dp)) {
@@ -109,20 +161,24 @@ fun Tags(word: Result) {
             BasicTextView(
                     text = stringResource(id = R.string.common_word),
                     textStyle = TextStyle(color = Color.White),
-                    modifier = Modifier.background(
-                            color = colorResource(id = R.color.colorCommon),
-                            shape = RoundedCornerShape(size = 5.dp),
-                    ).then(Modifier.padding(horizontal = 10.dp, vertical = 2.dp)),
+                    modifier = Modifier
+                            .background(
+                                    color = colorResource(id = R.color.colorCommon),
+                                    shape = RoundedCornerShape(size = 5.dp),
+                            )
+                            .then(Modifier.padding(horizontal = 10.dp, vertical = 2.dp)),
             )
         }
         for (tag in word.tags) {
             BasicTextView(
                     text = tag,
                     textStyle = TextStyle(color = Color.White),
-                    modifier = Modifier.background(
-                            color = colorResource(id = R.color.colorTag),
-                            shape = RoundedCornerShape(size = 5.dp),
-                    ).then(Modifier.padding(horizontal = 10.dp, vertical = 2.dp)),
+                    modifier = Modifier
+                            .background(
+                                    color = colorResource(id = R.color.colorTag),
+                                    shape = RoundedCornerShape(size = 5.dp),
+                            )
+                            .then(Modifier.padding(horizontal = 10.dp, vertical = 2.dp)),
             )
         }
     }

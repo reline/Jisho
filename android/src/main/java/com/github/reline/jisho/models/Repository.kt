@@ -18,6 +18,22 @@ class Repository @Inject constructor(
         private val api: SearchApi,
         private val dao: JapaneseMultilingualDao
 ) {
+    suspend fun getAssociatedRadicals(radicals: List<Char> = emptyList()): List<Char> {
+        return if (radicals.isEmpty()) {
+            dao.getRadicals()
+        } else {
+            dao.getRadicalsFiltered(radicals)
+        }
+    }
+
+    suspend fun getAssociatedKanji(radicals: List<Char> = emptyList()): List<Char> {
+        return if (radicals.isEmpty()) {
+            emptyList()
+        } else {
+            dao.getKanjiByRadicals(radicals)
+        }
+    }
+
     suspend fun search(query: String): List<Result> {
         return if (preferences.isOfflineModeEnabled()) {
             dao.search(query).map {

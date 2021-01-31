@@ -42,7 +42,19 @@ class MainActivity : AppCompatActivity() {
             val showProgressBar by viewModel.showProgressBar.observeAsState(false)
             val noMatch by viewModel.showNoMatch.observeAsState()
             val showLogo by viewModel.showLogo.observeAsState(false)
-            MainContent(showLogo = showLogo, showProgressBar = showProgressBar, results = results, noMatch = noMatch)
+            val radicals by viewModel.radicals.observeAsState(emptyList())
+            val showKanjiBuilder by viewModel.showKanjiBuilder.observeAsState(true) // todo: change to false
+            MainContent(
+                    showLogo = showLogo,
+                    showProgressBar = showProgressBar,
+                    results = results,
+                    noMatch = noMatch,
+                    radicals = radicals,
+                    showKanjiBuilder = showKanjiBuilder,
+                    onRadicalSelected = { radical -> viewModel.onRadicalSelected(radical) },
+                    onKanjiSelected = {},
+                    onKanjiBuilderDismissed = {},
+            )
         }
 
         lifecycleScope.launch {
