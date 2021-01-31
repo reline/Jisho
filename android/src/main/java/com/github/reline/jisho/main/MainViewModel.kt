@@ -39,12 +39,25 @@ class MainViewModel @Inject constructor(
     private val showLogoData = MutableLiveData<Boolean>(false)
     val showLogo: LiveData<Boolean> = showLogoData
 
+    private val showKanjiBuilderData = MutableLiveData<Boolean>()
+    val showKanjiBuilder: LiveData<Boolean> = showKanjiBuilderData
+
+    // todo: use a map? Radical:Selected
+    private val radicalsData = MutableLiveData<List<Char>>()
+    val radicals: LiveData<List<Char>> = radicalsData
+
+    private val selectedRadicals = HashSet<Char>()
+
     var searchQuery: String? = null
         private set
     val isOfflineModeEnabled: Boolean
         get() = preferences.isOfflineModeEnabled()
 
     val hideKeyboardCommand = publishChannel<Unit>()
+
+    init {
+        updateRadicals()
+    }
 
     fun onSearchQueryChanged(query: String) {
         searchQuery = query
@@ -77,4 +90,31 @@ class MainViewModel @Inject constructor(
         preferences.setOfflineMode(enabled)
     }
 
+    fun onKanjiBuilderToggled() {
+        val showing = showKanjiBuilderData.value ?: false
+        showKanjiBuilderData.value = !showing
+    }
+
+    fun onRadicalSelected(radical: Char) {
+        // todo
+        Timber.d("onRadicalSelected($radical)")
+//        updateRadicals(selectedRadicals)
+        if (!selectedRadicals.remove(radical)) {
+            selectedRadicals.add(radical)
+        }
+        updateRadicals(selectedRadicals)
+    }
+
+    fun onKanjiSelected(kanji: Char) {
+        // todo: append to current query
+//        searchQuery = searchQuery ?: "" + kanji // fixme
+    }
+
+    private fun updateRadicals(selectedRadicals: Set<Char> = emptySet()) = viewModelScope.launch(Dispatchers.IO) {
+        // fixme
+        radicalsData.postValue(
+                repo.getAssociatedKanji(selectedRadicals.toList()) +
+                repo.getAssociatedRadicals(selectedRadicals.toList())
+        )
+    }
 }

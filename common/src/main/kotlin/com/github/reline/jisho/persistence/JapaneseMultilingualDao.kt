@@ -18,6 +18,38 @@ class JapaneseMultilingualDao(
         private val database: JishoDatabase,
         private val context: CoroutineContext
 ) {
+    // 時
+    val time = listOf('寸', '土', '日')
+    // 間
+    val space = listOf('日', '門')
+
+    // todo: sort by stroke count
+    suspend fun getRadicals(): List<Char> = withContext(context) {
+        (time + space).distinct()
+    }
+
+    // todo: we don't necessarily want to filter out other radicals entirely...use a diff util?
+    suspend fun getRadicalsFiltered(radicals: List<Char>): List<Char> = withContext(context) {
+        getRadicals().filter { rad: Char ->
+            radicals.any { selectedRad: Char ->
+                rad != selectedRad &&
+                        ((time.contains(selectedRad) && time.contains(rad)) ||
+                        (space.contains(selectedRad) && space.contains(rad)))
+            }
+        }
+    }
+
+    suspend fun getKanjiByRadicals(radicals: List<Char>): List<Char> = withContext(context) {
+        val kanji = arrayListOf<Char>()
+        if (time.containsAll(radicals)) {
+            kanji.add('時')
+        }
+        if (space.containsAll(radicals)) {
+            kanji.add('間')
+        }
+        kanji
+    }
+
     suspend fun search(query: String): List<Entry> = withContext(context) {
         val (containsRoomaji, containsKana, containsKanji) = checkCJK(query)
         data class Mapper(val id: Long, val isCommon: Boolean, val kanji: String?, val reading: String)
