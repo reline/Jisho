@@ -14,7 +14,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.R
@@ -42,47 +41,33 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
-        viewModel.wordList.observe(this, Observer {
+        viewModel.wordList.observe(this, {
             adapter.updateData(it)
         })
 
         with(binding) {
             mainActivityRecyclerView.adapter = adapter
 
-            lifecycleScope.launch {
-                viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
-            }
-
-            lifecycleScope.launch {
-                viewModel.showNoMatchViewCommand.asFlow().collect {
-                    mainActivityNoMatchTextView.visibility = View.VISIBLE
-                    mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
-                }
-            }
-
-            lifecycleScope.launch {
-                viewModel.hideNoMatchViewCommand.asFlow().collect {
+            viewModel.showNoMatch.observe(this@MainActivity) {
+                if (it == null) {
                     mainActivityNoMatchTextView.visibility = View.GONE
+                } else {
+                    mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
+                    mainActivityNoMatchTextView.visibility = View.VISIBLE
                 }
             }
 
-            lifecycleScope.launch {
-                viewModel.showProgressBarCommand.asFlow().collect {
-                    mainActivityProgressBar.visibility = View.VISIBLE
-                }
+            viewModel.showProgressBar.observe(this@MainActivity) {
+                mainActivityProgressBar.visibility = if (it) View.VISIBLE else View.GONE
             }
 
-            lifecycleScope.launch {
-                viewModel.hideProgressBarCommand.asFlow().collect {
-                    mainActivityProgressBar.visibility = View.GONE
-                }
+            viewModel.showLogo.observe(this@MainActivity) {
+                mainActivityLogoTextView.visibility = if (it) View.VISIBLE else View.GONE
             }
+        }
 
-            lifecycleScope.launch {
-                viewModel.hideLogoCommand.asFlow().collect {
-                    mainActivityLogoTextView.visibility = View.GONE
-                }
-            }
+        lifecycleScope.launch {
+            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
         }
     }
 
