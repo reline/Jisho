@@ -5,7 +5,7 @@ ext {
 
 buildscript {
     ext.kotlin_version = '1.4.30'
-    ext.coroutines_version = '1.4.1'
+    ext.coroutines_version = '1.4.2'
     ext.sqldelight_version = '1.4.0'
     ext.sqlite_version = '2.1.0'
     ext.dagger_version = '2.29-alpha'
