@@ -57,7 +57,7 @@ dependencies {
     implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
     implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
