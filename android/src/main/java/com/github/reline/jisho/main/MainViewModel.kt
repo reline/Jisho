@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor(
     private val showNoMatchData = MutableLiveData<String?>()
     val showNoMatch: LiveData<String?> = showNoMatchData
 
-    private val showLogoData = MutableLiveData<Boolean>()
+    private val showLogoData = MutableLiveData<Boolean>(false)
     val showLogo: LiveData<Boolean> = showLogoData
 
     var searchQuery: String? = null
