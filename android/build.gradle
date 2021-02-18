@@ -25,6 +25,9 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
     lintOptions {
         abortOnError false
     }

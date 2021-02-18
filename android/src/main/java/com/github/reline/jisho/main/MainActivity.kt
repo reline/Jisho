@@ -19,8 +19,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.Jisho
 import com.github.reline.jisho.R
+import com.github.reline.jisho.databinding.ActivityMainBinding
 import com.github.reline.jisho.util.hideKeyboard
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -38,47 +38,50 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (applicationContext as Jisho).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
-
-        mainActivityRecyclerView.adapter = adapter
 
         viewModel.wordList.observe(this, Observer {
             adapter.updateData(it)
         })
 
-        lifecycleScope.launch {
-            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
-        }
+        with(binding) {
+            mainActivityRecyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            viewModel.showNoMatchViewCommand.asFlow().collect {
-                mainActivityNoMatchTextView.visibility = View.VISIBLE
-                mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
+            lifecycleScope.launch {
+                viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
             }
-        }
 
-        lifecycleScope.launch {
-            viewModel.hideNoMatchViewCommand.asFlow().collect {
-                mainActivityNoMatchTextView.visibility = View.GONE
+            lifecycleScope.launch {
+                viewModel.showNoMatchViewCommand.asFlow().collect {
+                    mainActivityNoMatchTextView.visibility = View.VISIBLE
+                    mainActivityNoMatchTextView.text = getString(R.string.no_match).format(it)
+                }
             }
-        }
 
-        lifecycleScope.launch {
-            viewModel.showProgressBarCommand.asFlow().collect {
-                mainActivityProgressBar.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                viewModel.hideNoMatchViewCommand.asFlow().collect {
+                    mainActivityNoMatchTextView.visibility = View.GONE
+                }
             }
-        }
 
-        lifecycleScope.launch {
-            viewModel.hideProgressBarCommand.asFlow().collect {
-                mainActivityProgressBar.visibility = View.GONE
+            lifecycleScope.launch {
+                viewModel.showProgressBarCommand.asFlow().collect {
+                    mainActivityProgressBar.visibility = View.VISIBLE
+                }
             }
-        }
 
-        lifecycleScope.launch {
-            viewModel.hideLogoCommand.asFlow().collect {
-                mainActivityLogoTextView.visibility = View.GONE
+            lifecycleScope.launch {
+                viewModel.hideProgressBarCommand.asFlow().collect {
+                    mainActivityProgressBar.visibility = View.GONE
+                }
+            }
+
+            lifecycleScope.launch {
+                viewModel.hideLogoCommand.asFlow().collect {
+                    mainActivityLogoTextView.visibility = View.GONE
+                }
             }
         }
     }

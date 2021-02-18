@@ -13,14 +13,14 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.github.reline.jisho.R
+import com.github.reline.jisho.databinding.CardWordBinding
 import com.github.reline.jisho.models.Definition
 import com.github.reline.jisho.models.Result
-import kotlinx.android.synthetic.main.card_word.view.*
 
 class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(result: Result) {
-        with(itemView) {
+        with(CardWordBinding.bind(itemView)) {
             if (result.okurigana != null) {
                 cardFuriganaTextView.visibility = View.VISIBLE
                 cardFuriganaTextView.text = result.okurigana
@@ -37,10 +37,10 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     private fun bindTags(tags: List<String>) {
-        with(itemView) {
+        with(CardWordBinding.bind(itemView)) {
             cardTagsLayout.removeAllViews()
             for (tag in tags) {
-                val textView = View.inflate(context, R.layout.layout_tag, null) as TextView
+                val textView = View.inflate(root.context, R.layout.layout_tag, null) as TextView
                 textView.text = tag
                 cardTagsLayout.addView(textView)
             }
@@ -48,14 +48,14 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     private fun bindSenses(senses: List<Definition>) {
-        with(itemView) {
+        with(CardWordBinding.bind(itemView)) {
             cardSensesLayout.removeAllViews()
             for (i in senses.indices) {
                 val sense = senses[i]
 
                 bindPartsOfSpeech(sense.partsOfSpeech)
 
-                val definitionTextView = TextView(context)
+                val definitionTextView = TextView(root.context)
                 val definition = StringBuilder().append(i + 1).append(" ")
                 val englishDefinitions = sense.values
                 for (k in englishDefinitions.indices) {
@@ -70,16 +70,16 @@ class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     private fun bindPartsOfSpeech(pos: List<String>) {
-        with(itemView) {
+        with(CardWordBinding.bind(itemView)) {
             if (pos.isEmpty()) return
-            val posTextView = TextView(context)
+            val posTextView = TextView(root.context)
             val partsOfSpeech = StringBuilder()
             for (i in pos.indices) {
                 val separator = if (i < pos.size - 1) ", " else ""
                 partsOfSpeech.append(pos[i]).append(separator)
             }
             posTextView.text = partsOfSpeech.toString()
-            posTextView.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+            posTextView.setTextColor(ContextCompat.getColor(root.context, R.color.colorAccent))
             posTextView.setTextIsSelectable(true)
             cardSensesLayout.addView(posTextView)
         }
