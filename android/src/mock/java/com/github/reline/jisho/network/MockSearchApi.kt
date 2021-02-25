@@ -7,10 +7,15 @@ import com.github.reline.jisho.models.Word
 import com.github.reline.jisho.network.responses.Meta
 import com.github.reline.jisho.network.responses.SearchResponse
 import com.github.reline.jisho.network.services.SearchApi
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class MockSearchApi @Inject constructor() : SearchApi {
     override suspend fun searchQuery(query: String): SearchResponse {
+        delay(2_000)
+        if (query == "no match") {
+            return SearchResponse(meta = Meta(0), emptyList())
+        }
         return SearchResponse(meta = Meta(0), listOf(
                 Word(
                         isCommon = true,

@@ -53,16 +53,13 @@ fun MainActivity.setContent(
 
 @Composable
 fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Result>, noMatch: String?) {
-    Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         when {
             showLogo -> {
-                Image(painter = painterResource(id = R.drawable.banner), contentDescription = null)
+                Image(painter = painterResource(id = R.drawable.banner), contentDescription = null, modifier = Modifier.align(Alignment.Center))
             }
             noMatch != null -> {
-                Text(text = stringResource(id = R.string.no_match).format(noMatch))
+                Text(text = stringResource(id = R.string.no_match).format(noMatch), modifier = Modifier.align(Alignment.Center))
             }
             else -> {
                 DictionaryEntries(results)
@@ -71,7 +68,7 @@ fun MainContent(showLogo: Boolean, showProgressBar: Boolean, results: List<Resul
         if (showProgressBar) {
             CircularProgressIndicator(
                     color = colorResource(id = R.color.colorPrimary),
-                    modifier = Modifier.size(76.dp),
+                    modifier = Modifier.size(76.dp).align(Alignment.Center),
                     strokeWidth = 6.dp
             )
         }
