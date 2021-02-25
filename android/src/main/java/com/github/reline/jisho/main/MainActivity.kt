@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
-        setContent(binding, viewModel.wordList, viewModel.showNoMatch, viewModel.showProgressBar, viewModel.showLogo)
+        setContent(viewModel.wordList, viewModel.showNoMatch, viewModel.showProgressBar, viewModel.showLogo)
 
         lifecycleScope.launch {
             viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
