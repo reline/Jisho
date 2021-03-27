@@ -46,7 +46,7 @@ fun MainActivity.setContent(
         val results by wordList.observeAsState(listOf())
         val progressBar by showProgressBar.observeAsState(false)
         val noMatch by showNoMatch.observeAsState()
-        val logo by showLogo.observeAsState(true)
+        val logo by showLogo.observeAsState(false)
         MainContent(showLogo = logo, showProgressBar = progressBar, results = results, noMatch = noMatch)
     }
 }
