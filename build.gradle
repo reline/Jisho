@@ -4,7 +4,7 @@ ext {
 }
 
 buildscript {
-    ext.kotlin_version = '1.4.30'
+    ext.kotlin_version = '1.4.31'
     ext.coroutines_version = '1.4.2'
     ext.sqldelight_version = '1.4.0'
     ext.sqlite_version = '2.1.0'
@@ -15,17 +15,20 @@ buildscript {
     ext.moshi_version = '1.9.3'
     ext.tikxml_version = '0.9.3-SNAPSHOT'
     ext.timber_version = '4.7.1'
-    ext.compose_version = "1.0.0-beta01"
+    ext.compose_version = "1.0.0-beta02"
 
     ext.jmdictfurigana_version = '2.2.1'
 
     repositories {
-        jcenter()
         google()
+        jcenter()
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha04'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha09'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
@@ -43,9 +46,6 @@ allprojects {
         mavenCentral()
         maven {
             url 'https://www.jitpack.io'
-        }
-        maven {
-            url "https://jcenter.bintray.com"
         }
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
