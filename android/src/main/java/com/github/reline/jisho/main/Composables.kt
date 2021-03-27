@@ -174,19 +174,5 @@ fun PartsOfSpeech(partsOfSpeech: List<String>) {
 fun BasicTextView(
         text: String,
         modifier: Modifier = Modifier,
-        enabled: Boolean = true,
         textStyle: TextStyle = TextStyle.Default,
-        singleLine: Boolean = false,
-        maxLines: Int = Int.MAX_VALUE,
-        onTextLayout: (TextLayoutResult) -> Unit = {},
-) = BasicTextField(
-        value = text,
-        onValueChange = {},
-        readOnly = true,
-        modifier = modifier,
-        enabled = enabled,
-        textStyle = textStyle,
-        singleLine = singleLine,
-        maxLines = maxLines,
-        onTextLayout = onTextLayout,
-)
+) = Text(text = text, modifier = modifier, color = textStyle.color, fontSize = textStyle.fontSize)
