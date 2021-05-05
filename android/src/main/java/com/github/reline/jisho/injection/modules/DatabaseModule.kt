@@ -8,12 +8,14 @@
 
 package com.github.reline.jisho.injection.modules
 
-import android.app.Application
+import android.content.Context
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import com.github.reline.jisho.BuildConfig
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.util.execQuery
 import com.github.reline.sqlite.db.CopyFromAssetPath
 import com.github.reline.sqlite.db.SQLiteCopyOpenHelper
 import com.squareup.sqldelight.android.AndroidSqliteDriver
@@ -22,8 +24,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import org.intellij.lang.annotations.Language
 import javax.inject.Singleton
 
 @Module
@@ -31,7 +35,7 @@ import javax.inject.Singleton
 class DatabaseModule {
     @Provides
     @Reusable
-    fun provideSQLiteOpenHelperFactory(context: Application): SupportSQLiteOpenHelper.Factory {
+    fun provideSQLiteOpenHelperFactory(@ApplicationContext context: Context): SupportSQLiteOpenHelper.Factory {
         return SQLiteCopyOpenHelper.Factory(
                 context,
                 CopyFromAssetPath(BuildConfig.DATABASE_FILE_NAME),
@@ -41,12 +45,19 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideSqlDriver(context: Application, factory: SupportSQLiteOpenHelper.Factory): SqlDriver {
+    fun provideSqlDriver(@ApplicationContext context: Context, factory: SupportSQLiteOpenHelper.Factory): SqlDriver {
         return AndroidSqliteDriver(
-                JishoDatabase.Schema,
-                context,
-                BuildConfig.DATABASE_FILE_NAME, // database path name
-                factory
+            JishoDatabase.Schema,
+            context,
+            BuildConfig.DATABASE_FILE_NAME, // database path name
+            factory,
+            callback = object : AndroidSqliteDriver.Callback(JishoDatabase.Schema) {
+                override fun onConfigure(db: SupportSQLiteDatabase) {
+                    super.onConfigure(db)
+                    db.execQuery("PRAGMA journal_mode = OFF;")
+                    db.execQuery("PRAGMA synchronous = OFF;")
+                }
+            }
         )
     }
 
