@@ -8,6 +8,9 @@
 
 package com.github.reline.jisho.models
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class Japanese(
     val word: String?,
     val reading: String

@@ -9,7 +9,9 @@
 package com.github.reline.jisho.models
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Word(
     @field:Json(name = "is_common")
     val isCommon: Boolean,

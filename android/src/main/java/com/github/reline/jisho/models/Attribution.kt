@@ -10,7 +10,9 @@ package com.github.reline.jisho.models
 
 import com.github.reline.jisho.network.qualifiers.Dbpedia
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 class Attribution(
     @field:Json(name = "jmdict")
     val isJmdict: Boolean = false,
