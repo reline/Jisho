@@ -6,10 +6,11 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho
+package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
+import com.github.reline.jisho.logger
 import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
