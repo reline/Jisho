@@ -8,4 +8,7 @@
 
 package com.github.reline.jisho.network.responses
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 class Meta(val status: Int)

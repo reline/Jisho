@@ -9,7 +9,9 @@
 package com.github.reline.jisho.network.responses
 
 import com.github.reline.jisho.models.Word
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 class SearchResponse(
     val meta: Meta,
     val data: List<Word>
