@@ -14,6 +14,9 @@ jobs:
           name: Download Dependencies
           command: ./gradlew androidDependencies --no-daemon
       - run:
+          name: Prepare Dictionaries
+          command: ./gradlew :prepopulator:prepareDictionaries --no-daemon
+      - run:
           name: Tests for common module
           command: ./gradlew :common:test --no-daemon
       - run:
