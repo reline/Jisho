@@ -11,15 +11,12 @@ package com.github.reline.jisho.main
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.R
 import com.github.reline.jisho.databinding.ActivityMainBinding
-import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.util.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.asFlow
@@ -40,8 +37,6 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
-
-        setContent(binding, viewModel.wordList, viewModel.showNoMatch, viewModel.showProgressBar, viewModel.showLogo)
 
         lifecycleScope.launch {
             viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
@@ -82,38 +77,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-}
-
-fun MainActivity.setContent(
-    binding: ActivityMainBinding,
-    wordList: LiveData<List<Result>>,
-    showNoMatch: LiveData<String?>,
-    showProgressBar: LiveData<Boolean>,
-    showLogo: LiveData<Boolean>
-) {
-    val adapter = WordRecyclerViewAdapter()
-
-    wordList.observe(this, {
-        adapter.updateData(it)
-    })
-
-    binding.recycler.adapter = adapter
-
-    showNoMatch.observe(this) {
-        if (it == null) {
-            binding.noMatch.visibility = View.GONE
-        } else {
-            binding.noMatch.text = getString(R.string.no_match).format(it)
-            binding.noMatch.visibility = View.VISIBLE
-        }
-    }
-
-    showProgressBar.observe(this) {
-        binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
-    }
-
-    showLogo.observe(this) {
-        binding.logo.visibility = if (it) View.VISIBLE else View.GONE
     }
 }
