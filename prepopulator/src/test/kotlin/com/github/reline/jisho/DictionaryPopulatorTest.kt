@@ -9,26 +9,26 @@
 package com.github.reline.jisho
 
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.sql.JishoDatabase
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.Assert.assertTrue
 import org.junit.rules.ErrorCollector
 import java.io.File
 
-@Ignore("Large test")
 class DictionaryPopulatorTest {
 
     companion object {
         private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
+        private lateinit var database: JishoDatabase
 
         @BeforeClass @JvmStatic
         fun setupSuite() {
             val db = File(testDbPath)
-            db.parentFile.mkdirs()
-            db.delete()
-            db.createNewFile()
-            databasePath = testDbPath
-            val dictionaryPopulator = DictionaryPopulator(database, OkuriganaPopulator(database))
+            db.forceCreate()
+            database = provideDatabase("jdbc:sqlite:$testDbPath")
+
+            val dictionaryPopulator = DictionaryPopulator(database)
             dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
             dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
         }

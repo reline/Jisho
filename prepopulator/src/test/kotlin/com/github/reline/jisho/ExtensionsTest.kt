@@ -21,5 +21,6 @@ class ExtensionsTest {
         Assert.assertFalse(inMemoryDb.hasDuplicateValues("Test", "value"))
         inMemoryDb.execute(0, """INSERT INTO Test(value) values ("hello")""", 0)
         Assert.assertTrue(inMemoryDb.hasDuplicateValues("Test", "value"))
+        inMemoryDb.close()
     }
 }

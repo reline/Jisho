@@ -21,6 +21,17 @@ import java.lang.reflect.Type
 
 class OkuriganaPopulator(private val database: JishoDatabase) {
 
+    fun populate(dictionaries: List<Dictionary>, files: Array<File>) {
+        dictionaries.forEachIndexed { i, dictionary ->
+            val file = files[i]
+            logger.info("Extracting okurigana from ${file.name}...")
+            val okurigana = extractOkurigana(file)
+            logger.info("Inserting okurigana...")
+            insertOkurigana(dictionary, okurigana)
+            logger.info("✓ ${file.name}")
+        }
+    }
+
     /**
      * See okurigana.json
      */

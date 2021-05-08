@@ -18,7 +18,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "com.squareup.sqldelight:coroutines-extensions:$sqldelight_version"
 
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "com.squareup.sqldelight:runtime:$sqldelight_version"
     testImplementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
 }
