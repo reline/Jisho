@@ -17,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.rules.ErrorCollector
 import java.io.File
 
+@Ignore("Large Test")
 class DictionaryPopulatorTest {
 
     companion object {
