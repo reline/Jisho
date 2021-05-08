@@ -8,56 +8,58 @@
 
 package com.github.reline.jisho
 
-import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.populators.DictionaryPopulator
-import com.github.reline.jisho.populators.OkuriganaEntries
 import com.github.reline.jisho.populators.OkuriganaPopulator
 import com.github.reline.jisho.sql.JishoDatabase
-import org.junit.*
-import org.junit.Assert.assertTrue
+import com.squareup.sqldelight.db.SqlDriver
 import java.io.File
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+
+private val testDbPath = "$buildDir/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
 
 @Ignore("Large Test")
 class OkuriganaPopulatorTest {
-    companion object {
-        private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
-        private lateinit var database: JishoDatabase
-        private val dictionaries = arrayListOf<Pair<Dictionary, OkuriganaEntries>>()
-        private lateinit var okuriganaPopulator: OkuriganaPopulator
-        private lateinit var dictionaryPopulator: DictionaryPopulator
 
-        @BeforeClass
-        @JvmStatic
-        fun setupSuite() {
-            val db = File(testDbPath)
-            db.forceCreate()
-            database = provideDatabase("jdbc:sqlite:${testDbPath}")
+    private lateinit var driver: SqlDriver
+    private lateinit var database: JishoDatabase
+    private lateinit var okuriganaPopulator: OkuriganaPopulator
+    private lateinit var dictionaryPopulator: DictionaryPopulator
 
-            okuriganaPopulator = OkuriganaPopulator(database)
-            dictionaryPopulator = DictionaryPopulator(database)
-            dictionaries.add(Pair(
-                    dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")),
-                    okuriganaPopulator.extractOkurigana(File("./build/dict/JmdictFurigana.json"))
-            ))
-            dictionaries.add(Pair(
-                    dictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")),
-                    okuriganaPopulator.extractOkurigana(File("./build/dict/JmnedictFurigana.json"))
-            ))
-        }
+    @BeforeTest
+    fun setUp() {
+        val db = File(testDbPath)
+        db.forceCreate()
+        driver = provideDriver("jdbc:sqlite:$testDbPath")
+        database = provideDatabase(driver)
 
-        @AfterClass
-        @JvmStatic
-        fun teardownSuite() {
-            File(testDbPath).delete()
-        }
+        okuriganaPopulator = OkuriganaPopulator(database)
+        dictionaryPopulator = DictionaryPopulator(database)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        driver.close()
+        File(testDbPath).delete()
     }
 
     @Test
-    fun smokeTest() {
-        assertTrue(dictionaries.isNotEmpty())
-        dictionaries.forEach { (dict, okurigana) ->
-            dictionaryPopulator.insertEntries(dict.entries)
-            okuriganaPopulator.insertOkurigana(dict, okurigana)
+    fun smokeTest() = with(database) {
+        val dictionaries = dictionaryPopulator.populate(arrayOf(
+            File("$buildDir/dict/JMdict_e.xml"),
+            File("$buildDir/dict/JMnedict.xml"),
+        ))
+        OkuriganaPopulator(database).populate(
+            dictionaries,
+            arrayOf(
+                File("$buildDir/dict/JmdictFurigana.json"),
+                File("$buildDir/dict/JmnedictFurigana.json"),
+            )
+        )
+        transaction {
+            val rubies = rubyQueries.selectAllRubies().executeAsList()
+            assert(rubies.isNotEmpty())
         }
     }
 }

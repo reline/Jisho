@@ -11,44 +11,58 @@ package com.github.reline.jisho
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.sql.JishoDatabase
+import com.squareup.sqldelight.db.SqlDriver
 import kotlinx.coroutines.runBlocking
-import org.junit.*
-import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.rules.ErrorCollector
 import java.io.File
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Ignore
+import kotlin.test.Test
+
+private val testDbPath = "$buildDir/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
 
 @Ignore("Large Test")
 class DictionaryPopulatorTest {
-
-    companion object {
-        private val testDbPath = "./build/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
-        private lateinit var database: JishoDatabase
-
-        @BeforeClass @JvmStatic
-        fun setupSuite() {
-            val db = File(testDbPath)
-            db.forceCreate()
-            database = provideDatabase("jdbc:sqlite:$testDbPath")
-
-            val dictionaryPopulator = DictionaryPopulator(database)
-            dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")))
-            dictionaryPopulator.insertDictionary(dictionaryPopulator.extractDictionary(File("./build/dict/JMnedict.xml")))
-        }
-
-        @AfterClass @JvmStatic
-        fun teardownSuite() {
-            File(testDbPath).delete()
-        }
-    }
 
     @JvmField
     @Rule
     var collector = ErrorCollector()
 
+    private lateinit var driver: SqlDriver
+    private lateinit var database: JishoDatabase
+    private lateinit var dictionaryPopulator: DictionaryPopulator
+
+    @BeforeTest
+    fun setUp() {
+        val db = File(testDbPath)
+
+        db.forceCreate()
+        driver = provideDriver("jdbc:sqlite:$testDbPath")
+        database = provideDatabase(driver)
+        dictionaryPopulator = DictionaryPopulator(database)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        driver.close()
+        File(testDbPath).delete()
+    }
+
     // todo: benchmark queries; should take ~250ms
 
     @Test
+    fun smokeTest() = with(database) {
+        val dictionaries = dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
+        assert(dictionaries.isNotEmpty())
+        assert(entryQueries.selectAll().executeAsList().isNotEmpty())
+    }
+
+    @Test
     fun testHello() = with(database) {
+        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+
         val results = entryQueries.selectEntries("hello").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         // missing from dictionary: アンニョンハシムニカ, チョリース, やあやあ, ちわ, いよう, 挨拶まわり
@@ -94,7 +108,7 @@ class DictionaryPopulatorTest {
         val expected = listOf("今日は", "もしもし", "こんにちわ", "ハイサイ", "アニョハセヨ", "ニーハオ", "ハロー", "どうも", "はいはい", "ハローワーク", "ハローページ", "ポケハロ", "ほいほい"/*, "公共職業安定所" todo: support xref*/)
         expected.forEach {
             collector.checkSucceeds {
-                assertTrue("Missing $it", actual.contains(it))
+                assert(actual.contains(it)) { println("Missing $it") }
             }
         }
         actual.forEach {
@@ -106,37 +120,43 @@ class DictionaryPopulatorTest {
 
     @Test
     fun testHouse() = with(database) {
+        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+
         val results = entryQueries.selectEntries("house").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "家屋", "宅", "住まい", "人家", "宿", "参議院", "衆議院", "ハウス", "部族", "一家", "借家", "お宅", "貸家", "番地", "別荘", "満員")
         expected.forEach {
             collector.checkSucceeds {
-                assertTrue("Missing $it", actual.contains(it))
+                assert(actual.contains(it)) { println("Missing $it") }
             }
         }
     }
 
     @Test
     fun test家() = with(database) {
+        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+
         val results = entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
         expected.forEach {
             collector.checkSucceeds {
-                assertTrue("Missing $it", actual.contains(it))
+                assert(actual.contains(it)) { println("Missing $it") }
             }
         }
     }
 
     @Test
     fun test走った() = runBlocking {
+        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+
         val dao = JapaneseMultilingualDao(database, coroutineContext)
         val results = dao.search("走った")
         val actual = results.map { it.japanese }
         val expected = listOf("走る")
         expected.forEach {
             collector.checkSucceeds {
-                assertTrue("Missing $it", actual.contains(it))
+                assert(actual.contains(it)) { println("Missing $it") }
             }
         }
     }
