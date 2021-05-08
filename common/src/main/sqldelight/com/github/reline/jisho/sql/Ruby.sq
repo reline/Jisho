@@ -22,3 +22,7 @@ selectRubies:
 SELECT japanese, okurigana
 FROM Ruby
 WHERE entry_id = :entryId;
+
+selectAllRubies:
+SELECT *
+FROM Ruby;
