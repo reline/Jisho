@@ -6,12 +6,14 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho
+package com.github.reline.jisho.populators
 
+import com.github.reline.jisho.parsers.RadKParser
 import com.github.reline.jisho.dictmodels.Radical
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
 import com.github.reline.jisho.linguist.isCJK
+import com.github.reline.jisho.logger
 import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
@@ -67,7 +69,6 @@ class KanjiPopulator(private val database: JishoDatabase) {
 
     private fun populateRadicals(radk: Array<File>, krad: Array<File>) = runBlocking {
         extractRadKFiles(radk)
-//        extractKRadFiles(krad)
     }
 
     private fun extractRadKFiles(files: Array<File>) {
@@ -96,42 +97,6 @@ class KanjiPopulator(private val database: JishoDatabase) {
                 radical.kanji.forEach { kanji ->
                     val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
                     kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
-                }
-            }
-        }
-    }
-
-    private fun extractKRadFiles(files: Array<File>) {
-        val kradparser = KRadParser()
-        files.forEach {
-            val parseStart = System.currentTimeMillis()
-            val krad = kradparser.parse(it)
-            val parseEnd = System.currentTimeMillis()
-            logger.info("${it.name}: Parsing took ${(parseEnd - parseStart)}ms")
-
-            val insertStart = System.currentTimeMillis()
-            insertKrad(krad)
-            val insertEnd = System.currentTimeMillis()
-            logger.info("${it.name}: Inserting took ${(insertEnd - insertStart)}ms")
-        }
-    }
-
-    private fun insertKrad(krad: Map<Char, List<Char>>) = with(database) {
-        transaction(noEnclosing = true) {
-            krad.forEach { (kanji, radicals) ->
-//            kanjiRadicalQueries.insertKanji(kanji.toString())
-//            val kanjiId = kanjiRadicalQueries.kanjiId(kanji.toString()).executeAsOne()
-                radicals.forEach { radical ->
-                    try {
-//                    val radicalId = kanjiRadicalQueries.radicalId(radical.toString()).executeAsOne()
-//                    kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
-                    } catch (e: NullPointerException) {
-                        // note: 悒 contains the radical 邑 which isn't in the radfile
-                        // but 悒 explicitly consists of 口 and 巴 which make up 邑
-
-                        // omit any failures for now
-                        logger.warning("$radical couldn't be found, used in $kanji")
-                    }
                 }
             }
         }

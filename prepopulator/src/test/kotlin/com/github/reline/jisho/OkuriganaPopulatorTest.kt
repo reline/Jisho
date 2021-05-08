@@ -9,6 +9,9 @@
 package com.github.reline.jisho
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
+import com.github.reline.jisho.populators.DictionaryPopulator
+import com.github.reline.jisho.populators.OkuriganaEntries
+import com.github.reline.jisho.populators.OkuriganaPopulator
 import com.github.reline.jisho.sql.JishoDatabase
 import org.junit.*
 import org.junit.Assert.assertTrue
