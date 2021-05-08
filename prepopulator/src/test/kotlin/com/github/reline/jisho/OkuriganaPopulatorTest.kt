@@ -17,6 +17,7 @@ import org.junit.*
 import org.junit.Assert.assertTrue
 import java.io.File
 
+@Ignore("Large Test")
 class OkuriganaPopulatorTest {
     companion object {
         private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
