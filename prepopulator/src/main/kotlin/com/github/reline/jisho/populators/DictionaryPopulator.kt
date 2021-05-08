@@ -34,7 +34,7 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         }
     }
 
-    fun extractDictionary(file: File): Dictionary {
+    private fun extractDictionary(file: File): Dictionary {
         val inputStream = file.inputStream()
         val source = Buffer().readFrom(inputStream)
 
@@ -53,7 +53,7 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         return dictionary
     }
 
-    fun insertEntries(entries: List<Entry>) = with(database) {
+    private fun insertEntries(entries: List<Entry>) = with(database) {
         logger.info("Inserting Entries...")
         transaction {
             entries.forEach { entry ->
@@ -68,7 +68,7 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         }
     }
 
-    fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
+    private fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
         logger.info("Inserting Parts of Speech...")
         transaction {
             entries.forEach { entry ->
@@ -81,7 +81,7 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         }
     }
 
-    fun insertSenses(entries: List<Entry>) = with(database) {
+    private fun insertSenses(entries: List<Entry>) = with(database) {
         val list = arrayListOf<Long>()
 
         logger.info("Inserting Senses and Glosses...")
@@ -117,7 +117,7 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         }
     }
 
-    fun insertDictionary(dictionary: Dictionary) = with(database) {
+    private fun insertDictionary(dictionary: Dictionary) = with(database) {
         val entries = dictionary.entries
 
         insertEntries(entries)

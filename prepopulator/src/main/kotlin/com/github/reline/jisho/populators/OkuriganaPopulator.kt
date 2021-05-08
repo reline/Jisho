@@ -37,7 +37,7 @@ class OkuriganaPopulator(private val database: JishoDatabase) {
     /**
      * See okurigana.json
      */
-    fun extractOkurigana(file: File): OkuriganaEntries {
+    private fun extractOkurigana(file: File): OkuriganaEntries {
         val moshi = Moshi.Builder()
                 .build()
         val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
@@ -70,7 +70,7 @@ class OkuriganaPopulator(private val database: JishoDatabase) {
         return map
     }
 
-    fun insertOkurigana(dictionary: Dictionary, furigana: OkuriganaEntries) = with(database) {
+    private fun insertOkurigana(dictionary: Dictionary, furigana: OkuriganaEntries) = with(database) {
         transaction {
             dictionary.entries.forEach { entry ->
                 val match = furigana.getOkurigana(entry) ?: return@forEach

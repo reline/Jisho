@@ -12,21 +12,25 @@ import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.populators.OkuriganaPopulator
 import com.github.reline.jisho.sql.JishoDatabase
+import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import java.io.File
 
-const val buildDir = "prepopulator/build"
+private const val buildDir = "prepopulator/build"
 private const val databasePath = "$buildDir/$JISHO_DB"
 
 private val database: JishoDatabase by lazy {
-    provideDatabase("jdbc:sqlite:$databasePath")
+    provideDatabase(provideDriver("jdbc:sqlite:$databasePath"))
 }
 
-fun provideDatabase(url: String): JishoDatabase {
+fun provideDriver(url: String): SqlDriver {
     logger.info("Loading database driver...")
     // load the JDBC driver first to check if it's working
     Class.forName("org.sqlite.JDBC")
-    val driver = JdbcSqliteDriver(url)
+    return JdbcSqliteDriver(url)
+}
+
+fun provideDatabase(driver: SqlDriver): JishoDatabase {
     JishoDatabase.Schema.create(driver)
     return JishoDatabase(driver)
 }

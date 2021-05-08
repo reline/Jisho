@@ -4,12 +4,14 @@ import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.sql.JishoDatabase
+import com.squareup.sqldelight.db.SqlDriver
 import java.io.File
 import kotlin.test.*
 
 class KanjiPopulatorTest {
 
     private lateinit var dbFile: File
+    private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
     private lateinit var dictionaryPopulator: DictionaryPopulator
     private lateinit var kanjiPopulator: KanjiPopulator
@@ -17,17 +19,18 @@ class KanjiPopulatorTest {
 
     @BeforeTest
     fun setUp() {
-        val dbPath = "./build/test/${KanjiPopulatorTest::class.simpleName}/jisho.sqlite"
+        val dbPath = "$buildDir/test/${KanjiPopulatorTest::class.simpleName}/jisho.sqlite"
         dbFile = File(dbPath)
         dbFile.forceCreate()
-        database = provideDatabase("jdbc:sqlite:$dbPath")
+        driver = provideDriver("jdbc:sqlite:$dbPath")
+        database = provideDatabase(driver)
         dictionaryPopulator = DictionaryPopulator(database)
         kanjiPopulator = KanjiPopulator(database)
     }
 
     @Test
     fun smokeTestKanji() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("./build/dict/kanjidic2.xml")), emptyArray(), emptyArray())
+        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), emptyArray(), emptyArray())
         transaction {
             val kanji = kanjiRadicalQueries.selectAllKanji().executeAsList()
             assert(kanji.isNotEmpty())
@@ -36,7 +39,7 @@ class KanjiPopulatorTest {
 
     @Test
     fun hasStrokes() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("./build/dict/kanjidic2.xml")), emptyArray(), emptyArray())
+        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), emptyArray(), emptyArray())
         transaction {
             val kanji = kanjiRadicalQueries.selectKanji("亜").executeAsOne()
             assertEquals(expected = 7, actual = kanji.strokes)
@@ -45,10 +48,10 @@ class KanjiPopulatorTest {
 
     @Test
     fun smokeTestRadicals() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("./build/dict/kanjidic2.xml")), arrayOf(
-            File("./build/dict/radkfile"),
-            File("./build/dict/radkfile2"),
-            File("./build/dict/radkfilex"),
+        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), arrayOf(
+            File("$buildDir/dict/radkfile"),
+            File("$buildDir/dict/radkfile2"),
+            File("$buildDir/dict/radkfilex"),
         ), arrayOf())
         transaction {
             val radicals = kanjiRadicalQueries.selectAllRadicals().executeAsList()
@@ -58,10 +61,10 @@ class KanjiPopulatorTest {
 
     @Test
     fun testKanjiForEntries() = with(database) {
-        val dictionaries = dictionaryPopulator.populate(arrayOf(File("./build/dict/JMdict_e.xml")))
+        val dictionaries = dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
         kanjiPopulator.populate(
             dictionaries,
-            arrayOf(File("./build/dict/kanjidic2.xml")),
+            arrayOf(File("$buildDir/dict/kanjidic2.xml")),
             emptyArray(),
             emptyArray(),
         )
@@ -78,6 +81,7 @@ class KanjiPopulatorTest {
 
     @AfterTest
     fun tearDown() {
+        driver.close()
         dbFile.delete()
     }
 

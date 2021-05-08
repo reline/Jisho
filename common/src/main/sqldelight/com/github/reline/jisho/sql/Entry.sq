@@ -15,6 +15,10 @@ insert:
 INSERT INTO Entry (id, is_common, kanji, reading)
 VALUES (:id, :isCommon, :kanji, :reading);
 
+selectAll:
+SELECT *
+FROM Entry;
+
 selectEntryIdWhereValuesEqual:
 SELECT Entry.id
 FROM Entry
