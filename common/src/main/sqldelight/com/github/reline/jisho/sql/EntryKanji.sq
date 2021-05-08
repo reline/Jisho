@@ -1,0 +1,29 @@
+-- Copyright 2020 Nathaniel Reline
+--
+-- This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+-- To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or
+-- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+CREATE TABLE IF NOT EXISTS EntryKanji (
+  id INTEGER NOT NULL PRIMARY KEY,
+  entry_id INTEGER NOT NULL,
+  kanji_id INTEGER NOT NULL,
+  FOREIGN KEY (entry_id) REFERENCES Entry(id),
+  FOREIGN KEY (kanji_id) REFERENCES Kanji(id)
+);
+
+CREATE INDEX IF NOT EXISTS index_ek_entryid
+ON EntryKanji (entry_id);
+
+CREATE INDEX IF NOT EXISTS index_ek_kanjiid
+ON EntryKanji (kanji_id);
+
+insert:
+INSERT INTO EntryKanji (entry_id, kanji_id)
+VALUES (:entryId, :kanjiId);
+
+selectKanjiForEntryId:
+SELECT Kanji.id, Kanji.value FROM Kanji
+INNER JOIN EntryKanji
+    ON Kanji.id = EntryKanji.kanji_id
+WHERE EntryKanji.entry_id = :entryId;

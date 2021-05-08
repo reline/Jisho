@@ -57,4 +57,36 @@ class CodePointUtilsTest {
     fun `random character is not a kanji`() {
         assertFalse(isCJK(0xFB44))
     }
+
+    @Test
+    fun `check contains roomaji`() {
+        val result = checkCJK("hello")
+        assertTrue(result.containsRoomaji)
+        assertFalse(result.containsKana)
+        assertFalse(result.containsKanji)
+    }
+
+    @Test
+    fun `check contains kana`() {
+        val result = checkCJK("こんにち")
+        assertFalse(result.containsRoomaji)
+        assertTrue(result.containsKana)
+        assertFalse(result.containsKanji)
+    }
+
+    @Test
+    fun `check contains kanji`() {
+        val result = checkCJK("今日")
+        assertFalse(result.containsRoomaji)
+        assertFalse(result.containsKana)
+        assertTrue(result.containsKanji)
+    }
+
+    @Test
+    fun `check contains kana and kanji`() {
+        val result = checkCJK("言う")
+        assertFalse(result.containsRoomaji)
+        assertTrue(result.containsKana)
+        assertTrue(result.containsKanji)
+    }
 }

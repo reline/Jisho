@@ -11,41 +11,56 @@ package com.github.reline.jisho
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import java.io.File
-import java.util.logging.Level
-import java.util.logging.Logger
 
-var buildDir = "prepopulator/build"
-var databasePath = "$buildDir/$JISHO_DB"
+const val buildDir = "prepopulator/build"
+private const val databasePath = "$buildDir/$JISHO_DB"
 
-val url: String get() = "jdbc:sqlite:$databasePath"
-
-val logger: Logger by lazy {
-    System.setProperty("java.util.logging.SimpleFormatter.format",
-            "%1\$tF %1\$tT - %5\$s%n") // yyyy-MM-dd hh:mm:ss - %s\n
-    Logger.getLogger("Jisho")
+private val database: JishoDatabase by lazy {
+    provideDatabase("jdbc:sqlite:$databasePath")
 }
 
-fun Logger.debug(s: String) {
-    log(Level.ALL, s)
+fun provideDatabase(url: String): JishoDatabase {
+    logger.info("Loading database driver...")
+    // load the JDBC driver first to check if it's working
+    Class.forName("org.sqlite.JDBC")
+    val driver = JdbcSqliteDriver(url)
+    JishoDatabase.Schema.create(driver)
+    return JishoDatabase(driver)
 }
-
-val database: JishoDatabase
-    get() {
-        logger.info("Loading database driver...")
-        // load the JDBC driver first to check if it's working
-        Class.forName("org.sqlite.JDBC")
-        val driver = JdbcSqliteDriver(url)
-        JishoDatabase.Schema.create(driver)
-        return JishoDatabase(driver)
-    }
 
 fun main() {
     logger.info("Working directory: ${File(".").absolutePath}")
 
-    val db = database
-//    KanjiPopulator.run()
-//    RadicalPopulator.run()
-    DictionaryPopulator(db, OkuriganaPopulator(db)).run()
+    val dictionaries = DictionaryPopulator(database).populate(
+        arrayOf(
+            File("$buildDir/dict/JMdict_e.xml"),
+            File("$buildDir/dict/JMnedict.xml"),
+        )
+    )
+
+    OkuriganaPopulator(database).populate(
+        dictionaries,
+        arrayOf(
+            File("$buildDir/dict/JmdictFurigana.json"),
+            File("$buildDir/dict/JmnedictFurigana.json"),
+        )
+    )
+
+    KanjiPopulator(database).populate(
+        dictionaries,
+        arrayOf(
+            File("$buildDir/dict/kanjidic2.xml"),
+        ),
+        arrayOf(
+            File("$buildDir/dict/radkfile"),
+            File("$buildDir/dict/radkfile2"),
+            File("$buildDir/dict/radkfilex"),
+        ),
+        arrayOf(
+            File("$buildDir/dict/kradfile"),
+            File("$buildDir/dict/kradfile2"),
+        ),
+    )
 
     logger.info("Done!")
 }

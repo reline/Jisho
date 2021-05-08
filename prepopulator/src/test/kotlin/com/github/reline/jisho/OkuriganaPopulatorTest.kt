@@ -9,14 +9,15 @@
 package com.github.reline.jisho
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
+import com.github.reline.jisho.sql.JishoDatabase
 import org.junit.*
 import org.junit.Assert.assertTrue
 import java.io.File
 
-@Ignore("Large test")
 class OkuriganaPopulatorTest {
     companion object {
         private val testDbPath = "./build/test/${OkuriganaPopulatorTest::class.java.name}/jisho.sqlite"
+        private lateinit var database: JishoDatabase
         private val dictionaries = arrayListOf<Pair<Dictionary, OkuriganaEntries>>()
         private lateinit var okuriganaPopulator: OkuriganaPopulator
         private lateinit var dictionaryPopulator: DictionaryPopulator
@@ -24,10 +25,12 @@ class OkuriganaPopulatorTest {
         @BeforeClass
         @JvmStatic
         fun setupSuite() {
-            databasePath = testDbPath
+            val db = File(testDbPath)
+            db.forceCreate()
+            database = provideDatabase("jdbc:sqlite:${testDbPath}")
 
             okuriganaPopulator = OkuriganaPopulator(database)
-            dictionaryPopulator = DictionaryPopulator(database, okuriganaPopulator)
+            dictionaryPopulator = DictionaryPopulator(database)
             dictionaries.add(Pair(
                     dictionaryPopulator.extractDictionary(File("./build/dict/JMdict_e.xml")),
                     okuriganaPopulator.extractOkurigana(File("./build/dict/JmdictFurigana.json"))
@@ -37,19 +40,12 @@ class OkuriganaPopulatorTest {
                     okuriganaPopulator.extractOkurigana(File("./build/dict/JmnedictFurigana.json"))
             ))
         }
-    }
 
-    @Before
-    fun setup() {
-        val db = File(testDbPath)
-        db.parentFile.mkdirs()
-        db.delete()
-        db.createNewFile()
-    }
-
-    @After
-    fun teardown() {
-        File(testDbPath).delete()
+        @AfterClass
+        @JvmStatic
+        fun teardownSuite() {
+            File(testDbPath).delete()
+        }
     }
 
     @Test

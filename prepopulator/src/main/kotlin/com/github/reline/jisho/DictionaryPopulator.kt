@@ -16,14 +16,11 @@ import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import java.io.File
 
-class DictionaryPopulator(private val database: JishoDatabase, private val okuriganaPopulator: OkuriganaPopulator) {
+class DictionaryPopulator(private val database: JishoDatabase) {
 
-    fun run() = runBlocking {
+    fun populate(dicts: Array<File>) = runBlocking {
         logger.info("Extracting dictionaries...")
-        arrayOf(
-                Pair(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JmdictFurigana.json")),
-                Pair(File("$buildDir/dict/JMnedict.xml"), File("$buildDir/dict/JmnedictFurigana.json"))
-        ).forEach { (dict, furigana) ->
+        return@runBlocking dicts.map { dict ->
             val dictionary = extractDictionary(dict)
 
             val start = System.currentTimeMillis()
@@ -32,10 +29,7 @@ class DictionaryPopulator(private val database: JishoDatabase, private val okuri
             val end = System.currentTimeMillis()
             logger.info("${dict.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
 
-            logger.info("Extracting okurigana...")
-            val okurigana = okuriganaPopulator.extractOkurigana(furigana)
-            logger.info("Inserting okurigana...")
-            okuriganaPopulator.insertOkurigana(dictionary, okurigana)
+            return@map dictionary
         }
     }
 

@@ -9,6 +9,7 @@
 package com.github.reline.jisho
 
 import com.squareup.sqldelight.db.SqlDriver
+import java.io.File
 
 fun SqlDriver.hasDuplicateValues(tableName: String, columnName: String): Boolean {
     executeQuery(
@@ -18,4 +19,10 @@ fun SqlDriver.hasDuplicateValues(tableName: String, columnName: String): Boolean
     ).use { cursor ->
         return cursor.next()
     }
+}
+
+fun File.forceCreate() {
+    parentFile.mkdirs()
+    delete()
+    createNewFile()
 }
