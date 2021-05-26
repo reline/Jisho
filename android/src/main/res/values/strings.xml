@@ -7,4 +7,6 @@
     <string name="no_match">Sorry, couldn\'t find anything matching "%s".</string>
     <string name="action_more_options">More Options</string>
     <string name="offline_mode">Offline Mode</string>
+    <string name="action_radicals">Radicals</string>
+    <string name="close_button_desc">Close</string>
 </resources>

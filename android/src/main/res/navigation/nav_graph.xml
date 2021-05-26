@@ -3,10 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/wordsFragment">
     <fragment
-        android:id="@+id/mainFragment"
+        android:id="@+id/wordsFragment"
         android:name="com.github.reline.jisho.words.WordsFragment"
         tools:layout="@layout/fragment_words">
     </fragment>
+
+    <dialog
+        android:id="@+id/radicalsDialogFragment"
+        android:name="com.github.reline.jisho.radicals.RadicalsDialogFragment">
+    </dialog>
+
+    <action
+        android:id="@+id/action_global_radicalsDialogFragment"
+        app:destination="@id/radicalsDialogFragment"/>
 </navigation>

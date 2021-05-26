@@ -18,6 +18,8 @@ class Repository @Inject constructor(
         private val api: SearchApi,
         private val dao: JapaneseMultilingualDao
 ) {
+    suspend fun getRadicals() = dao.getRadicals()
+
     suspend fun search(query: String): List<Result> {
         return if (preferences.isOfflineModeEnabled()) {
             dao.search(query).map {

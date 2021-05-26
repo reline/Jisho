@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import com.github.reline.jisho.NavGraphDirections
 import com.github.reline.jisho.R
 import com.github.reline.jisho.databinding.ActivityMainBinding
 import com.github.reline.jisho.util.hideKeyboard
@@ -40,6 +42,13 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
+        }
+
+        lifecycleScope.launchWhenResumed {
+            viewModel.showRadicalPickerCommand.asFlow().collect {
+                binding.navHostFragment.findNavController()
+                    .navigate(NavGraphDirections.actionGlobalRadicalsDialogFragment())
+            }
         }
     }
 
@@ -73,6 +82,10 @@ class MainActivity : AppCompatActivity() {
             R.id.action_offline_mode -> {
                 item.isChecked = !item.isChecked
                 viewModel.onOfflineModeToggled(item.isChecked)
+                return true
+            }
+            R.id.action_radicals -> {
+                viewModel.onRadicalsButtonClicked()
                 return true
             }
         }

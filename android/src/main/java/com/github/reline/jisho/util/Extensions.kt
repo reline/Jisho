@@ -10,7 +10,9 @@ package com.github.reline.jisho.util
 
 import android.app.Activity
 import android.content.Context
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.DialogFragment
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.channels.SendChannel
 import org.intellij.lang.annotations.Language
@@ -20,6 +22,13 @@ fun Activity.hideKeyboard() {
         val context = applicationContext?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         context?.hideSoftInputFromWindow(it, InputMethodManager.HIDE_NOT_ALWAYS)
     }
+}
+
+fun DialogFragment.enableFullscreen() {
+    dialog?.window?.setLayout(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
+    )
 }
 
 fun SendChannel<Unit>.call() = offer(Unit)

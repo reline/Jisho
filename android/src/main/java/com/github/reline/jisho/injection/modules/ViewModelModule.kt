@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.github.reline.jisho.injection.ViewModelKey
 import com.github.reline.jisho.main.MainViewModel
+import com.github.reline.jisho.radicals.RadicalsViewModel
 import com.github.reline.jisho.util.JishoViewModelFactory
 import dagger.Binds
 import dagger.Module
@@ -27,6 +28,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(MainViewModel::class)
     abstract fun bindMainViewModel(mainViewModel: MainViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(RadicalsViewModel::class)
+    abstract fun bindRadicalsViewModel(viewModel: RadicalsViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: JishoViewModelFactory): ViewModelProvider.Factory

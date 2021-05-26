@@ -45,6 +45,7 @@ class MainViewModel @Inject constructor(
         get() = preferences.isOfflineModeEnabled()
 
     val hideKeyboardCommand = publishChannel<Unit>()
+    val showRadicalPickerCommand = publishChannel<Unit>()
 
     fun onSearchQueryChanged(query: String) {
         searchQuery = query
@@ -75,6 +76,10 @@ class MainViewModel @Inject constructor(
 
     fun onOfflineModeToggled(enabled: Boolean) {
         preferences.setOfflineMode(enabled)
+    }
+
+    fun onRadicalsButtonClicked() {
+        showRadicalPickerCommand.call()
     }
 
 }
