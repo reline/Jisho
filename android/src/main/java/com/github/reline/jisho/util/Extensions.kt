@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.channels.SendChannel
 import org.intellij.lang.annotations.Language
 
 fun Activity.hideKeyboard() {
@@ -30,8 +29,6 @@ fun DialogFragment.enableFullscreen() {
         ViewGroup.LayoutParams.MATCH_PARENT
     )
 }
-
-fun SendChannel<Unit>.call() = offer(Unit)
 
 fun SupportSQLiteDatabase.execQuery(@Language("SqlDelight") sql: String) {
     query(sql).use {

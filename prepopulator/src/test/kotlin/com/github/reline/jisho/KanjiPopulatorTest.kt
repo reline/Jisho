@@ -72,7 +72,7 @@ class KanjiPopulatorTest {
             val entryId = entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()
                 .first().id
             val kanji = entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
-                .map { it.value }
+                .map { it.value_ }
             assertEquals(expected = 2, actual = kanji.size)
             assertTrue(kanji.contains("海"))
             assertTrue(kanji.contains("豚"))

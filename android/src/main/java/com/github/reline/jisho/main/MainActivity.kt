@@ -21,8 +21,8 @@ import com.github.reline.jisho.R
 import com.github.reline.jisho.databinding.ActivityMainBinding
 import com.github.reline.jisho.util.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,11 +41,11 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
         lifecycleScope.launch {
-            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
+            viewModel.hideKeyboardCommand.receiveAsFlow().collect { hideKeyboard() }
         }
 
         lifecycleScope.launchWhenResumed {
-            viewModel.showRadicalPickerCommand.asFlow().collect {
+            viewModel.showRadicalPickerCommand.receiveAsFlow().collect {
                 binding.navHostFragment.findNavController()
                     .navigate(NavGraphDirections.actionGlobalRadicalsDialogFragment())
             }

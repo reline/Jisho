@@ -108,7 +108,7 @@ class KanjiPopulator(private val database: JishoDatabase) {
             dictionaries.forEach { dictionary ->
                 dictionary.entries.forEach { entry ->
                     entry.kanji?.forEach { word ->
-                        word.value.filter { char -> isCJK(char.toInt()) }.forEach { kanji ->
+                        word.value.filter { char -> isCJK(char.code) }.forEach { kanji ->
                             try {
                                 val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
                                 entryKanjiQueries.insert(entry.id, kanjiId)

@@ -1,4 +1,3 @@
 include ':android', ':prepopulator', ':common'
 include ':ve'
 project(':ve').projectDir = new File("$rootDir/ve/java")
-enableFeaturePreview('GRADLE_METADATA')

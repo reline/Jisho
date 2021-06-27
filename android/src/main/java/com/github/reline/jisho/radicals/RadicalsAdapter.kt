@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.reline.jisho.databinding.ItemRadicalBinding
-import com.github.reline.jisho.util.publishChannel
+import kotlinx.coroutines.channels.Channel
 
 data class Radical(
     val value: String,
@@ -18,7 +18,7 @@ data class Radical(
 
 class RadicalsAdapter : ListAdapter<Radical, RadicalViewHolder>(DIFF_CALLBACK) {
 
-    val clicks = publishChannel<Radical>()
+    val clicks = Channel<Radical>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RadicalViewHolder {
         return RadicalViewHolder(ItemRadicalBinding.inflate(
@@ -32,7 +32,7 @@ class RadicalsAdapter : ListAdapter<Radical, RadicalViewHolder>(DIFF_CALLBACK) {
         val item = getItem(position)
         holder.bind(item)
         holder.itemView.setOnClickListener {
-            clicks.offer(item)
+            clicks.tryEmit(item)
         }
     }
 

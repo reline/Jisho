@@ -32,8 +32,8 @@ class EntryKanjiQueriesTest {
 
             val kanji = entryKanjiQueries.selectKanjiForEntryId(ENTRY_ID).executeAsList()
             assertEquals(expected = 2, actual = kanji.size)
-            assertEquals(expected = "今", actual = kanji[0].value)
-            assertEquals(expected = "日", actual = kanji[1].value)
+            assertEquals(expected = "今", actual = kanji[0].value_)
+            assertEquals(expected = "日", actual = kanji[1].value_)
         }
     }
 }

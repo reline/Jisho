@@ -17,8 +17,8 @@ class RadicalsViewModel @Inject constructor(
         viewModelScope.launch {
             radicals.postValue(repository.getRadicals().associateByTo(
                 destination = LinkedHashMap(),
-                keySelector = { it.value },
-                valueTransform = { Radical(it.value, it.strokes.toInt()) },
+                keySelector = { it.value_ },
+                valueTransform = { Radical(it.value_, it.strokes.toInt()) },
             ))
         }
     }
