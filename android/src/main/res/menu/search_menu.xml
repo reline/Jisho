@@ -8,16 +8,14 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_more_options"
-        android:icon="@drawable/ic_baseline_more_vert_24"
-        android:title="@string/action_more_options"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/action_offline_mode"
-                android:title="@string/offline_mode"
-                android:checkable="true"/>
-        </menu>
-    </item>
+        android:id="@+id/action_radicals"
+        android:icon="@drawable/ic_radical"
+        android:title="@string/action_radicals"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_offline_mode"
+        android:title="@string/offline_mode"
+        app:showAsAction="never"
+        android:checkable="true"/>
 
 </menu>

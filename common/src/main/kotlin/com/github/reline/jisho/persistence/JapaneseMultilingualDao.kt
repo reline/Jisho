@@ -60,6 +60,10 @@ class JapaneseMultilingualDao(
                     )
                 }
     }
+
+    suspend fun getRadicals(): List<Radical> = withContext(context) {
+        database.kanjiRadicalQueries.selectAllRadicals().executeAsList()
+    }
 }
 
 data class Entry(
