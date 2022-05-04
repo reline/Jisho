@@ -27,7 +27,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
-import org.intellij.lang.annotations.Language
 import javax.inject.Singleton
 
 @Module
@@ -45,7 +44,7 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideSqlDriver(@ApplicationContext context: Context, factory: SupportSQLiteOpenHelper.Factory): SqlDriver {
+    fun provideSqliteDriver(@ApplicationContext context: Context, factory: SupportSQLiteOpenHelper.Factory): AndroidSqliteDriver {
         return AndroidSqliteDriver(
             JishoDatabase.Schema,
             context,
