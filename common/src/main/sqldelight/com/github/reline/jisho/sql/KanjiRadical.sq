@@ -67,13 +67,17 @@ INNER JOIN Radical
 WHERE Radical.value = ?;
 
 radicalsForKanjiId:
-SELECT Radical.id, Radical.value, Radical.strokes
+SELECT DISTINCT
+    Kanji.id AS kanjiId,
+    Radical.id AS radicalId,
+    Radical.value AS radical,
+    Radical.strokes AS radicalStrokes
 FROM Radical
 INNER JOIN KanjiRadical
     ON Radical.id = KanjiRadical.radical_id
 INNER JOIN Kanji
     ON Kanji.id = KanjiRadical.kanji_id
-WHERE Kanji.id = ?;
+WHERE Kanji.id IN ?;
 
 relatedKanji:
 SELECT DISTINCT KanjiRadical.kanji_id
