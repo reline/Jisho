@@ -19,7 +19,7 @@ class DatabaseTest {
     @Before
     fun setup() {
         val dbModule = DatabaseModule()
-        driver = dbModule.provideSqlDriver(getApplicationContext(), FrameworkSQLiteOpenHelperFactory())
+        driver = dbModule.provideSqliteDriver(getApplicationContext(), FrameworkSQLiteOpenHelperFactory())
     }
 
     @Test
