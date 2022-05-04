@@ -64,6 +64,14 @@ class JapaneseMultilingualDao(
     suspend fun getRadicals(): List<Radical> = withContext(context) {
         database.kanjiRadicalQueries.selectAllRadicals().executeAsList()
     }
+
+    suspend fun getRelatedRadicals(radicalIds: List<Long>): List<Radical> = withContext(context) {
+        database.kanjiRadicalQueries.relatedKanji(radicalIds).executeAsList()
+    }.mapNotNull { kanjiId ->
+        val radicals = database.kanjiRadicalQueries.radicalsForKanjiId(kanjiId).executeAsList()
+        if (radicals.map { it.id }.containsAll(radicalIds)) radicals else null
+    }.reduce { acc, list -> acc + list }
+    .distinctBy { it.id }
 }
 
 data class Entry(

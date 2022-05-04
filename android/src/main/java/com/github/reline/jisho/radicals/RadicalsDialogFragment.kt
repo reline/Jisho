@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.databinding.DialogFragmentRadicalsBinding
 import com.github.reline.jisho.util.enableFullscreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,12 +45,14 @@ class RadicalsDialogFragment : DialogFragment() {
 
         val adapter = RadicalsAdapter()
         binding.radicalsList.adapter = adapter
-        viewModel.radicals.observe(this) {
-            adapter.submitList(it.values.toList())
+        lifecycleScope.launchWhenStarted {
+            viewModel.radicals.collectLatest {
+                adapter.submitList(it.values.toList())
+            }
         }
-        lifecycleScope.launch {
+        lifecycleScope.launchWhenResumed {
             adapter.clicks.receiveAsFlow().collect {
-                viewModel.onRadicalSelected(it)
+                viewModel.onRadicalToggled(it)
             }
         }
     }

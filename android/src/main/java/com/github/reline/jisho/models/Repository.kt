@@ -11,6 +11,7 @@ package com.github.reline.jisho.models
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.persistence.Preferences
+import com.github.reline.jisho.radicals.Radical
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -19,6 +20,10 @@ class Repository @Inject constructor(
         private val dao: JapaneseMultilingualDao
 ) {
     suspend fun getRadicals() = dao.getRadicals()
+        .map { Radical(it.id, it.value_, it.strokes.toInt()) }
+
+    suspend fun getRelatedRadicals(radicals: List<Radical>) = dao.getRelatedRadicals(radicals.map { it.id })
+        .map { Radical(it.id, it.value_, it.strokes.toInt()) }
 
     suspend fun search(query: String): List<Result> {
         return if (preferences.isOfflineModeEnabled()) {

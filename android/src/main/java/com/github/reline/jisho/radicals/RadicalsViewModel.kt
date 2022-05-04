@@ -1,9 +1,9 @@
 package com.github.reline.jisho.radicals
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.reline.jisho.models.Repository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -11,21 +11,39 @@ class RadicalsViewModel @Inject constructor(
     private val repository: Repository,
 ) : ViewModel() {
 
-    val radicals = MutableLiveData<LinkedHashMap<String, Radical>>()
+    val radicals = MutableStateFlow<Map<String, Radical>>(emptyMap())
 
     init {
         viewModelScope.launch {
-            radicals.postValue(repository.getRadicals().associateByTo(
-                destination = LinkedHashMap(),
-                keySelector = { it.value_ },
-                valueTransform = { Radical(it.value_, it.strokes.toInt()) },
-            ))
+            radicals.value = defaultRadicals()
         }
     }
 
-    fun onRadicalSelected(radical: Radical) {
-        val rads = radicals.value ?: return
-        rads[radical.value] = radical.copy(isSelected = !radical.isSelected)
-        radicals.postValue(rads)
+    private suspend fun defaultRadicals() = repository.getRadicals().associateByTo(
+        destination = LinkedHashMap(),
+        keySelector = { it.value },
+    )
+
+    fun onRadicalToggled(toggledRadical: Radical) = viewModelScope.launch {
+        val selectedRadicals = radicals.value.values.filter { radical ->
+            if (radical.value == toggledRadical.value) {
+                !radical.isSelected
+            } else {
+                radical.isSelected
+            }
+        }
+
+        if (selectedRadicals.isEmpty()) {
+            radicals.value = defaultRadicals()
+            return@launch
+        }
+
+        val related = repository.getRelatedRadicals(selectedRadicals)
+        val results = radicals.value.mapValues { radical ->
+            val isSelected = selectedRadicals.contains(radical.value)
+            val isEnabled = related.any { it.value == radical.value.value }
+            radical.value.copy(isEnabled = isEnabled, isSelected = isSelected)
+        }
+        radicals.value = results
     }
 }

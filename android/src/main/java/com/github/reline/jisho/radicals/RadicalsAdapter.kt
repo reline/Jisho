@@ -10,9 +10,11 @@ import com.github.reline.jisho.databinding.ItemRadicalBinding
 import kotlinx.coroutines.channels.Channel
 
 data class Radical(
+    val id: Long,
     val value: String,
     val strokes: Int,
     val isSelected: Boolean = false,
+    val isEnabled: Boolean = true,
     val kanji: List<Char> = emptyList(),
 )
 
@@ -32,7 +34,7 @@ class RadicalsAdapter : ListAdapter<Radical, RadicalViewHolder>(DIFF_CALLBACK) {
         val item = getItem(position)
         holder.bind(item)
         holder.itemView.setOnClickListener {
-            clicks.tryEmit(item)
+            clicks.trySend(item)
         }
     }
 
@@ -43,7 +45,8 @@ class RadicalsAdapter : ListAdapter<Radical, RadicalViewHolder>(DIFF_CALLBACK) {
             }
 
             override fun areContentsTheSame(oldItem: Radical, newItem: Radical): Boolean {
-                return oldItem.value == newItem.value && oldItem.isSelected == newItem.isSelected
+                return oldItem.isEnabled == newItem.isEnabled &&
+                        oldItem.isSelected == newItem.isSelected
             }
         }
     }
@@ -52,6 +55,13 @@ class RadicalsAdapter : ListAdapter<Radical, RadicalViewHolder>(DIFF_CALLBACK) {
 class RadicalViewHolder(private val binding: ItemRadicalBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: Radical) {
         binding.radical.text = item.value
+
+        // fixme
+        binding.radical.setTextColor(if (item.isEnabled) Color.BLACK else Color.LTGRAY)
+        binding.root.isEnabled = item.isEnabled
+        binding.radical.isEnabled = item.isEnabled
+
+        binding.root.isSelected = item.isSelected
         binding.root.setBackgroundColor(if (item.isSelected) Color.GRAY else Color.WHITE)
     }
 }
