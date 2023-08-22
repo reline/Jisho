@@ -76,7 +76,10 @@ class JapaneseMultilingualDaoTest {
 
             runBlocking {
                 val dao = JapaneseMultilingualDao(database, coroutineContext)
-                val results = dao.getRelatedRadicals(listOf(id1, id2, id3)).map { it.value_ }
+                val relatedRadicals = dao.getRelatedRadicals(listOf(id1, id2, id3))
+                val woot = dao.getRelatedRadicalsWickedFast(listOf(id1, id2, id3))
+                assertEquals(4, woot.size)
+                val results = relatedRadicals.map { it.value_ }
                 assertTrue(results.contains("人"))
                 assertTrue(results.contains("戈"))
                 assertTrue(results.contains("韭"))

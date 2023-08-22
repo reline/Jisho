@@ -10,20 +10,19 @@ package com.github.reline.jisho
 
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.populators.DictionaryPopulator
+import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.rules.ErrorCollector
 import java.io.File
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Ignore
-import kotlin.test.Test
+import kotlin.system.measureNanoTime
+import kotlin.test.*
 
 private val testDbPath = "$buildDir/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
 
-@Ignore("Large Test")
+//@Ignore("Large Test")
 class DictionaryPopulatorTest {
 
     @JvmField
@@ -33,6 +32,7 @@ class DictionaryPopulatorTest {
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
     private lateinit var dictionaryPopulator: DictionaryPopulator
+    private lateinit var kanjiPopulator: KanjiPopulator
 
     @BeforeTest
     fun setUp() {
@@ -42,6 +42,7 @@ class DictionaryPopulatorTest {
         driver = provideDriver("jdbc:sqlite:$testDbPath")
         database = provideDatabase(driver)
         dictionaryPopulator = DictionaryPopulator(database)
+        kanjiPopulator = KanjiPopulator(database)
     }
 
     @AfterTest
@@ -159,5 +160,49 @@ class DictionaryPopulatorTest {
                 assert(actual.contains(it)) { println("Missing $it") }
             }
         }
+    }
+
+//    @Ignore("radk/krad files provide 'parts' in some instances, not radicals")
+    @Test
+    fun testRadicals() = runBlocking {
+        val dictionaries = dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        kanjiPopulator.populate(
+            dictionaries,
+            arrayOf(File("$buildDir/dict/kanjidic2.xml")),
+            arrayOf(
+                File("$buildDir/dict/radkfile"),
+                File("$buildDir/dict/radkfile2"),
+                File("$buildDir/dict/radkfilex"),
+            ),
+            arrayOf(
+                File("$buildDir/dict/kradfile"),
+                File("$buildDir/dict/kradfile2"),
+            ),
+        )
+
+        val dao = JapaneseMultilingualDao(database, coroutineContext)
+        val radicals = dao.getRadicals()
+        val desired = listOf("人", "戈", "言")
+        val ids = radicals.mapNotNull {
+            if (desired.contains(it.value_)) {
+                it.id
+            } else null
+        }
+        val times = arrayListOf<Long>()
+        for (i in 0..15) {
+            val time = measureNanoTime {
+                dao.getRelatedRadicals(ids)
+            }
+            times.add(time)
+        }
+        println(times.average())
+
+//        val actual = results.map { it.value_ }
+//        val expected = listOf("人", "戈", "韭", "言")
+//        expected.forEach {
+//            collector.checkSucceeds {
+//                assert(actual.contains(it)) { println("Missing $it") }
+//            }
+//        }
     }
 }

@@ -8,6 +8,11 @@ import com.squareup.sqldelight.db.SqlDriver
 import java.io.File
 import kotlin.test.*
 
+/**
+ * '仝' 20189
+ * '昻' 26171 in 意気軒昻
+ * '髙' 39641
+ */
 class KanjiPopulatorTest {
 
     private lateinit var dbFile: File

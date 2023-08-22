@@ -68,19 +68,44 @@ WHERE Radical.value = ?;
 
 radicalsForKanjiId:
 SELECT DISTINCT
-    Kanji.id AS kanjiId,
-    Radical.id AS radicalId,
+    KanjiRadical.kanji_id AS kanjiId,
+    KanjiRadical.radical_id AS radicalId,
     Radical.value AS radical,
     Radical.strokes AS radicalStrokes
-FROM Radical
-INNER JOIN KanjiRadical
+FROM KanjiRadical
+INNER JOIN Radical
     ON Radical.id = KanjiRadical.radical_id
-INNER JOIN Kanji
-    ON Kanji.id = KanjiRadical.kanji_id
-WHERE Kanji.id IN ?;
+WHERE KanjiRadical.kanji_id IN ?;
 
 relatedKanji:
 SELECT DISTINCT KanjiRadical.kanji_id
 FROM KanjiRadical
-LEFT JOIN Radical
-WHERE Radical.id IN ?;
+WHERE KanjiRadical.radical_id IN :radicalIds;
+
+relatedRadicals:
+SELECT DISTINCT
+    KanjiRadical.kanji_id AS kanjiId,
+    KanjiRadical.radical_id AS radicalId,
+    Radical.value AS radical,
+    Radical.strokes AS radicalStrokes
+FROM KanjiRadical
+INNER JOIN Radical
+    ON Radical.id = KanjiRadical.radical_id
+--     AND :radicalIds
+WHERE KanjiRadical.kanji_id IN (
+    SELECT DISTINCT KanjiRadical.kanji_id
+    FROM KanjiRadical
+    WHERE KanjiRadical.radical_id IN :radicalIds
+)
+-- GROUP BY Radical.id
+;
+
+relatedRadicalIds:
+SELECT DISTINCT
+    KanjiRadical.radical_id AS radicalId
+FROM KanjiRadical
+WHERE KanjiRadical.kanji_id IN (
+    SELECT KanjiRadical.kanji_id
+    FROM KanjiRadical
+    WHERE KanjiRadical.radical_id IN :radicalIds
+);

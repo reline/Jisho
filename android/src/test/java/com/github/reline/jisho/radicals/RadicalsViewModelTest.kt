@@ -53,7 +53,7 @@ class RadicalsViewModelTest {
                     it.any { radical ->
                         radicals.contains(radical.value)
                     }
-                }.flatten()
+                }.flatten().distinct()
             }
         }
         viewModel = RadicalsViewModel(repository)

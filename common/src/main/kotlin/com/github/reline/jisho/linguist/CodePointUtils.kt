@@ -79,6 +79,7 @@ fun isKana(c: Int): Boolean {
 /**
  * @param c A codepoint
  * @return True if the codepoint is a japanese, chinese, or korean character
+ * todo: look at https://github.com/KanjiVG/kanjivg/blob/3d5b57d2b178265744dc8bcb364930c9247f5a0e/kanjivg.py#L37
  */
 fun isCJK(c: Int): Boolean {
     return c in CJK_STARTING_CODEPOINT..CJK_ENDING_CODEPOINT

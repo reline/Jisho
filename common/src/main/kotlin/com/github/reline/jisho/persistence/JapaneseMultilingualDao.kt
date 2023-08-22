@@ -66,15 +66,35 @@ class JapaneseMultilingualDao(
     }
 
     suspend fun getRelatedRadicals(radicalIds: List<Long>): List<Radical> = withContext(context) {
-        val kanji = database.kanjiRadicalQueries.relatedKanji(radicalIds).executeAsList()
-        database.kanjiRadicalQueries.radicalsForKanjiId(kanji).executeAsList()
+//        return@withContext getRelatedRadicalsWickedFast(radicalIds)
+        getRelatedRadicalsFast(radicalIds)
             .groupBy { it.kanjiId }
-    }.filter { krad ->
-        krad.value.map { it.radicalId }.containsAll(radicalIds)
-    }.map { it.value }
-    .reduce { acc, list -> acc + list }
-    .distinctBy { it.radicalId }
-    .map { Radical(it.radicalId, it.radical, it.radicalStrokes) }
+            .filter { krad ->
+                krad.value.map { it.radicalId }.containsAll(radicalIds)
+            }.map { it.value }
+            .reduce { acc, list -> acc + list }
+            .distinctBy { it.radicalId }
+            .map { Radical(it.radicalId, it.radical, it.radicalStrokes) }
+            .toList()
+    }
+
+    // 1658029700
+    // 1628867975 avg
+    private fun getRelatedRadicalsSlow(radicalIds: List<Long>): List<RadicalsForKanjiId> {
+        val kanji = database.kanjiRadicalQueries.relatedKanji(radicalIds).executeAsList()
+        return database.kanjiRadicalQueries.radicalsForKanjiId(kanji).executeAsList()
+    }
+
+    // 1632166200
+    // 1615510925 avg
+    private fun getRelatedRadicalsFast(radicalIds: List<Long>): List<RelatedRadicals> {
+        return database.kanjiRadicalQueries.relatedRadicals(radicalIds).executeAsList()
+    }
+
+    suspend fun getRelatedRadicalsWickedFast(radicalIds: List<Long>): List<Radical> = withContext(context) {
+        database.kanjiRadicalQueries.relatedRadicalIds(radicalIds).executeAsList()
+            .map { Radical(it, "", 0) }
+    }
 
 }
 
