@@ -52,7 +52,7 @@ fun checkCJK(s: String): Result {
     var containsKana = false
     var containsKanji = false
     s.forEach {
-        val c = it.toInt()
+        val c = it.code
         containsKana = containsKana || isKana(c)
         containsKanji = containsKanji || isCJK(c)
         val containsJapanese = containsKana || containsKanji

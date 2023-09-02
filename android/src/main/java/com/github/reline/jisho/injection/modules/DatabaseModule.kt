@@ -18,8 +18,8 @@ import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.util.execQuery
 import com.github.reline.sqlite.db.CopyFromAssetPath
 import com.github.reline.sqlite.db.SQLiteCopyOpenHelper
-import com.squareup.sqldelight.android.AndroidSqliteDriver
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -27,7 +27,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
-import org.intellij.lang.annotations.Language
 import javax.inject.Singleton
 
 @Module

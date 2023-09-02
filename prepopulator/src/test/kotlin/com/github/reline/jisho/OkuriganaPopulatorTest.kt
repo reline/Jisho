@@ -11,7 +11,7 @@ package com.github.reline.jisho
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.OkuriganaPopulator
 import com.github.reline.jisho.sql.JishoDatabase
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
 import org.junit.Ignore
 import java.io.File
 import kotlin.test.AfterTest

@@ -8,17 +8,16 @@
 
 package com.github.reline.jisho
 
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
 import java.io.File
 
-fun SqlDriver.hasDuplicateValues(tableName: String, columnName: String): Boolean {
-    executeQuery(
-            null,
-            "SELECT $columnName, COUNT(*) c FROM $tableName GROUP BY $columnName HAVING c > 1;",
-            0
-    ).use { cursor ->
-        return cursor.next()
-    }
+suspend fun SqlDriver.hasDuplicateValues(tableName: String, columnName: String): Boolean {
+    return executeQuery(
+        null,
+        "SELECT $columnName, COUNT(*) c FROM $tableName GROUP BY $columnName HAVING c > 1;",
+        parameters = 0,
+        mapper = { cursor -> cursor.next() }
+    ).await()
 }
 
 fun File.forceCreate() {

@@ -1,16 +1,13 @@
 import groovy.json.JsonSlurper
 
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'java'
-apply plugin: 'org.jetbrains.kotlin.jvm'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm'
+//    id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.kapt'
+}
 
 sourceCompatibility = 1.8
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
 
 jar {
     manifest {
@@ -23,13 +20,19 @@ configurations {
     compile.exclude group: 'xpp3'
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
     implementation project(':common')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     implementation 'org.xerial:sqlite-jdbc:3.21.0.1'
-    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+    implementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
 
     implementation "com.tickaroo.tikxml:core:$tikxml_version"
     implementation ("com.tickaroo.tikxml:annotation:$tikxml_version")
@@ -37,7 +40,7 @@ dependencies {
     kapt "com.tickaroo.tikxml:processor:$tikxml_version"
 
     implementation "com.squareup.moshi:moshi:$moshi_version"
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.okio:okio:$okio_version"
 
     testImplementation 'junit:junit:4.12'
@@ -61,25 +64,46 @@ task fetchFuriganaDictionaries {
         println("Downloading furigana sources...")
         final String url = "https://api.github.com/repos/Doublevil/JmdictFurigana/releases/tags/$jmdictfurigana_version"
         final json = new JsonSlurper().parseText(url.toURL().text)
+        println("Parsing assets from $url...")
         final assets = json['assets'] as List<Object>
         final downloads = new HashMap<String, String>()
+        println("Found ${assets.size()} assets")
         for (asset in assets) {
             final String name = asset['name']
             if (name.endsWith(".json")) {
                 downloads.put(name, asset["browser_download_url"])
             }
         }
+        println("Found ${downloads.size()} available downloads")
         for (download in downloads) {
+            println(download)
             final downloadUrl = new URL(download.value)
+            println("Download url: ${downloadUrl}")
             final dictionary = new File("$outputDir/${download.key}")
+            println("Download destination: ${dictionary.absolutePath}")
             if (dictionary.exists()) {
                 println("${dictionary.name} already exists, skipping")
                 continue
             }
-            println(download.value)
+
+            try {
+                println("Creating file at ${dictionary.absolutePath}...")
+                if (!dictionary.createNewFile()) {
+                    // todo: change to warning, possibly error?
+                    println("[WARN]: Could not create file at ${dictionary.absolutePath}")
+                    continue
+                }
+            } catch (e) {
+                println(e)
+                continue;
+            }
+
+            println("Created file at ${dictionary.absolutePath}")
             dictionary.withOutputStream { out ->
+                println("Downloading ${download.key}...")
                 downloadUrl.withInputStream { from ->  out << from }
             }
+            println("Downloaded ${download.value} to ${dictionary.absolutePath}")
         }
     }
 }

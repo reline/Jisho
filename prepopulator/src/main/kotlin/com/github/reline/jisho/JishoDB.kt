@@ -12,8 +12,8 @@ import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.populators.OkuriganaPopulator
 import com.github.reline.jisho.sql.JishoDatabase
-import com.squareup.sqldelight.db.SqlDriver
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import java.io.File
 
 private const val buildDir = "prepopulator/build"

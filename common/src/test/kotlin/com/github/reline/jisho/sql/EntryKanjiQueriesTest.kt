@@ -1,7 +1,7 @@
 package com.github.reline.jisho.sql
 
-import com.squareup.sqldelight.db.SqlDriver
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -32,8 +32,8 @@ class EntryKanjiQueriesTest {
 
             val kanji = entryKanjiQueries.selectKanjiForEntryId(ENTRY_ID).executeAsList()
             assertEquals(expected = 2, actual = kanji.size)
-            assertEquals(expected = "今", actual = kanji[0].value)
-            assertEquals(expected = "日", actual = kanji[1].value)
+            assertEquals(expected = "今", actual = kanji[0].value_)
+            assertEquals(expected = "日", actual = kanji[1].value_)
         }
     }
 }

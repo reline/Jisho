@@ -8,13 +8,14 @@
 
 package com.github.reline.jisho
 
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
 class ExtensionsTest {
     @Test
-    fun testDuplicateQuery() {
+    fun testDuplicateQuery() = runBlocking {
         val inMemoryDb = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         inMemoryDb.execute(0, """CREATE TABLE Test(value TEXT NOT NULL)""", 0)
         inMemoryDb.execute(0, """INSERT INTO Test(value) values ("hello")""", 0)
