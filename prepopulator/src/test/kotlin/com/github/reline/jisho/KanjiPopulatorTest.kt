@@ -4,7 +4,7 @@ import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.sql.JishoDatabase
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
 import java.io.File
 import kotlin.test.*
 

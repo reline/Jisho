@@ -11,7 +11,7 @@ package com.github.reline.jisho
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.sql.JishoDatabase
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.rules.ErrorCollector

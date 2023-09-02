@@ -44,7 +44,9 @@ class MainActivity : AppCompatActivity() {
         setContent(binding, viewModel.wordList, viewModel.showNoMatch, viewModel.showProgressBar, viewModel.showLogo)
 
         lifecycleScope.launch {
-            viewModel.hideKeyboardCommand.asFlow().collect { hideKeyboard() }
+            for (each in viewModel.hideKeyboardCommand) {
+                hideKeyboard()
+            }
         }
     }
 

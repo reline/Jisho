@@ -16,8 +16,8 @@ import com.github.reline.jisho.models.Repository
 import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.persistence.Preferences
 import com.github.reline.jisho.util.call
-import com.github.reline.jisho.util.publishChannel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -44,7 +44,7 @@ class MainViewModel @Inject constructor(
     val isOfflineModeEnabled: Boolean
         get() = preferences.isOfflineModeEnabled()
 
-    val hideKeyboardCommand = publishChannel<Unit>()
+    val hideKeyboardCommand = Channel<Unit>()
 
     fun onSearchQueryChanged(query: String) {
         searchQuery = query

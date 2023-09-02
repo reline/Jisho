@@ -3,7 +3,7 @@ package com.github.reline.jisho
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.github.reline.jisho.injection.modules.DatabaseModule
-import com.squareup.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlDriver
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
