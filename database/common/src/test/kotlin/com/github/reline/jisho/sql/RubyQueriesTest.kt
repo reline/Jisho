@@ -13,7 +13,6 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver.Companion.IN_MEMORY
 import org.junit.Test
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RubyQueriesTest {

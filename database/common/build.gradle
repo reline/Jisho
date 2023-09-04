@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.sqldelight)
+}
+
+//archivesBaseName = 'jisho-common'
+
+sqldelight {
+    databases {
+        JishoDatabase {
+            packageName = "com.github.reline.jisho.sql"
+            schemaOutputDirectory = file("src/main/sqldelight/com/github/reline/jisho/sql/migrations")
+            dialect "app.cash.sqldelight:sqlite-3-18-dialect:2.0.0"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':ve')
+    implementation(libs.kotlin.coroutines.core)
+    implementation libs.sqldelight.coroutines
+
+    testImplementation libs.kotlin.test
+    testImplementation libs.kotlin.test.junit
+    testImplementation libs.kotlin.coroutines.test
+    testImplementation libs.sqldelight.runtime
+    testImplementation libs.sqldelight.sqlite.driver
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

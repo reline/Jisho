@@ -6,8 +6,6 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho
-
 import com.github.reline.jisho.populators.DictionaryPopulator
 import com.github.reline.jisho.populators.KanjiPopulator
 import com.github.reline.jisho.populators.OkuriganaPopulator
@@ -15,9 +13,6 @@ import com.github.reline.jisho.sql.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import java.io.File
-
-private const val buildDir = "prepopulator/build"
-private const val databasePath = "$buildDir/$JISHO_DB"
 
 private val database: JishoDatabase by lazy {
     provideDatabase(provideDriver("jdbc:sqlite:$databasePath"))

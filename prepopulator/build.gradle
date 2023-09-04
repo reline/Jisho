@@ -58,56 +58,6 @@ compileTestKotlin {
 final outputDir = new File("$buildDir/dict")
 outputDir.mkdirs()
 
-task fetchFuriganaDictionaries {
-    doLast {
-        // https://docs.github.com/en/rest/reference/repos#get-a-release-by-tag-name
-        println("Downloading furigana sources...")
-        final String url = "https://api.github.com/repos/Doublevil/JmdictFurigana/releases/tags/$jmdictfurigana_version"
-        final json = new JsonSlurper().parseText(url.toURL().text)
-        println("Parsing assets from $url...")
-        final assets = json['assets'] as List<Object>
-        final downloads = new HashMap<String, String>()
-        println("Found ${assets.size()} assets")
-        for (asset in assets) {
-            final String name = asset['name']
-            if (name.endsWith(".json")) {
-                downloads.put(name, asset["browser_download_url"])
-            }
-        }
-        println("Found ${downloads.size()} available downloads")
-        for (download in downloads) {
-            println(download)
-            final downloadUrl = new URL(download.value)
-            println("Download url: ${downloadUrl}")
-            final dictionary = new File("$outputDir/${download.key}")
-            println("Download destination: ${dictionary.absolutePath}")
-            if (dictionary.exists()) {
-                println("${dictionary.name} already exists, skipping")
-                continue
-            }
-
-            try {
-                println("Creating file at ${dictionary.absolutePath}...")
-                if (!dictionary.createNewFile()) {
-                    // todo: change to warning, possibly error?
-                    println("[WARN]: Could not create file at ${dictionary.absolutePath}")
-                    continue
-                }
-            } catch (e) {
-                println(e)
-                continue;
-            }
-
-            println("Created file at ${dictionary.absolutePath}")
-            dictionary.withOutputStream { out ->
-                println("Downloading ${download.key}...")
-                downloadUrl.withInputStream { from ->  out << from }
-            }
-            println("Downloaded ${download.value} to ${dictionary.absolutePath}")
-        }
-    }
-}
-
 task prepareMonashDictionaries {
     doLast {
         println("Inflating dictionary sources...") // http://ftp.monash.edu/pub/nihongo/
