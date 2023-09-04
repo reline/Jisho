@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.kapt'
     id 'com.google.dagger.hilt.android'
+    id 'com.github.reline.jisho'
 }
 
 android {
@@ -74,6 +75,12 @@ configurations {
 //        jvmTarget = "1.8"
 //    }
 //}
+
+jisho {
+    database {
+        destination = layout.projectDirectory.file('src/main/assets/jisho.sqlite')
+    }
+}
 
 dependencies {
     testImplementation 'junit:junit:4.12'

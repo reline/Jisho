@@ -13,7 +13,6 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import org.junit.Test
 import kotlin.properties.Delegates
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class PartOfSpeechQueriesTest {
