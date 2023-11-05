@@ -7,11 +7,11 @@ sqliteJdbc = "3.21.0.1"
 dagger = "2.48"
 retrofit = "2.9.0"
 okhttp = "3.14.9"
-okio = "2.6.0"
+okio = "3.5.0"
 moshi = "1.15.0"
 tikxml = "0.9.3-SNAPSHOT"
 timber = "4.7.1"
-jmdictfurigana = "2.3.0+2023-08-25"
+jmdictfurigana = "2.3.0+2023-10-25"
 agp = "7.4.0"
 compileSdk = "33"
 minSdk = "23"
@@ -31,6 +31,7 @@ androidx-recyclerView = { module = "androidx.recyclerview:recyclerview", version
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 
 junit = { module = "junit:junit", version = "4.13.2" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", "version" = "5.10.0" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converterMoshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }

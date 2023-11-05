@@ -13,11 +13,12 @@ import com.github.reline.jisho.dictmodels.Radical
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
 import com.github.reline.jisho.linguist.isCJK
-import com.github.reline.jisho.logger
 import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
-import okio.Buffer
+import okio.IOException
+import okio.buffer
+import okio.source
 import java.io.File
 
 class KanjiPopulator(private val database: JishoDatabase) {
@@ -30,33 +31,23 @@ class KanjiPopulator(private val database: JishoDatabase) {
 
     private fun populateKanji(dicts: Array<File>) {
         dicts.forEach { file ->
+            if (!file.exists()) return@forEach
             val dictionary = extractKanji(file)
-            logger.info("Inserting ${file.name} to database...")
             insertKanji(dictionary)
-            logger.info("✓ ${file.name}")
         }
     }
 
     private fun extractKanji(file: File): KanjiDictionary {
-        logger.info("Extracting kanji from ${file.name}...")
-
-        val inputStream = file.inputStream()
-        val source = Buffer().readFrom(inputStream)
-
-        val parseStart = System.currentTimeMillis()
-
-        val dictionary: KanjiDictionary = TikXml.Builder()
-                .exceptionOnUnreadXml(false)
-                .build()
-                .read(source, KanjiDictionary::class.java)
-        source.clear()
-        inputStream.close()
-
-        val parseEnd = System.currentTimeMillis()
-
-        logger.info("${file.name}: Parsing ${dictionary.characters?.size} kanji took ${(parseEnd - parseStart)}ms")
-
-        return dictionary
+        try {
+            file.inputStream().source().buffer().use { source ->
+                return TikXml.Builder()
+                    .exceptionOnUnreadXml(false)
+                    .build()
+                    .read(source, KanjiDictionary::class.java)
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Failed to read ${file.name}", e)
+        }
     }
 
     private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
@@ -73,18 +64,14 @@ class KanjiPopulator(private val database: JishoDatabase) {
 
     private fun extractRadKFiles(files: Array<File>) {
         val radkparser = RadKParser()
-        files.forEach {
-            logger.info("Extracting radicals from ${it.name}...")
-
-            val parseStart = System.currentTimeMillis()
-            val radicals = radkparser.parse(it)
-            val parseEnd = System.currentTimeMillis()
-            logger.info("${it.name}: Parsing took ${(parseEnd - parseStart)}ms")
-
-            val insertStart = System.currentTimeMillis()
+        files.forEach { file ->
+            if (!file.exists()) return@forEach
+            val radicals = try {
+                radkparser.parse(file)
+            } catch (e: IOException) {
+                throw RuntimeException("Failed to read ${file.name}", e)
+            }
             insertRadk(radicals)
-            val insertEnd = System.currentTimeMillis()
-            logger.info("${it.name}: Inserting took ${(insertEnd - insertStart)}ms")
         }
     }
 
@@ -103,7 +90,6 @@ class KanjiPopulator(private val database: JishoDatabase) {
     }
 
     private fun associateEntriesWithKanji(dictionaries: List<Dictionary>) = with(database) {
-        logger.info("Bridging Entries and Kanji...")
         transaction(noEnclosing = true) {
             dictionaries.forEach { dictionary ->
                 dictionary.entries.forEach { entry ->
@@ -113,14 +99,13 @@ class KanjiPopulator(private val database: JishoDatabase) {
                                 val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
                                 entryKanjiQueries.insert(entry.id, kanjiId)
                             } catch (e: NullPointerException) {
-                                logger.warning("$kanji couldn't be found, used in ${word.value}")
+                                println("$kanji couldn't be found, used in ${word.value}")
                             }
                         }
                     }
                 }
             }
         }
-        logger.info("Done Bridging Entries and Kanji")
     }
 }
 

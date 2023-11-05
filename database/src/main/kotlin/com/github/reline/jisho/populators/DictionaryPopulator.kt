@@ -10,51 +10,41 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
-import com.github.reline.jisho.logger
 import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
 import okio.Buffer
+import okio.EOFException
+import okio.IOException
+import okio.buffer
+import okio.source
 import java.io.File
 
 class DictionaryPopulator(private val database: JishoDatabase) {
 
     fun populate(dicts: Array<File>) = runBlocking {
-        logger.info("Extracting dictionaries...")
-        return@runBlocking dicts.map { dict ->
+        return@runBlocking dicts.mapNotNull { dict ->
+            if (!dict.exists()) return@mapNotNull null
             val dictionary = extractDictionary(dict)
-
-            val start = System.currentTimeMillis()
-            logger.info("Inserting ${dict.name} to database...")
             insertDictionary(dictionary)
-            val end = System.currentTimeMillis()
-            logger.info("${dict.name}: Inserting ${dictionary.entries.size} entries took ${(end - start)}ms")
-
-            return@map dictionary
+            return@mapNotNull dictionary
         }
     }
 
     private fun extractDictionary(file: File): Dictionary {
-        val inputStream = file.inputStream()
-        val source = Buffer().readFrom(inputStream)
-
-        val parseStart = System.currentTimeMillis()
-
-        val dictionary: Dictionary = TikXml.Builder()
-                .exceptionOnUnreadXml(false)
-                .build()
-                .read(source, Dictionary::class.java)
-        source.clear()
-        inputStream.close()
-
-        val parseEnd = System.currentTimeMillis()
-
-        logger.info("${file.name}: Parsing ${dictionary.entries.size} entries took ${(parseEnd - parseStart)}ms")
-        return dictionary
+        try {
+            file.inputStream().source().buffer().use {
+                return TikXml.Builder()
+                    .exceptionOnUnreadXml(false)
+                    .build()
+                    .read(it, Dictionary::class.java)
+            }
+        } catch (e: IOException) {
+            throw Exception("Failed to read ${file.name}", e)
+        }
     }
 
     private fun insertEntries(entries: List<Entry>) = with(database) {
-        logger.info("Inserting Entries...")
         transaction {
             entries.forEach { entry ->
                 entryQueries.insert(entry.id, entry.isCommon(), entry.kanji?.firstOrNull()?.value, entry.readings.first().value)
@@ -69,7 +59,6 @@ class DictionaryPopulator(private val database: JishoDatabase) {
     }
 
     private fun insertPartsOfSpeech(entries: List<Entry>) = with(database) {
-        logger.info("Inserting Parts of Speech...")
         transaction {
             entries.forEach { entry ->
                 entry.senses.forEach { sense ->
@@ -84,7 +73,6 @@ class DictionaryPopulator(private val database: JishoDatabase) {
     private fun insertSenses(entries: List<Entry>) = with(database) {
         val list = arrayListOf<Long>()
 
-        logger.info("Inserting Senses and Glosses...")
         transaction {
             entries.forEach { entry ->
                 entry.senses.forEach { sense ->
@@ -100,7 +88,6 @@ class DictionaryPopulator(private val database: JishoDatabase) {
 
         val iter = list.iterator()
 
-        logger.info("  SensePosTag")
         transaction {
             entries.forEach { entry ->
                 entry.senses.forEach { sense ->

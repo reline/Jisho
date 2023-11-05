@@ -23,6 +23,21 @@ plugins {
 
 group = "com.github.reline.jisho.database"
 
+val functionalTest by sourceSets.creating
+val functionalTestTask = tasks.register<Test>("functionalTest") {
+    group = "verification"
+    testClassesDirs = functionalTest.output.classesDirs
+    classpath = functionalTest.runtimeClasspath
+}
+
+tasks.check {
+    dependsOn(functionalTestTask)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
 gradlePlugin {
     plugins {
         create("jisho") {
@@ -30,10 +45,13 @@ gradlePlugin {
             implementationClass = "com.github.reline.jisho.JishoPlugin"
         }
     }
+    testSourceSets(functionalTest)
 }
 
 dependencies {
     implementation(gradleApi())
+    implementation(libs.kotlin.plugin)
+    compileOnly(libs.android.plugin)
 
     implementation(project(":common"))
     implementation(libs.kotlin.coroutines.core)
@@ -42,10 +60,17 @@ dependencies {
 
     implementation(libs.tikxml.core)
     implementation(libs.tikxml.annotation)
-//    kapt(libs.tikxml.processor)
-//    kapt(libs.tikxml.processorCommon)
+    kapt(libs.tikxml.processor)
+    kapt(libs.tikxml.processorCommon)
 
     implementation(libs.moshi)
-//    kapt(libs.moshi.codegen)
+    kapt(libs.moshi.codegen)
     implementation(libs.okio)
+
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    "functionalTestImplementation"(libs.junit.jupiter)
+    "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
 }
+

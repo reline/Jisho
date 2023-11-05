@@ -78,7 +78,7 @@ configurations {
 
 jisho {
     database {
-        destination = layout.projectDirectory.file('src/main/assets/jisho.sqlite')
+        destination.set(layout.buildDirectory.file('intermediates/assets/main/jisho.sqlite'))
     }
 }
 

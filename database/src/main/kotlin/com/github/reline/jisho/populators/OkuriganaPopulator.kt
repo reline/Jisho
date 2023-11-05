@@ -11,13 +11,14 @@ package com.github.reline.jisho.populators
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
-import com.github.reline.jisho.logger
 import com.github.reline.jisho.skipBom
 import com.github.reline.jisho.sql.JishoDatabase
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import okio.Buffer
+import okio.IOException
+import okio.buffer
+import okio.source
 import java.io.File
 import java.lang.reflect.Type
 
@@ -26,11 +27,9 @@ class OkuriganaPopulator(private val database: JishoDatabase) {
     fun populate(dictionaries: List<Dictionary>, files: Array<File>) {
         dictionaries.forEachIndexed { i, dictionary ->
             val file = files[i]
-            logger.info("Extracting okurigana from ${file.name}...")
+            if (!file.exists()) return@forEachIndexed
             val okurigana = extractOkurigana(file)
-            logger.info("Inserting okurigana...")
             insertOkurigana(dictionary, okurigana)
-            logger.info("✓ ${file.name}")
         }
     }
 
@@ -43,30 +42,19 @@ class OkuriganaPopulator(private val database: JishoDatabase) {
         val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
         val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
 
-        val inputStream = file.inputStream()
-
-        val source = Buffer().readFrom(inputStream)
-        source.skipBom()
-
-        val parseStart = System.currentTimeMillis()
-
-        logger.info("Parsing ${file.name}...")
-
-        val entries = try {
-            adapter.fromJson(source) ?: throw IllegalStateException("Entries were null")
-        } finally {
-            source.clear()
-            inputStream.close()
-        }
-
-        val parseEnd = System.currentTimeMillis()
-
         val map = OkuriganaEntries()
-        entries.forEach {
-            map.addOkurigana(it)
+        try {
+            file.inputStream().source().buffer().use { source ->
+                source.skipBom()
+                val entries = adapter.fromJson(source) ?: throw IllegalStateException("Entries were null")
+                entries.forEach {
+                    map.addOkurigana(it)
+                }
+                println("Finished reading ${file.name}")
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Failed to read ${file.name}", e)
         }
-
-        logger.info("${file.name}: Parsing ${entries.size} okurigana took ${(parseEnd - parseStart)}ms")
         return map
     }
 
