@@ -10,4 +10,8 @@ abstract class JishoPlugin : Plugin<Project> {
             extension.database.registerTasks()
         }
     }
+
+    internal companion object {
+        const val GROUP = "jisho"
+    }
 }

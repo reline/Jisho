@@ -24,7 +24,6 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "$kotlin_version" apply false
     id 'com.google.dagger.hilt.android' version "$dagger_version" apply false
     id 'app.cash.sqldelight' version "$sqldelight_version" apply false
-    id "jisho-database-prepopulator" apply false
 }
 
 task clean(type: Delete) {

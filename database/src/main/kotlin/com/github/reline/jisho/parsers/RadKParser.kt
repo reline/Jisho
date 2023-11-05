@@ -9,6 +9,8 @@
 package com.github.reline.jisho.parsers
 
 import com.github.reline.jisho.dictmodels.Radical
+import okio.buffer
+import okio.source
 import java.io.File
 
 class RadKParser {
@@ -17,27 +19,30 @@ class RadKParser {
         var currentRadical: Char? = null
         var strokes = 0
         var kanji = ArrayList<Char>()
-        file.forEachLine loop@{
-            if (it.startsWith('#') || it.isBlank()) {
-                return@loop
-            }
-
-            if (it.startsWith('$')) {
-                // new radical, save the previous one
-                currentRadical?.let { radical ->
-                    radk.add(Radical(radical, strokes, kanji))
-                    kanji = ArrayList()
-                    strokes = 0
+        file.source().buffer().use {
+            while (true) {
+                val line = it.readUtf8Line() ?: break
+                if (line.startsWith('#') || line.isBlank()) {
+                    continue
                 }
 
-                // new radical
-                currentRadical = it[2]
-                val start = nextNonWhitespace(3, it)
-                val end = nextWhitespace(start, it)
-                strokes = Integer.parseInt(it.substring(start, end))
-            } else {
-                // line with just kanji on it
-                kanji.addAll(it.toList())
+                if (line.startsWith('$')) {
+                    // new radical, save the previous one
+                    currentRadical?.let { radical ->
+                        radk.add(Radical(radical, strokes, kanji))
+                        kanji = ArrayList()
+                        strokes = 0
+                    }
+
+                    // new radical
+                    currentRadical = line[2]
+                    val start = nextNonWhitespace(3, line)
+                    val end = nextWhitespace(start, line)
+                    strokes = Integer.parseInt(line.substring(start, end))
+                } else {
+                    // line with just kanji on it
+                    kanji.addAll(line.toList())
+                }
             }
         }
 
