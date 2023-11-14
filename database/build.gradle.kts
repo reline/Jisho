@@ -63,12 +63,17 @@ dependencies {
     kapt(libs.tikxml.processor)
     kapt(libs.tikxml.processorCommon)
 
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.moshi)
+    implementation(libs.okhttp)
     implementation(libs.moshi)
     kapt(libs.moshi.codegen)
     implementation(libs.okio)
 
+    testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.okhttp.mockwebserver)
 
     "functionalTestImplementation"(libs.junit.jupiter)
     "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")

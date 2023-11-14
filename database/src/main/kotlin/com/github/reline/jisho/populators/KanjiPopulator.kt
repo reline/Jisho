@@ -31,7 +31,7 @@ class KanjiPopulator(private val database: JishoDatabase) {
 
     private fun populateKanji(dicts: Array<File>) {
         dicts.forEach { file ->
-            if (!file.exists()) return@forEach
+            check(file.exists()) { "$file does not exist" }
             val dictionary = extractKanji(file)
             insertKanji(dictionary)
         }
@@ -65,7 +65,7 @@ class KanjiPopulator(private val database: JishoDatabase) {
     private fun extractRadKFiles(files: Array<File>) {
         val radkparser = RadKParser()
         files.forEach { file ->
-            if (!file.exists()) return@forEach
+            check(file.exists()) { "$file does not exist" }
             val radicals = try {
                 radkparser.parse(file)
             } catch (e: IOException) {
@@ -90,6 +90,8 @@ class KanjiPopulator(private val database: JishoDatabase) {
     }
 
     private fun associateEntriesWithKanji(dictionaries: List<Dictionary>) = with(database) {
+        check(dictionaries.isNotEmpty()) { "No dictionaries provided" }
+
         transaction(noEnclosing = true) {
             dictionaries.forEach { dictionary ->
                 dictionary.entries.forEach { entry ->
@@ -99,6 +101,7 @@ class KanjiPopulator(private val database: JishoDatabase) {
                                 val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
                                 entryKanjiQueries.insert(entry.id, kanjiId)
                             } catch (e: NullPointerException) {
+                                // todo: verbose/warning log
                                 println("$kanji couldn't be found, used in ${word.value}")
                             }
                         }

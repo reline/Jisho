@@ -7,7 +7,7 @@ abstract class JishoPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create("jisho", JishoExtension::class.java)
         project.afterEvaluate {
-            extension.database.registerTasks()
+            extension.database.registerTasks(extension.githubToken)
         }
     }
 

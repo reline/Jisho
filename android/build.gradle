@@ -65,7 +65,7 @@ configurations {
     compile.exclude group: 'stax'
     compile.exclude group: 'xpp3'
 }
-//
+
 //kapt {
 //    correctErrorTypes true
 //}
@@ -77,6 +77,7 @@ configurations {
 //}
 
 jisho {
+    githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
     database {
         destination.set(layout.buildDirectory.file('intermediates/assets/main/jisho.sqlite'))
     }
