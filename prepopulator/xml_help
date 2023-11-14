@@ -1,6 +1,0 @@
-+	a+	One or more occurences of a
-*	a*	Zero or more occurences of a
-?	a?	Either a or nothing
-,	a, b	a followed by b
-|	a | b	a followed by b
-()	(expression)	An expression surrounded by parentheses is treated as a unit and could have any one of the following suffixes ?, *, or +.
