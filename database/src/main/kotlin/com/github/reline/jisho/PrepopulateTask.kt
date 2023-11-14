@@ -12,7 +12,6 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import java.io.File
 
 abstract class PrepopulateTask : DefaultTask() {
@@ -24,28 +23,13 @@ abstract class PrepopulateTask : DefaultTask() {
 
     override fun getDescription() = "Generate ${databaseOutputFile.get().asFile.name} file"
 
-    // todo: https://github.com/xerial/sqlite-jdbc#hint-for-maven-shade-plugin
-    private fun registerJdbcSqliteDriver() {
-        Class.forName("org.sqlite.JDBC")
-    }
-
-    private val File.jdbcSqliteDriver: SqlDriver get() {
-        registerJdbcSqliteDriver()
-        return JdbcSqliteDriver("jdbc:sqlite:${this.absolutePath}")
-    }
-
-    private fun provideDatabase(driver: SqlDriver): JishoDatabase {
-        JishoDatabase.Schema.create(driver)
-        return JishoDatabase(driver)
-    }
-
     @TaskAction
     fun prepopulate() {
         val databaseFile = databaseOutputFile.get().asFile
         databaseFile.ensureParentDirsCreated()
         databaseFile.delete()
-        databaseFile.jdbcSqliteDriver.use {
-            val database = provideDatabase(it)
+        databaseFile.jdbcSqliteDriver.use { driver ->
+            val database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
             val sourcesDir = sourcesDirectory.asFile.get()
 
             val dictionaries = DictionaryPopulator(database).populate(
@@ -63,17 +47,20 @@ abstract class PrepopulateTask : DefaultTask() {
                 )
             )
 
+            // fixme: kanjidic2.xml does not exist
+            //  possibly an issue with the sourcesDir, but in that case the above xml files wouldn't be found
+            //  might be an issue with the functional test.
             KanjiPopulator(database).populate(
                 dictionaries,
-                arrayOf(
+                kanji = arrayOf(
                     File(sourcesDir, "kanjidic2.xml"),
                 ),
-                arrayOf(
+                radk = arrayOf(
                     File(sourcesDir, "radkfile"),
                     File(sourcesDir, "radkfile2"),
                     File(sourcesDir, "radkfilex"),
                 ),
-                arrayOf(
+                krad = arrayOf(
                     File(sourcesDir, "kradfile"),
                     File(sourcesDir, "kradfile2"),
                 ),
@@ -81,5 +68,24 @@ abstract class PrepopulateTask : DefaultTask() {
         }
 
         logger.info("Generated ${project.rootDir.toURI().relativize(databaseFile.toURI())}")
+    }
+}
+
+// todo: https://github.com/xerial/sqlite-jdbc#hint-for-maven-shade-plugin
+fun registerJdbcSqliteDriver() {
+    Class.forName("org.sqlite.JDBC")
+}
+
+val File.jdbcSqliteDriver: SqlDriver get() {
+    registerJdbcSqliteDriver()
+    return JdbcSqliteDriver("jdbc:sqlite:${this.absolutePath}")
+}
+
+fun File.ensureParentDirsCreated() {
+    val parentFile = parentFile
+    if (!parentFile.exists()) {
+        check(parentFile.mkdirs()) {
+            "Cannot create parent directories for $this"
+        }
     }
 }

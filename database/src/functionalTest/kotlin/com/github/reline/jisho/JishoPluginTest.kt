@@ -33,13 +33,6 @@ class JishoPluginTest {
                     mavenCentral()
                 }
             }
-            dependencyResolutionManagement {
-                versionCatalogs {
-                    create("libs") {
-                        version("jmdictfurigana", "2.3.0+2023-08-25")                        
-                    }
-                }
-            }
         """.trimIndent())
         settingsFile.appendText("\n")
 
@@ -136,5 +129,15 @@ class JishoPluginTest {
         assertTrue(result.output.contains("Generated build/$destination"))
         assertTrue(File(testProjectDir, "build/$destination").exists())
         assertEquals(SUCCESS, result.task(":assemble")?.outcome)
+    }
+
+    @Test
+    fun deleteDatabaseSanityTest() {
+        GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .build()
+        assertTrue(File(testProjectDir, "build/generated/jisho/database/jisho.sqlite").delete())
     }
 }
