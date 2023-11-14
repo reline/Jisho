@@ -39,8 +39,8 @@ class DictionaryPopulatorTest {
         val db = File(testDbPath)
 
         db.forceCreate()
-        driver = provideDriver("jdbc:sqlite:$testDbPath")
-        database = provideDatabase(driver)
+        driver = db.jdbcSqliteDriver
+        database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
         dictionaryPopulator = DictionaryPopulator(database)
     }
 
