@@ -14,17 +14,8 @@ jobs:
           name: Download Dependencies
           command: ./gradlew androidDependencies --no-daemon
       - run:
-          name: Prepare Dictionaries
-          command: ./gradlew :prepopulator:prepareDictionaries --no-daemon
-      - run:
-          name: Tests for common module
-          command: ./gradlew :common:test --no-daemon
-      - run:
-          name: Tests for prepopulator
-          command: ./gradlew :prepopulator:test --no-daemon
-      - run:
-          name: Android Tests
-          command: ./gradlew :android:test --no-daemon
+          name: Tests
+          command: ./gradlew check --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:
@@ -44,22 +35,13 @@ jobs:
           name: Download Dependencies
           command: ./gradlew androidDependencies --no-daemon
       - run:
-          name: Prepare Dictionaries
-          command: ./gradlew :prepopulator:prepareDictionaries --no-daemon
-      - run:
-          name: Build Prepopulator
-          command: ./gradlew :prepopulator:shadowJar --no-daemon
-      - run:
-          name: Populate Database
-          command: java -jar prepopulator/build/libs/prepopulator-all.jar && mv prepopulator/build/jisho.sqlite android/src/main/assets/
-      - run:
           name: Build APK
           command: ./gradlew :android:assembleRelease --no-daemon --max-workers 4
       - store_artifacts:
           path: android/build/outputs/apk/release
           destination: circleci/apk
       - store_artifacts:
-          path: android/src/main/assets/jisho.sqlite
+          path: android/build/intermediates/assets/main/jisho.sqlite
           destination: circleci/database/jisho.sqlite
 workflows:
   pull_request:
