@@ -24,6 +24,23 @@ CREATE TABLE IF NOT EXISTS KanjiRadical (
     FOREIGN KEY(radical_id) REFERENCES Radical(id)
 );
 
+CREATE TABLE IF NOT EXISTS RadicalSibling (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    radical_id INTEGER NOT NULL,
+    radical_sibling_id INTEGER NOT NULL,
+    FOREIGN KEY(radical_id) REFERENCES Radical(id),
+    FOREIGN KEY(radical_sibling_id) REFERENCES Radical(id)
+);
+
+populateSiblingTable
+INSERT INTO RadicalSibling (radical_id, radical_sibling_id)
+SELECT DISTINCT KR1.radical_id, KR2.radical_id
+FROM KanjiRadical AS KR1
+INNER JOIN KanjiRadical AS KR2
+    ON KR1.kanji_id = KR2.kanji_id;
+
+-- Todo: kanjis for radicals
+
 insertRadical:
 INSERT OR IGNORE INTO Radical (value, strokes)
 VALUES (?, ?);
