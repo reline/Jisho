@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS RadicalSibling (
     FOREIGN KEY(radical_sibling_id) REFERENCES Radical(id)
 );
 
-populateSiblingTable
+populateSiblingTable:
 INSERT INTO RadicalSibling (radical_id, radical_sibling_id)
 SELECT DISTINCT KR1.radical_id, KR2.radical_id
 FROM KanjiRadical AS KR1
