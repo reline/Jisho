@@ -22,8 +22,8 @@ class KanjiPopulatorTest {
         val dbPath = "$buildDir/test/${KanjiPopulatorTest::class.simpleName}/jisho.sqlite"
         dbFile = File(dbPath)
         dbFile.forceCreate()
-        driver = provideDriver("jdbc:sqlite:$dbPath")
-        database = provideDatabase(driver)
+        driver = dbFile.jdbcSqliteDriver
+        database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
         dictionaryPopulator = DictionaryPopulator(database)
         kanjiPopulator = KanjiPopulator(database)
     }
@@ -72,7 +72,7 @@ class KanjiPopulatorTest {
             val entryId = entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()
                 .first().id
             val kanji = entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
-                .map { it.value }
+                .map { it.value_ }
             assertEquals(expected = 2, actual = kanji.size)
             assertTrue(kanji.contains("海"))
             assertTrue(kanji.contains("豚"))

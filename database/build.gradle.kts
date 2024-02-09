@@ -1,27 +1,12 @@
-//repositories {
-//    mavenCentral()
-//    maven {
-//        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-//    }
-//    maven {
-//        url = uri("https://www.atilika.org/nexus/content/repositories/atilika")
-//    }
-//    maven {
-//        url = uri("https://repo.maven.apache.org/maven2")
-//    }
-//}
-
 plugins {
     base
     `kotlin-dsl`
     `kotlin-dsl-precompiled-script-plugins`
     `java-gradle-plugin`
 
-    id("org.jetbrains.kotlin.jvm") version "1.9.10"
-    id("org.jetbrains.kotlin.kapt") version "1.9.10"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
 }
-
-group = "com.github.reline.jisho.database"
 
 val functionalTest by sourceSets.creating
 val functionalTestTask = tasks.register<Test>("functionalTest") {
@@ -41,8 +26,8 @@ tasks.withType<Test>().configureEach {
 gradlePlugin {
     plugins {
         create("jisho") {
-            id = "com.github.reline.jisho"
-            implementationClass = "com.github.reline.jisho.JishoPlugin"
+            id = "com.github.reline.jisho.database"
+            implementationClass = "com.github.reline.jisho.JishoDatabasePlugin"
         }
     }
     testSourceSets(functionalTest)
@@ -51,11 +36,14 @@ gradlePlugin {
 dependencies {
     implementation(gradleApi())
     implementation(libs.kotlin.plugin)
-    compileOnly(libs.android.plugin)
+    compileOnly(libs.android.plugin) {
+        because("we depend on the android assemble task to generate the db")
+    }
 
-    implementation(project(":common"))
+    implementation(libs.jisho.database)
+
     implementation(libs.kotlin.coroutines.core)
-    implementation(libs.sqliteJdbc)
+    implementation(libs.sqlite.jdbc)
     implementation(libs.sqldelight.sqlite.driver)
 
     implementation(libs.tikxml.core)
@@ -66,6 +54,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.loggingInterceptor)
     implementation(libs.moshi)
     kapt(libs.moshi.codegen)
     implementation(libs.okio)
@@ -73,9 +62,9 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.okio.fakefilesystem)
     testImplementation(libs.okhttp.mockwebserver)
 
     "functionalTestImplementation"(libs.junit.jupiter)
     "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
 }
-

@@ -1,52 +1,48 @@
 package com.github.reline.jisho
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Copy
 import java.io.File
 import javax.inject.Inject
 
+// todo: rename
 abstract class JishoDatabase @Inject constructor(
     private val project: Project,
     objectFactory: ObjectFactory,
 ) {
 
+    private val buildDir: File
+        get() = project.layout.buildDirectory.get().asFile
+
     private val intermediateSourcesDirectory
-        get() = File(project.buildDir, "intermediates/jisho")
+        get() = File(buildDir, "intermediates/jisho")
 
     val destination = objectFactory.fileProperty().convention {
-        File(project.buildDir, "generated/jisho/database/jisho.sqlite")
+        File(buildDir, "generated/jisho/database/jisho.sqlite")
     }
 
-    internal fun registerTasks(githubToken: Property<String>) {
-        val downloadTask = project.tasks.register("downloadJishoSources", DownloadFuriganaDictionariesTask::class.java) {
-            bearerToken.set(githubToken)
+    internal fun registerTasks(githubToken: Property<String>, jmdictVersion: Property<VersionConstraint>) {
+        val downloadTask = project.tasks.register("downloadJishoSources", JishoDownloadTask::class.java) {
+            this.githubToken.set(githubToken)
+            this.jmdictVersion.set(jmdictVersion)
             outputDirectory.set(File(intermediateSourcesDirectory, "furigana"))
-            group = JishoPlugin.GROUP
+            group = JishoDatabasePlugin.GROUP
         }
-        val prepareTask = project.tasks.register("prepareJishoSources", InflateDictionariesTask::class.java) {
+        val prepareTask = project.tasks.register("prepareJishoSources", JishoExtractionTask::class.java) {
             outputDirectory.set(File(intermediateSourcesDirectory, "dictionaries"))
-            group = JishoPlugin.GROUP
+            group = JishoDatabasePlugin.GROUP
         }
-        // todo: consolidate into prepare task
-        val copyTask = project.tasks.register("copyJishoSources", Copy::class.java) {
+        val prepopulateTask = project.tasks.register("prepopulateJishoDatabase", JishoPrepopulateTask::class.java) {
+            sourcesDirectory.set(intermediateSourcesDirectory)
+            databaseOutputFile.set(destination)
+            group = JishoDatabasePlugin.GROUP
             dependsOn(downloadTask)
             dependsOn(prepareTask)
-            group = JishoPlugin.GROUP
-
-            from(downloadTask.get().outputDirectory)
-            from(prepareTask.get().outputDirectory)
-            into(File(intermediateSourcesDirectory, "merged"))
-            includeEmptyDirs = false
-        }
-        val prepopulateTask = project.tasks.register("prepopulateJishoDatabase", PrepopulateTask::class.java) {
-            sourcesDirectory.set(copyTask.get().destinationDir)
-            databaseOutputFile.set(destination)
-            group = JishoPlugin.GROUP
-            dependsOn(copyTask)
         }
 
+        // todo: should the parent build create this dependency?
         project.tasks
             .filter { task -> task.name.startsWith("assemble") }
             .forEach { assembleTask -> assembleTask.dependsOn(prepopulateTask) }

@@ -9,6 +9,11 @@
 package com.github.reline.jisho
 
 import app.cash.sqldelight.db.SqlDriver
+import okio.BufferedSource
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 import java.io.File
 
 suspend fun SqlDriver.hasDuplicateValues(tableName: String, columnName: String): Boolean {
