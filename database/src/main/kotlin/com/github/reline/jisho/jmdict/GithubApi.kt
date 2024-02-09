@@ -11,9 +11,18 @@ private const val DEFAULT_REPO = "JmdictFurigana"
 
 interface GithubApi {
     @GET("repos/{owner}/{repo}/releases/latest")
+    @Headers("Accept: application/vnd.github+json")
     suspend fun getLatestRelease(
         @Path("owner") owner: String = DEFAULT_OWNER,
-        @Path("repo") repo: String = DEFAULT_REPO
+        @Path("repo") repo: String = DEFAULT_REPO,
+    ): GithubRelease
+
+    @GET("repos/{owner}/{repo}/releases/tags/{tag}")
+    @Headers("Accept: application/vnd.github+json")
+    suspend fun getRelease(
+        @Path("owner") owner: String = DEFAULT_OWNER,
+        @Path("repo") repo: String = DEFAULT_REPO,
+        @Path("tag") tag: String,
     ): GithubRelease
 
     @GET("repos/{owner}/{repo}/releases/assets/{asset_id}")
@@ -22,6 +31,6 @@ interface GithubApi {
     suspend fun getReleaseAsset(
         @Path("owner") owner: String = DEFAULT_OWNER,
         @Path("repo") repo: String = DEFAULT_REPO,
-        @Path("asset_id") assetId: Int
+        @Path("asset_id") assetId: Int,
     ): ResponseBody
 }

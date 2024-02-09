@@ -8,11 +8,11 @@
 
 package com.github.reline.jisho
 
-import okio.Buffer
 import okio.BufferedSource
 import okio.ByteString.Companion.decodeHex
 import okio.IOException
 import okio.Options
+import java.io.File
 import java.nio.charset.Charset
 
 /** Byte order marks. */
@@ -31,8 +31,7 @@ fun BufferedSource.skipBom() {
 
 val EUC_JP: Charset = Charset.forName("EUC-JP")
 
-@Throws(IOException::class)
-fun BufferedSource.readEucJp() = buffer.readEucJp()
-
-@Throws(IOException::class)
-fun Buffer.readEucJp() = readString(size, EUC_JP)
+fun File.ensureDirsCreated() {
+    require(isDirectory) { "$this is not a directory" }
+    if (!exists()) check(mkdirs()) { "Cannot create directory at $this" }
+}
