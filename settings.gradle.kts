@@ -1,8 +1,6 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-// todo: clean the plugin block up
 pluginManagement {
-    includeBuild("build-logic")
     repositories {
         gradlePluginPortal()
         google()
@@ -10,10 +8,8 @@ pluginManagement {
     }
 }
 
-dependencyResolutionManagement {
-//    includeBuild("app/android") // fixme: for multiplatform
-    includeBuild("android")
-    includeBuild("database")
-}
+includeBuild("database")
+includeBuild("prepopulator")
+includeBuild("android")
 
 rootProject.name = "Jisho"

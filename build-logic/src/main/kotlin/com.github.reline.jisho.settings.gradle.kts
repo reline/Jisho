@@ -1,18 +1,6 @@
-fun RepositoryHandler.config() {
+fun RepositoryHandler.jishoRepositories() {
     google()
     mavenCentral()
-    gradlePluginPortal()
-
-    exclusiveContent {
-        forRepository {
-            maven {
-                url = uri("https://www.jitpack.io")
-            }
-        }
-        filter {
-            includeGroup("com.github.reline")
-        }
-    }
 
     exclusiveContent {
         forRepository {
@@ -37,6 +25,22 @@ fun RepositoryHandler.config() {
     }
 }
 
-pluginManagement.repositories.config()
+pluginManagement.repositories {
+    gradlePluginPortal()
+    jishoRepositories()
+}
 
-dependencyResolutionManagement.repositories.config()
+dependencyResolutionManagement.repositories {
+//    jishoRepositories()
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://www.jitpack.io")
+            }
+        }
+        filter {
+            includeGroup("com.github.reline")
+        }
+    }
+}
