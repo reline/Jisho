@@ -9,8 +9,8 @@ group = "com.github.reline.jisho"
 sqldelight {
     databases {
         create("JishoDatabase") {
-            packageName = "com.github.reline.jisho.sql"
-            schemaOutputDirectory = file("src/main/sqldelight/com/github/reline/jisho/sql/migrations")
+            packageName.set("com.github.reline.jisho.sql")
+            schemaOutputDirectory.set(file("src/main/sqldelight/com/github/reline/jisho/sql/migrations"))
             dialect(libs.sqldelight.dialects.sqlite)
         }
     }
