@@ -78,11 +78,18 @@ kapt {
 //    }
 //}
 
+// todo: consider providing `prepopulateJishoDatabase` task as a property to `jisho`
 jisho {
     githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
     database {
         destination.set(new File(android.sourceSets.main.assets.srcDirs.first(), DATABASE_FILE_NAME))
     }
+}
+
+tasks.matching { task ->
+    task.name.startsWith("assemble")
+}.configureEach { assembleTask ->
+    assembleTask.dependsOn(tasks.named("prepopulateJishoDatabase"))
 }
 
 dependencies {
