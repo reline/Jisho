@@ -7,8 +7,7 @@ import org.gradle.api.provider.Property
 import java.io.File
 import javax.inject.Inject
 
-// todo: rename
-abstract class JishoDatabase @Inject constructor(
+abstract class JishoDatabasePrepopulator @Inject constructor(
     private val project: Project,
     objectFactory: ObjectFactory,
 ) {
@@ -34,17 +33,12 @@ abstract class JishoDatabase @Inject constructor(
             outputDirectory.set(File(intermediateSourcesDirectory, "dictionaries"))
             group = JishoDatabasePlugin.GROUP
         }
-        val prepopulateTask = project.tasks.register("prepopulateJishoDatabase", JishoPrepopulateTask::class.java) {
+        project.tasks.register("prepopulateJishoDatabase", JishoPrepopulateTask::class.java) {
             sourcesDirectory.set(intermediateSourcesDirectory)
             databaseOutputFile.set(destination)
             group = JishoDatabasePlugin.GROUP
             dependsOn(downloadTask)
             dependsOn(prepareTask)
         }
-
-        // todo: should the parent build create this dependency?
-        project.tasks
-            .filter { task -> task.name.startsWith("assemble") }
-            .forEach { assembleTask -> assembleTask.dependsOn(prepopulateTask) }
     }
 }

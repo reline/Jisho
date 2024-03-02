@@ -17,7 +17,7 @@ compileSdk = "33"
 minSdk = "23"
 
 [libraries]
-jisho-database = { module = "com.github.reline.jisho:common" }
+jisho-database = { module = "com.github.reline.jisho:database" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }

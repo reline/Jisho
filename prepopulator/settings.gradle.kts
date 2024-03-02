@@ -1,7 +1,16 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
         // todo: check if we need both of these repos
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
         google()
         mavenCentral()
 
@@ -27,37 +36,6 @@ pluginManagement {
             }
         }
 
-        includeBuild("../prepopulator")
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = uri("https://www.jitpack.io")
-                }
-            }
-            filter {
-                includeGroup("com.github.reline")
-            }
-        }
-
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = uri("https://www.atilika.org/nexus/content/repositories/atilika")
-                }
-            }
-            filter {
-                includeGroup("org.atilika.kuromoji")
-            }
-        }
-
         includeBuild("../database")
     }
 
@@ -68,4 +46,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "android"
+rootProject.name = "prepopulator"

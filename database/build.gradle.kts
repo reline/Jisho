@@ -1,70 +1,35 @@
 plugins {
-    base
-    `kotlin-dsl`
-    `kotlin-dsl-precompiled-script-plugins`
-    `java-gradle-plugin`
-
+    `java-library`
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.sqldelight)
 }
 
-val functionalTest by sourceSets.creating
-val functionalTestTask = tasks.register<Test>("functionalTest") {
-    group = "verification"
-    testClassesDirs = functionalTest.output.classesDirs
-    classpath = functionalTest.runtimeClasspath
-}
+group = "com.github.reline.jisho"
 
-tasks.check {
-    dependsOn(functionalTestTask)
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-gradlePlugin {
-    plugins {
-        create("jisho") {
-            id = "com.github.reline.jisho.database"
-            implementationClass = "com.github.reline.jisho.JishoDatabasePlugin"
+sqldelight {
+    databases {
+        create("JishoDatabase") {
+            packageName = "com.github.reline.jisho.sql"
+            schemaOutputDirectory = file("src/main/sqldelight/com/github/reline/jisho/sql/migrations")
+            dialect(libs.sqldelight.dialects.sqlite)
         }
     }
-    testSourceSets(functionalTest)
 }
 
+//tasks.jar {
+//    manifest {
+//        attributes("Automatic-Module-Name" to "com.github.reline.jisho.database")
+//    }
+//}
+
 dependencies {
-    implementation(gradleApi())
-    implementation(libs.kotlin.plugin)
-    compileOnly(libs.android.plugin) {
-        because("we depend on the android assemble task to generate the db")
-    }
-
-    implementation(libs.jisho.database)
-
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.sqlite.jdbc)
-    implementation(libs.sqldelight.sqlite.driver)
-
-    implementation(libs.tikxml.core)
-    implementation(libs.tikxml.annotation)
-    kapt(libs.tikxml.processor)
-    kapt(libs.tikxml.processorCommon)
-
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.moshi)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.loggingInterceptor)
-    implementation(libs.moshi)
-    kapt(libs.moshi.codegen)
-    implementation(libs.okio)
+    api(libs.kotlin.coroutines.core)
+    api(libs.sqldelight.coroutines)
+    implementation("uk.co.birchlabs.ve:ve")
 
     testImplementation(libs.kotlin.test)
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation(libs.okio.fakefilesystem)
-    testImplementation(libs.okhttp.mockwebserver)
-
-    "functionalTestImplementation"(libs.junit.jupiter)
-    "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.sqldelight.runtime)
+    testImplementation(libs.sqldelight.sqlite.driver)
 }

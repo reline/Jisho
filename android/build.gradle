@@ -6,6 +6,8 @@ plugins {
     id("com.github.reline.jisho.database")
 }
 
+final DATABASE_FILE_NAME = "jisho.sqlite"
+
 android {
     namespace "com.github.reline.jisho"
     compileSdk 33
@@ -17,7 +19,7 @@ android {
         versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "DATABASE_FILE_NAME", "\"jisho.sqlite\"")
+        buildConfigField("String", "DATABASE_FILE_NAME", "\"$DATABASE_FILE_NAME\"")
     }
     buildTypes {
         release {
@@ -79,7 +81,7 @@ kapt {
 jisho {
     githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
     database {
-        destination.set(layout.buildDirectory.file("intermediates/assets/main/jisho.sqlite"))
+        destination.set(new File(android.sourceSets.main.assets.srcDirs.first(), DATABASE_FILE_NAME))
     }
 }
 

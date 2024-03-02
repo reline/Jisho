@@ -1,29 +1,31 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "database"
-
-//pluginManagement {
-//    includeBuild("../build-logic")
-//    repositories {
-//        gradlePluginPortal()
-//        google()
-//        mavenCentral()
-//        maven {
-//            url = uri("https://plugins.gradle.org/m2/")
-//        }
-//    }
-//}
-
 pluginManagement {
-    includeBuild("../build-logic")
-}
-
-plugins {
-    id("com.github.reline.jisho")
+    repositories {
+        gradlePluginPortal()
+    }
 }
 
 dependencyResolutionManagement {
-    includeBuild("../common")
+    repositories {
+        google()
+        mavenCentral()
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    url = uri("https://www.atilika.org/nexus/content/repositories/atilika")
+                }
+            }
+            filter {
+                includeGroup("org.atilika.kuromoji")
+            }
+        }
+
+        includeBuild("../ve/java") {
+            name = "ve"
+        }
+    }
 
     versionCatalogs {
         create("libs") {
@@ -32,5 +34,4 @@ dependencyResolutionManagement {
     }
 }
 
-// todo: rename to "database-plugin" or "prepopulator", etc.
 rootProject.name = "database"
