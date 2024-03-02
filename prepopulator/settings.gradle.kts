@@ -3,15 +3,12 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        // todo: check if we need both of these repos
-        google()
         mavenCentral()
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        google()
         mavenCentral()
 
         exclusiveContent {
