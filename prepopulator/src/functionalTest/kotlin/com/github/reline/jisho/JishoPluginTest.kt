@@ -15,7 +15,8 @@ import java.nio.file.Path
 class JishoPluginTest {
     // https://github.com/junit-team/junit5/issues/2811
     // @TempDir
-    lateinit var testProjectDir: File
+    private lateinit var testProjectDir: File
+    private val testBuildDir get() = File(testProjectDir, "build")
 
     private lateinit var settingsFile: File
     private lateinit var buildFile: File
@@ -33,14 +34,14 @@ class JishoPluginTest {
                     mavenCentral()
                 }
             }
+
         """.trimIndent())
-        settingsFile.appendText("\n")
 
         buildFile = File(testProjectDir, "build.gradle.kts")
         buildFile.appendText("""
             plugins {
                 id("org.jetbrains.kotlin.jvm") version "1.9.10"
-                id("com.github.reline.jisho")
+                id("com.github.reline.jisho.database")
             }
             
         """.trimIndent())
@@ -76,44 +77,46 @@ class JishoPluginTest {
     }
 
     @Test
+    fun prepareJishoSourcesTaskVerifyFilesTest() {
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("prepareJishoSources")
+            .withPluginClasspath()
+            .build()
+        assertEquals(SUCCESS, result.task(":prepareJishoSources")?.outcome)
+        val jishoSources = listOf(
+            "JMdict_e.xml",
+            "JMnedict.xml",
+            "JmdictFurigana.json",
+            "JmnedictFurigana.json",
+            "kanjidic2.xml",
+            "radkfile",
+            "radkfile2",
+            "radkfilex",
+            "kradfile",
+            "kradfile2",
+        ).map { File(testBuildDir, "intermediates/jisho/$it") }
+        jishoSources.forEach {
+            assertTrue(it.exists(), "${it.absolutePath} does not exist")
+        }
+    }
+
+    @Test
     fun prepopulateDatabaseTaskSmokeTest() {
+        val expectedOutputFile = "build/generated/jisho/database/jisho.sqlite"
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments("prepopulateJishoDatabase")
             .withPluginClasspath()
             .build()
         assertEquals(SUCCESS, result.task(":prepopulateJishoDatabase")?.outcome)
-    }
-
-    @Test
-    fun prepopulateDatabaseAssembleTest() {
-        val expectedOutputFile = "build/generated/jisho/database/jisho.sqlite"
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("assemble", "--info")
-            .withPluginClasspath()
-            .build()
         assertTrue(result.output.contains("Generated $expectedOutputFile"))
         assertTrue(File(testProjectDir, expectedOutputFile).exists())
-        assertEquals(SUCCESS, result.task(":assemble")?.outcome)
     }
 
     @Test
-    fun prepopulateDatabaseBuildTest() {
-        val expectedOutputFile = "build/generated/jisho/database/jisho.sqlite"
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("build", "--info")
-            .withPluginClasspath()
-            .build()
-        assertTrue(result.output.contains("Generated $expectedOutputFile"))
-        assertTrue(File(testProjectDir, expectedOutputFile).exists())
-        assertEquals(SUCCESS, result.task(":build")?.outcome)
-    }
-
-    @Test
-    fun customOutputDirectoryTest() {
-        val destination = "intermediates/assets/jisho.sqlite"
+    fun prepopulateDatabaseCustomDestinationTest() {
+        val destination = "jisho.sqlite"
         buildFile.appendText("""
             jisho {
                 database {
@@ -123,21 +126,21 @@ class JishoPluginTest {
         """.trimIndent())
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("assemble", "--info")
+            .withArguments("prepopulateJishoDatabase", "--info")
             .withPluginClasspath()
             .build()
         assertTrue(result.output.contains("Generated build/$destination"))
-        assertTrue(File(testProjectDir, "build/$destination").exists())
-        assertEquals(SUCCESS, result.task(":assemble")?.outcome)
+        assertTrue(File(testBuildDir, destination).exists())
+        assertEquals(SUCCESS, result.task(":prepopulateJishoDatabase")?.outcome)
     }
 
     @Test
     fun deleteDatabaseSanityTest() {
         GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("assemble")
+            .withArguments("prepopulateJishoDatabase")
             .withPluginClasspath()
             .build()
-        assertTrue(File(testProjectDir, "build/generated/jisho/database/jisho.sqlite").delete())
+        assertTrue(File(testBuildDir, "generated/jisho/database/jisho.sqlite").delete())
     }
 }
