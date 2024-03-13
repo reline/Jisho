@@ -14,14 +14,18 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class JishoPrepopulateTask : DefaultTask() {
+abstract class JishoPopulateTask : DefaultTask() {
     @get:InputDirectory
-    abstract val sourcesDirectory: DirectoryProperty
+    abstract val dictionarySourcesDirectory: DirectoryProperty
+
+    @get:InputDirectory
+    abstract val furiganaSourcesDirectory: DirectoryProperty
 
     @get:OutputFile
     abstract val databaseOutputFile: RegularFileProperty
 
     override fun getDescription() = "Generate ${databaseOutputFile.get().asFile.name} file"
+    override fun getGroup() = JishoDatabasePopulatorPlugin.GROUP
 
     @TaskAction
     fun prepopulate() {
@@ -30,20 +34,21 @@ abstract class JishoPrepopulateTask : DefaultTask() {
         databaseFile.delete()
         databaseFile.jdbcSqliteDriver.use { driver ->
             val database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
-            val sourcesDir = sourcesDirectory.asFile.get()
+            val dictSourcesDir = dictionarySourcesDirectory.asFile.get()
 
             val dictionaries = DictionaryPopulator(database).populate(
                 arrayOf(
-                    File(sourcesDir, "JMdict_e.xml"),
-                    File(sourcesDir, "JMnedict.xml"),
+                    File(dictSourcesDir, "JMdict_e.xml"),
+                    File(dictSourcesDir, "JMnedict.xml"),
                 )
             )
 
+            val furiganaSources = furiganaSourcesDirectory.get().asFile
             OkuriganaPopulator(database).populate(
                 dictionaries,
                 arrayOf(
-                    File(sourcesDir, "JmdictFurigana.json"),
-                    File(sourcesDir, "JmnedictFurigana.json"),
+                    File(furiganaSources, "JmdictFurigana.json"),
+                    File(furiganaSources, "JmnedictFurigana.json"),
                 )
             )
 
@@ -53,16 +58,16 @@ abstract class JishoPrepopulateTask : DefaultTask() {
             KanjiPopulator(database).populate(
                 dictionaries,
                 kanji = arrayOf(
-                    File(sourcesDir, "kanjidic2.xml"),
+                    File(dictSourcesDir, "kanjidic2.xml"),
                 ),
                 radk = arrayOf(
-                    File(sourcesDir, "radkfile"),
-                    File(sourcesDir, "radkfile2"),
-                    File(sourcesDir, "radkfilex"),
+                    File(dictSourcesDir, "radkfile"),
+                    File(dictSourcesDir, "radkfile2"),
+                    File(dictSourcesDir, "radkfilex"),
                 ),
                 krad = arrayOf(
-                    File(sourcesDir, "kradfile"),
-                    File(sourcesDir, "kradfile2"),
+                    File(dictSourcesDir, "kradfile"),
+                    File(dictSourcesDir, "kradfile2"),
                 ),
             )
         }

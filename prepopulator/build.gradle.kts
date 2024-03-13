@@ -10,9 +10,11 @@ plugins {
 
 val functionalTest by sourceSets.creating
 val functionalTestTask = tasks.register<Test>("functionalTest") {
+    description = "Runs the functional tests."
     group = "verification"
     testClassesDirs = functionalTest.output.classesDirs
     classpath = functionalTest.runtimeClasspath
+//    mustRunAfter(tasks.test)
 }
 
 tasks.check {
@@ -26,11 +28,15 @@ tasks.withType<Test>().configureEach {
 gradlePlugin {
     plugins {
         create("jisho") {
-            id = "com.github.reline.jisho.database"
-            implementationClass = "com.github.reline.jisho.JishoDatabasePlugin"
+            id = "com.github.reline.jisho.prepopulator"
+            implementationClass = "com.github.reline.jisho.JishoDatabasePopulatorPlugin"
         }
     }
     testSourceSets(functionalTest)
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    classpath += files("src/main/resources")
 }
 
 dependencies {
@@ -56,11 +62,14 @@ dependencies {
     implementation(libs.okio)
 
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.mockk)
     testImplementation(libs.okio.fakefilesystem)
     testImplementation(libs.okhttp.mockwebserver)
 
     "functionalTestImplementation"(libs.junit.jupiter)
     "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+    "functionalTestImplementation"(libs.okio.fakefilesystem)
 }

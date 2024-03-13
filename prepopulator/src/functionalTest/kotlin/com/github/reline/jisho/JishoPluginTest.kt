@@ -1,5 +1,9 @@
 package com.github.reline.jisho
 
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
+import okio.buffer
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
@@ -13,13 +17,39 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class JishoPluginTest {
-    // https://github.com/junit-team/junit5/issues/2811
+    // todo: https://github.com/junit-team/junit5/issues/2811
     // @TempDir
     private lateinit var testProjectDir: File
     private val testBuildDir get() = File(testProjectDir, "build")
+    private val testResourcesDir get() = File(testProjectDir, "resources")
 
     private lateinit var settingsFile: File
     private lateinit var buildFile: File
+
+    private val resources: FileSystem = FileSystem.RESOURCES
+    private val system: FileSystem = FileSystem.SYSTEM
+
+    private val jishoSources = listOf(
+        "edict2.gz",
+        "enamdict.gz",
+        "JMdict_e.xml.gz",
+        "JMnedict.xml.gz",
+        "kanjidic2.xml.gz",
+        "kradzip.zip",
+    )
+
+    private val jishoOutputs = listOf(
+        "JMdict_e.xml",
+        "JMnedict.xml",
+        "kanjidic2.xml",
+        "radkfile",
+        "radkfile2",
+        "radkfilex",
+        "kradfile",
+        "kradfile2",
+        "edict2",
+        "enamdict",
+    )
 
     @BeforeEach
     fun setup() {
@@ -41,10 +71,25 @@ class JishoPluginTest {
         buildFile.appendText("""
             plugins {
                 id("org.jetbrains.kotlin.jvm") version "1.9.10"
-                id("com.github.reline.jisho.database")
+                id("com.github.reline.jisho.prepopulator")
             }
             
         """.trimIndent())
+
+        system.createDirectories(testResourcesDir.toOkioPath())
+        jishoSources.forEach { name ->
+            resources.source(name.toPath()).buffer().use { source ->
+                system.write(testResourcesDir.toOkioPath()/name) {
+                    source.readAll(this)
+                }
+            }
+        }
+//        system.list(testResourcesDir.toOkioPath()).forEach {
+//            println(it.toFile().absolutePath)
+//        }
+//        resources.list(".".toPath()).forEach {
+//            println(it.toFile().absolutePath)
+//        }
     }
 
     @AfterEach
@@ -60,7 +105,7 @@ class JishoPluginTest {
     fun downloadJishoSourcesTaskSmokeTest() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("downloadJishoSources")
+            .withArguments("downloadJishoSources", "--debug")
             .withPluginClasspath()
             .build()
         assertEquals(SUCCESS, result.task(":downloadJishoSources")?.outcome)
@@ -78,27 +123,16 @@ class JishoPluginTest {
 
     @Test
     fun prepareJishoSourcesTaskVerifyFilesTest() {
-        val result = GradleRunner.create()
+        GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments("prepareJishoSources")
             .withPluginClasspath()
             .build()
-        assertEquals(SUCCESS, result.task(":prepareJishoSources")?.outcome)
-        val jishoSources = listOf(
-            "JMdict_e.xml",
-            "JMnedict.xml",
-            "JmdictFurigana.json",
-            "JmnedictFurigana.json",
-            "kanjidic2.xml",
-            "radkfile",
-            "radkfile2",
-            "radkfilex",
-            "kradfile",
-            "kradfile2",
-        ).map { File(testBuildDir, "intermediates/jisho/$it") }
-        jishoSources.forEach {
-            assertTrue(it.exists(), "${it.absolutePath} does not exist")
-        }
+
+        jishoOutputs.map { File(testBuildDir, "intermediates/jisho/dictionaries/$it") }
+            .forEach {
+                assertTrue(it.exists(), "${it.absolutePath} does not exist")
+            }
     }
 
     @Test
@@ -106,7 +140,7 @@ class JishoPluginTest {
         val expectedOutputFile = "build/generated/jisho/database/jisho.sqlite"
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("prepopulateJishoDatabase")
+            .withArguments("populateJishoDatabase")
             .withPluginClasspath()
             .build()
         assertEquals(SUCCESS, result.task(":prepopulateJishoDatabase")?.outcome)
@@ -126,7 +160,7 @@ class JishoPluginTest {
         """.trimIndent())
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("prepopulateJishoDatabase", "--info")
+            .withArguments("populateJishoDatabase", "--info")
             .withPluginClasspath()
             .build()
         assertTrue(result.output.contains("Generated build/$destination"))
@@ -138,7 +172,7 @@ class JishoPluginTest {
     fun deleteDatabaseSanityTest() {
         GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("prepopulateJishoDatabase")
+            .withArguments("populateJishoDatabase")
             .withPluginClasspath()
             .build()
         assertTrue(File(testBuildDir, "generated/jisho/database/jisho.sqlite").delete())
