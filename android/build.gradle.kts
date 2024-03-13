@@ -1,32 +1,42 @@
+import com.github.reline.jisho.JishoPopulateTask
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.dagger.hilt.android)
-    id("com.github.reline.jisho.database")
+    id("com.github.reline.jisho.prepopulator")
 }
 
-final DATABASE_FILE_NAME = "jisho.sqlite"
+val databaseFilename = "jisho.sqlite"
 
 android {
-    namespace "com.github.reline.jisho"
-    compileSdk 33
+    namespace = "com.github.reline.jisho"
+    compileSdk = 33
     defaultConfig {
-        applicationId "com.github.reline.jisho"
-        minSdk 23
-        targetSdk 33
-        versionCode 4
-        versionName "1.2.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.github.reline.jisho"
+        minSdk = 23
+        targetSdk = 33
+        versionCode = 4
+        versionName = "1.2.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "DATABASE_FILE_NAME", "\"$DATABASE_FILE_NAME\"")
+        buildConfigField("String", "DATABASE_FILE_NAME", "\"$databaseFilename\"")
+    }
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs(jisho.database.destination)
+        }
     }
     buildTypes {
-        release {
-            minifyEnabled = false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android.txt"),
+                "proguard-rules.pro",
+            )
         }
-        debug {
+        getByName("debug") {
             applicationIdSuffix = ".debug"
         }
     }
@@ -34,42 +44,54 @@ android {
         viewBinding = true
     }
 
-    flavorDimensions "environment"
+    flavorDimensions += "environment"
     productFlavors {
-        mock {
+        create("mock") {
             dimension = "environment"
-            applicationIdSuffix ".mock"
-            versionNameSuffix "-mock"
+            applicationIdSuffix = ".mock"
+            versionNameSuffix = "-mock"
         }
-        prod {
+        create("prod") {
             dimension = "environment"
-        }
-    }
-
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-        if (variant.buildType.name == "release" && names.contains("mock")) {
-            // Gradle ignores any variants that satisfy the conditions above.
-            setIgnore(true)
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     lint {
-        abortOnError false
+        abortOnError = false
     }
+}
+
+androidComponents {
+    beforeVariants {
+        if (it.buildType == "release" && it.productFlavors.contains("environment" to "mock")) {
+            // Gradle ignores any variants that satisfy the conditions above.
+            it.enable = false
+        }
+    }
+}
+
+tasks.matching { task ->
+    task.name.matches("^merge.*Assets$".toRegex())
+}.configureEach {
+    dependsOn(tasks.named("prepopulateJishoDatabase"))
+}
+
+jisho {
+    jmdict(libs.versions.jmdictfurigana)
+    githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
 }
 
 configurations {
-    compile.exclude group: "stax"
-    compile.exclude group: "xpp3"
+//    compile.exclude group: "stax"
+//    compile.exclude group: "xpp3"
 }
 
 kapt {
-    correctErrorTypes true
+    correctErrorTypes = true
 }
 
 //tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
@@ -77,20 +99,6 @@ kapt {
 //        jvmTarget = "1.8"
 //    }
 //}
-
-// todo: consider providing `prepopulateJishoDatabase` task as a property to `jisho`
-jisho {
-    githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
-    database {
-        destination.set(new File(android.sourceSets.main.assets.srcDirs.first(), DATABASE_FILE_NAME))
-    }
-}
-
-tasks.matching { task ->
-    task.name.startsWith("assemble")
-}.configureEach { assembleTask ->
-    assembleTask.dependsOn(tasks.named("prepopulateJishoDatabase"))
-}
 
 dependencies {
     testImplementation("junit:junit:4.12")
@@ -104,7 +112,7 @@ dependencies {
     implementation(libs.androidx.sqlite.framework)
 
     implementation(libs.kotlin.coroutines.core)
-//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation(libs.kotlin.coroutines.android)
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.cardview:cardview:1.0.0")
