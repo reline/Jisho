@@ -1,80 +1,61 @@
 package com.github.reline.jisho.jmdict
 
-import com.github.reline.jisho.ensureDirsCreated
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.joinAll
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import okio.buffer
-import okio.sink
-import org.slf4j.LoggerFactory
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okio.FileSystem
+import okio.Path
 import java.io.File
 import java.io.IOException
 
 // todo: unit test
 
-private const val GITHUB_API_BASE_URL = "https://api.github.com"
-
-private val logger by lazy { LoggerFactory.getLogger("http-logger") }
-
 fun defaultJmdictClient(githubToken: String?): JmdictClient {
-    val loggingInterceptor = HttpLoggingInterceptor { logger.debug(it) }.apply {
-        redactHeader(AUTHORIZATION)
-        setLevel(HttpLoggingInterceptor.Level.HEADERS)
-    }
-    val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .addInterceptor(BearerAuthorizationInterceptor(githubToken))
-        .build()
-    val retrofit = Retrofit.Builder()
-        .baseUrl(GITHUB_API_BASE_URL)
-        .addConverterFactory(MoshiConverterFactory.create())
-        .callFactory(okHttpClient)
-        .build()
-    val githubApi = retrofit.create(GithubApi::class.java)
+    val githubApi = GithubReleasesApi(githubToken)
     return JmdictClient(githubApi)
 }
 
-class JmdictClient(private val githubApi: GithubApi) {
+class JmdictClient(
+    private val githubApi: GithubReleasesApi,
+    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
 
-    @Throws(IOException::class)
-    suspend fun downloadAssets(version: String?, destination: File) {
-        val release = if (version == null) {
-            githubApi.getLatestRelease()
-        } else {
-            githubApi.getRelease(tag = version)
-        }
-        saveAssets(release.assets, destination)
+    companion object {
+        private const val OWNER = "Doublevil"
+        private const val REPO = "JmdictFurigana"
     }
 
-    private suspend fun saveAssets(assets: List<GithubAsset>, destination: File) = coroutineScope {
-        destination.ensureDirsCreated()
+    @Throws(IOException::class)
+    suspend fun downloadDictionaries(
+        destination: Path,
+        version: String? = null,
+    ) = withContext(ioDispatcher) {
+        val release = if (version == null) {
+            githubApi.getLatestRelease(owner = OWNER, repo = REPO)
+        } else {
+            githubApi.getRelease(owner = OWNER, repo = REPO, tag = version)
+        }
 
-        // skip assets that aren't json
-        assets.filter { it.name.endsWith(".json") }
-            .map { asset ->
-                val dictionary = File(destination, asset.name)
-                if (dictionary.exists()) {
-                    check(dictionary.delete()) {
-                        "Cannot delete existing file at $dictionary"
+        release.assets
+            // only download json assets
+            .filter { File(it.name).extension == "json" }
+            .forEach { asset ->
+                // fixme:
+                //  Exception in thread "Daemon client event forwarder"
+                //  Exception in thread "Daemon health stats" java.lang.OutOfMemoryError: Java heap space
+                val response = githubApi.getReleaseAsset(
+                    owner = OWNER,
+                    repo = REPO,
+                    assetId = asset.id
+                )
+
+                fileSystem.write(destination/asset.name) {
+                    response.source().use { source ->
+                        // todo: inquire about `writeAll(Source)`
+                        source.readAll(this)
                     }
                 }
-                check(dictionary.createNewFile()) {
-                    "Cannot create file at $dictionary"
-                }
-
-                async {
-                    // todo: Download <url>, took 83 ms (2.27 kB)
-                    val response = githubApi.getReleaseAsset(assetId = asset.id)
-                    dictionary.outputStream().sink().buffer().use { sink ->
-                        response.source().buffer.use { source ->
-                            source.readAll(sink)
-                        }
-                    }
-                }
-            }.joinAll()
+        }
     }
 }
