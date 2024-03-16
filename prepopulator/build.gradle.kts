@@ -14,7 +14,6 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     group = "verification"
     testClassesDirs = functionalTest.output.classesDirs
     classpath = functionalTest.runtimeClasspath
-//    mustRunAfter(tasks.test)
 }
 
 tasks.check {
@@ -61,7 +60,7 @@ dependencies {
     kapt(libs.moshi.codegen)
     implementation(libs.okio)
 
-    testImplementation(libs.kotlin.test)
+    testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -69,6 +68,7 @@ dependencies {
     testImplementation(libs.okio.fakefilesystem)
     testImplementation(libs.okhttp.mockwebserver)
 
+    "functionalTestImplementation"(kotlin("test"))
     "functionalTestImplementation"(libs.junit.jupiter)
     "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
     "functionalTestImplementation"(libs.okio.fakefilesystem)

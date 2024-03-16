@@ -1,4 +1,4 @@
-package com.github.reline.jisho
+package com.github.reline.jisho.tasks
 
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
