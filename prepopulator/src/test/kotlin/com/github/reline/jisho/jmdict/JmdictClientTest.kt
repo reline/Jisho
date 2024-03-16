@@ -14,7 +14,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private val fakeReleaseAssetResponse = """
     {
@@ -52,7 +51,9 @@ class JmdictClientTest {
         mockGithubApi = mockk {
             coEvery {
                 getReleaseAsset(any(), any(), any())
-            } returns fakeReleaseAssetResponse.toResponseBody(MimeType.OctetStream.toMediaType())
+            } answers {
+                fakeReleaseAssetResponse.toResponseBody(MimeType.OctetStream.toMediaType())
+            }
         }
         fakeFileSystem = FakeFileSystem()
         scope = TestScope()
@@ -100,7 +101,7 @@ class JmdictClientTest {
 
         jmdictClient.downloadDictionaries(fakeFileSystem.workingDirectory)
 
-        assertTrue(fakeFileSystem.list(fakeFileSystem.workingDirectory).isEmpty())
+        assertEquals(emptySet(), fakeFileSystem.allPaths)
     }
 
     @Test
