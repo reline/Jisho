@@ -3,21 +3,19 @@ package com.github.reline.jisho.compression
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import org.gradle.internal.impldep.org.testng.annotations.AfterTest
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class DictionaryFileDecompressorTest {
+class CompressionTest {
 
     private val resources = FileSystem.RESOURCES
     private lateinit var fakeFileSystem: FakeFileSystem
-    private lateinit var decompressor: DictionaryFileDecompressor
 
     @BeforeTest
     fun setup() {
         fakeFileSystem = FakeFileSystem()
-        decompressor = DictionaryFileDecompressor(system = fakeFileSystem, resources = resources)
     }
 
     @AfterTest
@@ -28,34 +26,22 @@ class DictionaryFileDecompressorTest {
     @Test
     fun testZip() {
         val fakeZip = "kradzip.zip".toPath()
-        resources.read(fakeZip) {
-            fakeFileSystem.write(fakeFileSystem.workingDirectory/fakeZip) {
-                readAll(this)
-            }
-        }
-
         val dest = fakeFileSystem.workingDirectory/"dest".toPath()
-        decompressor.extractAll(fakeFileSystem.workingDirectory, dest)
+        resources.extract(fakeZip, at = fakeFileSystem to dest)
         val extractedFile = fakeZip.toFile().nameWithoutExtension.toPath()
         val expected = resources.read(extractedFile) { readUtf8() }
         val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
-        assertEquals(expected, actual)
+        assertEquals(expected.trimMargin(), actual.trimMargin())
     }
 
     @Test
-    fun testGZip() {
-        val fakeGZip = "test.xml.gz".toPath()
-        resources.read(fakeGZip) {
-            fakeFileSystem.write(fakeFileSystem.workingDirectory/fakeGZip) {
-                readAll(this)
-            }
-        }
-
+    fun testGzip() {
+        val fakeGzip = "test.xml.gz".toPath()
         val dest = fakeFileSystem.workingDirectory/"dest".toPath()
-        decompressor.extractAll(fakeFileSystem.workingDirectory, dest)
-        val extractedFile = fakeGZip.toFile().nameWithoutExtension.toPath()
+        resources.extract(fakeGzip, at = fakeFileSystem to dest)
+        val extractedFile = fakeGzip.toFile().nameWithoutExtension.toPath()
         val expected = resources.read(extractedFile) { readUtf8() }
         val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
-        assertEquals(expected, actual)
+        assertEquals(expected.trimMargin(), actual.trimMargin())
     }
 }

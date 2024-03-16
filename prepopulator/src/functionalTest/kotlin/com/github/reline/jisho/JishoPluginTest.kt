@@ -9,12 +9,12 @@ import java.io.File
 
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class JishoPluginTest {
     // todo: https://github.com/junit-team/junit5/issues/2811
@@ -123,13 +123,19 @@ class JishoPluginTest {
 
     @Test
     fun prepareJishoSourcesTaskVerifyFilesTest() {
+        buildFile.appendText("""
+            tasks.named("prepareJishoSources").configure {
+                it.outputDirectory(File("${testBuildDir.absolutePath}"))
+            }
+
+        """.trimIndent())
         GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments("prepareJishoSources")
             .withPluginClasspath()
             .build()
 
-        jishoOutputs.map { File(testBuildDir, "intermediates/jisho/dictionaries/$it") }
+        jishoOutputs.map { File(testBuildDir, it) }
             .forEach {
                 assertTrue(it.exists(), "${it.absolutePath} does not exist")
             }
