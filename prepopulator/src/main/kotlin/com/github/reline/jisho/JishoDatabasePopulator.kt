@@ -4,8 +4,6 @@ import com.github.reline.jisho.jmdict.defaultJmdictClient
 import com.github.reline.jisho.tasks.JishoDownloadTask
 import com.github.reline.jisho.tasks.JishoPopulateTask
 import com.github.reline.jisho.tasks.ResourceExtractionTask
-import com.github.reline.jisho.tasks.gradleCachesDir
-import com.github.reline.jisho.tasks.register
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFile
@@ -36,7 +34,8 @@ abstract class JishoDatabasePopulator @Inject constructor(
             "downloadJishoSources",
             JishoDownloadTask::class.java,
             jmdictClient,
-        ) {
+        )
+        downloadTask.configure {
             group = jisho
             this.jmdictVersion.set(jmdictVersion)
             outputDir.set(File(cacheDir, "furigana"))
