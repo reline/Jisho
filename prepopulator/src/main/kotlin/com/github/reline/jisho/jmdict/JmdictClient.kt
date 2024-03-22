@@ -38,7 +38,7 @@ class JmdictClient(
         release.assets
             // only download json assets
             .filter { File(it.name).extension == "json" }
-            .map { asset ->
+            .forEach { asset ->
                 // fixme:
                 //  Exception in thread "Daemon client event forwarder"
                 //  Exception in thread "Daemon health stats" java.lang.OutOfMemoryError: Java heap space
@@ -48,14 +48,12 @@ class JmdictClient(
                     assetId = asset.id
                 )
 
-                val file = destination/asset.name
                 fileSystem.write(destination/asset.name) {
                     response.source().use { source ->
                         // todo: inquire about `writeAll(Source)`
                         source.readAll(this)
                     }
                 }
-                return@map file
         }
     }
 }
