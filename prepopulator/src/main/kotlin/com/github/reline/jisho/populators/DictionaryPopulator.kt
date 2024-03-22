@@ -10,19 +10,40 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
+import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
+import com.github.reline.jisho.skipBom
 import com.github.reline.jisho.sql.JishoDatabase
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.runBlocking
-import okio.Buffer
-import okio.EOFException
 import okio.IOException
 import okio.buffer
 import okio.source
 import java.io.File
+import java.lang.reflect.Type
 
 class DictionaryPopulator(private val database: JishoDatabase) {
+    fun populate(dictionaryFile: File, okuriganaFile: File): Dictionary {
+        requireFile(dictionaryFile)
+        requireFile(okuriganaFile)
+        val dictionary = extractDictionary(dictionaryFile)
+        insertDictionary(dictionary)
+        insertOkurigana(dictionary, extractOkurigana(okuriganaFile))
+        return dictionary
+    }
 
-    fun populate(dicts: Array<File>) = runBlocking {
+    private fun requireFile(file: File) {
+        require(file.exists()) { "file does not exist: $file" }
+        require(file.isFile) { "not a file: $file" }
+    }
+
+    @Deprecated(
+        "Populate with okurigana instead",
+        ReplaceWith("this.populate(dictionaryFile, okuriganaFile)")
+    )
+    fun populate(dicts: Collection<File>) = runBlocking {
         return@runBlocking dicts.mapNotNull { dict ->
             if (!dict.exists()) return@mapNotNull null
             val dictionary = extractDictionary(dict)
@@ -111,4 +132,48 @@ class DictionaryPopulator(private val database: JishoDatabase) {
         insertPartsOfSpeech(entries)
         insertSenses(entries)
     }
+
+    /**
+     * See okurigana.json
+     */
+    private fun extractOkurigana(file: File): OkuriganaEntries {
+        val moshi = Moshi.Builder()
+            .build()
+        val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
+        val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
+
+        val map = OkuriganaEntries()
+        try {
+            file.inputStream().source().buffer().use { source ->
+                source.skipBom()
+                val entries = adapter.fromJson(source) ?: throw IllegalStateException("Entries were null")
+                entries.forEach {
+                    map.addOkurigana(it)
+                }
+                println("Finished reading ${file.name}")
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Failed to read ${file.name}", e)
+        }
+        return map
+    }
+
+    private fun insertOkurigana(dictionary: Dictionary, furigana: OkuriganaEntries) = with(database) {
+        transaction {
+            dictionary.entries.forEach { entry ->
+                val match = furigana.getOkurigana(entry) ?: return@forEach
+                match.furigana.forEach { okurigana ->
+                    rubyQueries.insert(entry.id, okurigana.ruby, okurigana.rt)
+                }
+            }
+        }
+    }
+}
+
+typealias OkuriganaEntries = HashMap<String, OkuriganaEntry>
+fun OkuriganaEntries.getOkurigana(entry: Entry): OkuriganaEntry? {
+    return get(entry.readings.firstOrNull()?.value + entry.kanji?.firstOrNull()?.value)
+}
+fun OkuriganaEntries.addOkurigana(entry: OkuriganaEntry) {
+    put(entry.reading+entry.text, entry)
 }

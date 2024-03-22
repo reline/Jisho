@@ -23,13 +23,13 @@ import java.io.File
 
 class KanjiPopulator(private val database: JishoDatabase) {
 
-    fun populate(dictionaries: List<Dictionary>, kanji: Array<File>, radk: Array<File>, krad: Array<File>) {
+    fun populate(dictionaries: List<Dictionary>, kanji: Collection<File>, radk: Collection<File>, krad: Collection<File>) {
         populateKanji(kanji)
         associateEntriesWithKanji(dictionaries)
         populateRadicals(radk, krad)
     }
 
-    private fun populateKanji(dicts: Array<File>) {
+    private fun populateKanji(dicts: Collection<File>) {
         dicts.forEach { file ->
             check(file.exists()) { "$file does not exist" }
             val dictionary = extractKanji(file)
@@ -58,11 +58,11 @@ class KanjiPopulator(private val database: JishoDatabase) {
         }
     }
 
-    private fun populateRadicals(radk: Array<File>, krad: Array<File>) = runBlocking {
+    private fun populateRadicals(radk: Collection<File>, krad: Collection<File>) = runBlocking {
         extractRadKFiles(radk)
     }
 
-    private fun extractRadKFiles(files: Array<File>) {
+    private fun extractRadKFiles(files: Collection<File>) {
         val radkparser = RadKParser()
         files.forEach { file ->
             check(file.exists()) { "$file does not exist" }

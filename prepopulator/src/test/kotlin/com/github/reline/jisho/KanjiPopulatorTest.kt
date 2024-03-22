@@ -30,7 +30,7 @@ class KanjiPopulatorTest {
 
     @Test
     fun smokeTestKanji() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), emptyArray(), emptyArray())
+        kanjiPopulator.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
         transaction {
             val kanji = kanjiRadicalQueries.selectAllKanji().executeAsList()
             assert(kanji.isNotEmpty())
@@ -39,7 +39,7 @@ class KanjiPopulatorTest {
 
     @Test
     fun hasStrokes() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), emptyArray(), emptyArray())
+        kanjiPopulator.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
         transaction {
             val kanji = kanjiRadicalQueries.selectKanji("亜").executeAsOne()
             assertEquals(expected = 7, actual = kanji.strokes)
@@ -48,11 +48,11 @@ class KanjiPopulatorTest {
 
     @Test
     fun smokeTestRadicals() = with(database) {
-        kanjiPopulator.populate(listOf(emptyDictionary), arrayOf(File("$buildDir/dict/kanjidic2.xml")), arrayOf(
+        kanjiPopulator.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), listOf(
             File("$buildDir/dict/radkfile"),
             File("$buildDir/dict/radkfile2"),
             File("$buildDir/dict/radkfilex"),
-        ), arrayOf())
+        ), emptyList())
         transaction {
             val radicals = kanjiRadicalQueries.selectAllRadicals().executeAsList()
             assertTrue(radicals.isNotEmpty())
@@ -61,12 +61,12 @@ class KanjiPopulatorTest {
 
     @Test
     fun testKanjiForEntries() = with(database) {
-        val dictionaries = dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        val dictionaries = dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
         kanjiPopulator.populate(
             dictionaries,
-            arrayOf(File("$buildDir/dict/kanjidic2.xml")),
-            emptyArray(),
-            emptyArray(),
+            listOf(File("$buildDir/dict/kanjidic2.xml")),
+            emptyList(),
+            emptyList(),
         )
         transaction {
             val entryId = entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()

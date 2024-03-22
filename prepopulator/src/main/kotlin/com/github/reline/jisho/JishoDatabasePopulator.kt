@@ -3,7 +3,8 @@ package com.github.reline.jisho
 import com.github.reline.jisho.jmdict.defaultJmdictClient
 import com.github.reline.jisho.tasks.JishoDownloadTask
 import com.github.reline.jisho.tasks.JishoPopulateTask
-import com.github.reline.jisho.tasks.ResourceExtractionTask
+import com.github.reline.jisho.tasks.GzipResourceExtractionTask
+import com.github.reline.jisho.tasks.ZipResourceExtractionTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFile
@@ -42,43 +43,47 @@ abstract class JishoDatabasePopulator @Inject constructor(
         }
 
         val dictionaries = File(cacheDir, "dictionaries")
-        val extractJMdict = project.tasks.register("extractJMdict", ResourceExtractionTask::class.java) {
+        val extractJMdict = project.tasks.register("extractJMdict", GzipResourceExtractionTask::class.java) {
             fromResource(File("JMdict_e.xml.gz"))
-            into(dictionaries)
+            into(dictionaries.resolve("JMdict_e.xml"))
         }
 
-        val extractJMnedict = project.tasks.register("extractJMnedict", ResourceExtractionTask::class.java) {
+        val extractJMnedict = project.tasks.register("extractJMnedict", GzipResourceExtractionTask::class.java) {
             fromResource(File("JMnedict.xml.gz"))
-            into(dictionaries)
+            into(dictionaries.resolve("JMnedict.xml"))
         }
 
-        val extractEdict2 = project.tasks.register("extractEdict2", ResourceExtractionTask::class.java) {
+        project.tasks.register("extractEdict2", GzipResourceExtractionTask::class.java) {
             fromResource(File("edict2.gz"))
-            into(dictionaries)
+            into(dictionaries.resolve("edict2"))
         }
 
-        val extractEnamdict = project.tasks.register("extractEnamdict", ResourceExtractionTask::class.java) {
+        project.tasks.register("extractEnamdict", GzipResourceExtractionTask::class.java) {
             fromResource(File("enamdict.gz"))
-            into(dictionaries)
+            into(dictionaries.resolve("enamdict"))
         }
 
-        val extractKanjidic2 = project.tasks.register("extractKanjidic2", ResourceExtractionTask::class.java) {
+        val extractKanjidic2 = project.tasks.register("extractKanjidic2", GzipResourceExtractionTask::class.java) {
             fromResource(File("kanjidic2.xml.gz"))
-            into(File(cacheDir, "kanji"))
+            into(dictionaries.resolve("kanjidic2.xml"))
         }
 
-        val extractKrad = project.tasks.register("extractKrad", ResourceExtractionTask::class.java) {
+        val extractRadicals = project.tasks.register("extractRadicals", ZipResourceExtractionTask::class.java) {
             fromResource(File("kradzip.zip"))
-            into(File(cacheDir, "radicals"))
+            into(cacheDir.resolve("radicals"))
         }
 
         val populateTask = project.tasks.register("populateJishoDatabase", JishoPopulateTask::class.java) {
             group = jisho
             description = "Generate prepopulated database with Jisho sources"
-            dictionarySources.from(extractJMdict, extractJMnedict)
-            furiganaSources.from(downloadTask)
-            kanjiSources.from(extractKanjidic2)
-            radicalSources.from(extractKrad)
+            jmdict.set(extractJMdict.get().outputFile)
+            jmdictFurigana.set { downloadTask.get().outputDir.file("JmdictFurigana.json").get().asFile }
+            jmnedict.set(extractJMnedict.get().outputFile)
+            jmnedictFurigana.set { downloadTask.get().outputDir.file("JmnedictFurigana.json").get().asFile }
+            kanji.from(extractKanjidic2)
+            val radicals = extractRadicals.get().outputDirectory
+            radicalKanjiMappings.from(radicals.files("radkfile", "radkfile2", "radkfilex"))
+            kanjiRadicalMappings.from(radicals.files("kradfile", "kradfile2"))
             databaseOutputFile.set(File(cacheDir, "jisho.sqlite"))
         }
 
