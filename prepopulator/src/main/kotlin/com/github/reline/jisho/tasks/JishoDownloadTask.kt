@@ -24,6 +24,11 @@ abstract class JishoDownloadTask @Inject constructor(
     @get:Input
     abstract val outputDir: DirectoryProperty
 
+    // fixme: Could not determine the dependencies of task ':populateJishoDatabase'.
+    //> Could not create task ':downloadJishoSources'.
+    //   > Could not create task of type 'JishoDownloadTask'.
+    //      > Could not generate a decorated class for type JishoDownloadTask.
+    //         > Cannot have abstract method JishoDownloadTask.getOutputFiles().
     @get:OutputFiles
     abstract val outputFiles: FileCollection
 

@@ -22,6 +22,9 @@ abstract class JishoPopulateTask : DefaultTask() {
     @get:InputFiles
     abstract val kanjiSources: ConfigurableFileCollection
 
+    @get:InputFiles
+    abstract val radicalSources: ConfigurableFileCollection
+
     @get:OutputFile
     abstract val databaseOutputFile: RegularFileProperty
 
@@ -52,9 +55,6 @@ abstract class JishoPopulateTask : DefaultTask() {
 //                )
 //            )
 //
-//            // fixme: kanjidic2.xml does not exist
-//            //  possibly an issue with the sourcesDir, but in that case the above xml files wouldn't be found
-//            //  might be an issue with the functional test.
 //            KanjiPopulator(database).populate(
 //                dictionaries,
 //                kanji = arrayOf(
