@@ -27,7 +27,7 @@ class CompressionTest {
     fun testZip() {
         val fakeZip = "kradzip.zip".toPath()
         val dest = fakeFileSystem.workingDirectory/"dest".toPath()
-        resources.extract(fakeZip, at = fakeFileSystem to dest)
+        resources.extractZip(fakeZip, fakeFileSystem to dest)
         val extractedFile = fakeZip.toFile().nameWithoutExtension.toPath()
         val expected = resources.read(extractedFile) { readUtf8() }
         val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
@@ -37,11 +37,11 @@ class CompressionTest {
     @Test
     fun testGzip() {
         val fakeGzip = "test.xml.gz".toPath()
-        val dest = fakeFileSystem.workingDirectory/"dest".toPath()
-        resources.extract(fakeGzip, at = fakeFileSystem to dest)
         val extractedFile = fakeGzip.toFile().nameWithoutExtension.toPath()
+        val dest = fakeFileSystem.workingDirectory/extractedFile
+        resources.extractGzip(fakeGzip, fakeFileSystem to dest)
         val expected = resources.read(extractedFile) { readUtf8() }
-        val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
+        val actual = fakeFileSystem.read(dest) { readUtf8() }
         assertEquals(expected.trimMargin(), actual.trimMargin())
     }
 }

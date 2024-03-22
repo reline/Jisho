@@ -54,14 +54,14 @@ class DictionaryPopulatorTest {
 
     @Test
     fun smokeTest() = with(database) {
-        val dictionaries = dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
+        val dictionaries = dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
         assert(dictionaries.isNotEmpty())
         assert(entryQueries.selectAll().executeAsList().isNotEmpty())
     }
 
     @Test
     fun testHello() = with(database) {
-        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
         val results = entryQueries.selectEntries("hello").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
@@ -120,7 +120,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun testHouse() = with(database) {
-        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
         val results = entryQueries.selectEntries("house").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
@@ -134,7 +134,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun test家() = with(database) {
-        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
         val results = entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
@@ -148,7 +148,7 @@ class DictionaryPopulatorTest {
 
     @Test
     fun test走った() = runBlocking {
-        dictionaryPopulator.populate(arrayOf(File("$buildDir/dict/JMdict_e.xml")))
+        dictionaryPopulator.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
         val dao = JapaneseMultilingualDao(database, coroutineContext)
         val results = dao.search("走った")

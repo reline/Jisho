@@ -18,7 +18,7 @@ private val ROOT = "/".toPath()
 typealias FileSystemPath = Pair<FileSystem, Path>
 
 /**
- * Extract all compressed files in the given [paths].
+ * Extract the compressed zip file contents at [zipPath] into a [destination] directory.
  *
  * Zip files are expected to be from Monash.
  * The Monash zip file contents are all in EUC-JP format AKA:
@@ -32,26 +32,10 @@ typealias FileSystemPath = Pair<FileSystem, Path>
  * - eucjp.kt
  */
 @Throws(IOException::class)
-fun FileSystem.extract(
-    vararg paths: Path,
-    at: FileSystemPath,
-    // todo: configure charsets properly
-    charset: Charset = Charsets.EUC_JP,
-) = buildList {
-    paths.forEach {
-        when (it.toFile().extension) {
-            "zip" -> addAll(extractZip(it, at, charset))
-            "gz" -> add(extractGzip(it, at))
-        }
-    }
-    logger.debug("Extraction complete")
-}
-
-@Throws(IOException::class)
 fun FileSystem.extractZip(
     zipPath: Path,
     destination: FileSystemPath,
-    charset: Charset = Charsets.UTF_8,
+    charset: Charset = Charsets.EUC_JP,
 ): List<Path> {
     val (fileSystem, base) = destination
     if (!fileSystem.exists(base)) {
@@ -76,12 +60,12 @@ fun FileSystem.extractZip(
 
 @Throws(IOException::class)
 fun FileSystem.extractGzip(gzip: Path, destination: FileSystemPath): Path {
-    val (fileSystem, base) = destination
-    if (!fileSystem.exists(base)) {
-        fileSystem.createDirectories(base, mustCreate = true)
+    val (fileSystem, file) = destination
+    val parent = requireNotNull(file.parent)
+    if (!fileSystem.exists(parent)) {
+        fileSystem.createDirectories(parent, mustCreate = true)
     }
-    logger.info("Extracting $gzip to $base")
-    val file = base/gzip.toFile().nameWithoutExtension
+    logger.info("Extracting $gzip to $file")
     source(gzip).gzip().buffer().use { source ->
         fileSystem.write(file) {
             source.readAll(this)

@@ -1,9 +1,5 @@
 package com.github.reline.jisho.tasks
 
-import okio.FileSystem
-import okio.Path.Companion.toOkioPath
-import okio.Path.Companion.toPath
-import okio.buffer
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.AfterEach
@@ -60,29 +56,36 @@ class ResourceExtractionTaskTest {
     @Test
     fun gzipTest() {
         buildFile.appendText("""
-            import com.github.reline.jisho.tasks.ResourceExtractionTask
+            import com.github.reline.jisho.tasks.GzipResourceExtractionTask
             
-            tasks.register("extractGzip", ResourceExtractionTask::class.java) {
+            tasks.register("extractGzip", GzipResourceExtractionTask::class.java) {
                 fromResource(File("edict2.gz"))
-                into(project.layout.buildDirectory.get().asFile)
+                into(project.layout.buildDirectory.get().asFile.resolve("edict2"))
             }
 
         """.trimIndent())
 
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
+            .withTestKitDir(testProjectDir)
             .withArguments("extractGzip")
             .withPluginClasspath()
             .build()
+
+        val file = testProjectDir
+            .resolve("build")
+            .resolve("edict2")
+
         assertEquals(TaskOutcome.SUCCESS, result.task(":extractGzip")?.outcome)
+        assertTrue(file.exists(), "${file.absolutePath} does not exist")
     }
 
     @Test
     fun zipTest() {
         buildFile.appendText("""
-            import com.github.reline.jisho.tasks.ResourceExtractionTask
+            import com.github.reline.jisho.tasks.ZipResourceExtractionTask
             
-            tasks.register("extractZip", ResourceExtractionTask::class) {
+            tasks.register("extractZip", ZipResourceExtractionTask::class) {
                 fromResource(File("kradzip.zip"))
                 into(project.layout.buildDirectory.get().asFile)
             }
@@ -91,10 +94,23 @@ class ResourceExtractionTaskTest {
 
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
+            .withTestKitDir(testProjectDir)
             .withArguments("extractZip")
             .withPluginClasspath()
             .build()
+
         assertEquals(TaskOutcome.SUCCESS, result.task(":extractZip")?.outcome)
+
+        listOf(
+            "radkfile",
+            "radkfile2",
+            "radkfilex",
+            "kradfile",
+            "kradfile2",
+        ).forEach {
+            val file = testProjectDir.resolve("build").resolve(it)
+            assertTrue(file.exists(), "${file.absolutePath} does not exist")
+        }
     }
 
 }
