@@ -10,7 +10,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 import javax.inject.Inject
 
 abstract class ZipResourceExtractionTask @Inject constructor() : DefaultTask() {
@@ -21,21 +20,10 @@ abstract class ZipResourceExtractionTask @Inject constructor() : DefaultTask() {
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
-    private val system = FileSystem.SYSTEM
-    private val resources = FileSystem.RESOURCES
-
-    fun fromResource(resource: File) {
-        resourceAssetPath.set(resource.path)
-    }
-
-    fun into(directory: File) {
-        outputDirectory.set(directory)
-    }
-
     @TaskAction
     fun extract() {
         val compressedFile = resourceAssetPath.get().toPath()
-        val destination = system to outputDirectory.get().asFile.toOkioPath()
-        resources.extractZip(compressedFile, destination)
+        val destination = FileSystem.SYSTEM to outputDirectory.get().asFile.toOkioPath()
+        FileSystem.RESOURCES.extractZip(compressedFile, destination)
     }
 }

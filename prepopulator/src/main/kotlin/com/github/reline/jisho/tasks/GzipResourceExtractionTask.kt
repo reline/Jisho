@@ -21,21 +21,10 @@ abstract class GzipResourceExtractionTask @Inject constructor() : DefaultTask() 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
-    private val system = FileSystem.SYSTEM
-    private val resources = FileSystem.RESOURCES
-
-    fun fromResource(resource: File) {
-        resourceAssetPath.set(resource.path)
-    }
-
-    fun into(directory: File) {
-        outputFile.set(directory)
-    }
-
     @TaskAction
     fun extract() {
         val compressedFile = resourceAssetPath.get().toPath()
-        val destination = system to outputFile.get().asFile.toOkioPath()
-        resources.extractGzip(compressedFile, destination)
+        val destination = FileSystem.SYSTEM to outputFile.get().asFile.toOkioPath()
+        FileSystem.RESOURCES.extractGzip(compressedFile, destination)
     }
 }

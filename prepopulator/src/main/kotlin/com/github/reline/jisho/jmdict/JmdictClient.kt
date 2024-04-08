@@ -39,9 +39,6 @@ class JmdictClient(
             // only download json assets
             .filter { File(it.name).extension == "json" }
             .forEach { asset ->
-                // fixme:
-                //  Exception in thread "Daemon client event forwarder"
-                //  Exception in thread "Daemon health stats" java.lang.OutOfMemoryError: Java heap space
                 val response = githubApi.getReleaseAsset(
                     owner = OWNER,
                     repo = REPO,

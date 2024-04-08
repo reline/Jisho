@@ -9,6 +9,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class JishoPopulateTaskTest {
 
@@ -55,9 +56,11 @@ class JishoPopulateTaskTest {
     fun smokeTest() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("populateJishoDatabase")
+            .withArguments("populateJishoDatabase", "--debug")
             .withPluginClasspath()
+            .forwardOutput()
             .build()
         assertEquals(TaskOutcome.SUCCESS, result.task(":populateJishoDatabase")?.outcome)
+        assertTrue(result.output.contains("Generated .*jisho.sqlite".toRegex()), result.output)
     }
 }
