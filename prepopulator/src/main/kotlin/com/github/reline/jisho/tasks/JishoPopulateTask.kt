@@ -1,32 +1,34 @@
 package com.github.reline.jisho.tasks
 
-import com.github.reline.jisho.jdbcSqliteDriver
-import com.github.reline.jisho.populators.DictionaryPopulator
-import com.github.reline.jisho.populators.KanjiPopulator
-import com.github.reline.jisho.sql.JishoDatabase
-import com.github.reline.jisho.touch
-import okio.FileSystem
-import okio.Path.Companion.toOkioPath
+import com.github.reline.jisho.populators.DictionaryInput
+import com.github.reline.jisho.populators.populate
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.listProperty
+import java.io.File
+import java.io.Serializable
+import javax.inject.Inject
 
-abstract class JishoPopulateTask : DefaultTask() {
+data class Dictionary(
     @get:InputFile
-    abstract val jmdict: RegularFileProperty
+    override val definitions: File,
+    @get:InputFile
+    override val okurigana: File,
+) : DictionaryInput, Serializable
 
-    @get:InputFile
-    abstract val jmdictFurigana: RegularFileProperty
-
-    @get:InputFile
-    abstract val jmnedict: RegularFileProperty
-
-    @get:InputFile
-    abstract val jmnedictFurigana: RegularFileProperty
+abstract class JishoPopulateTask @Inject constructor(
+    objectFactory: ObjectFactory,
+) : DefaultTask() {
+    @get:Input
+    val dictionaries = objectFactory.listProperty<Dictionary>().empty()
 
     @get:InputFiles
     abstract val kanji: ConfigurableFileCollection
@@ -40,29 +42,20 @@ abstract class JishoPopulateTask : DefaultTask() {
     @get:OutputFile
     abstract val databaseOutputFile: RegularFileProperty
 
-    private val fileSystem = FileSystem.SYSTEM
-
+    /**
+     * In order to maintain data integrity, a previously generated database cannot be reused and
+     * therefore this task unfortunately cannot be incremental.
+     */
     @TaskAction
-    fun prepopulate() {
-        val databasePath = databaseOutputFile.get().asFile.toOkioPath()
-        fileSystem.touch(databasePath)
-        databasePath.jdbcSqliteDriver.use { driver ->
-            val database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
-
-            val dictpop = DictionaryPopulator(database)
-            val dictionaries = listOf(
-                dictpop.populate(dictionaryFile = jmdict.get().asFile, okuriganaFile = jmdictFurigana.get().asFile),
-                dictpop.populate(dictionaryFile = jmnedict.get().asFile, okuriganaFile = jmnedictFurigana.get().asFile),
-            )
-
-            KanjiPopulator(database).populate(
-                dictionaries,
-                kanji = kanji.files,
-                radk = radicalKanjiMappings.files,
-                krad = kanjiRadicalMappings.files,
-            )
-        }
-
-        logger.info("Generated ${project.rootDir.relativeTo(databasePath.toFile()).path}")
+    fun prepopulate() = runBlocking {
+        val database = databaseOutputFile.get().asFile
+        // todo: use a timeout?
+        database.populate(
+            dictionaries.get(),
+            kanji = kanji.files,
+            radk = radicalKanjiMappings.files,
+            krad = kanjiRadicalMappings.files,
+        )
+        logger.info("Generated ${database.path}")
     }
 }

@@ -2,10 +2,9 @@ package com.github.reline.jisho
 
 import okio.BufferedSource
 import okio.ByteString.Companion.decodeHex
-import okio.FileSystem
 import okio.IOException
 import okio.Options
-import okio.Path
+import java.io.File
 
 /** Byte order marks. */
 private val UNICODE_BOMS = Options.of(
@@ -21,8 +20,7 @@ fun BufferedSource.skipBom() {
     select(UNICODE_BOMS)
 }
 
-// todo: unit test; does this empty the contents of an existing file?
-fun FileSystem.touch(path: Path) {
-    path.parent?.let { createDirectories(it) }
-    write(path) {}
+fun File.touch() {
+    parentFile.mkdirs()
+    createNewFile()
 }

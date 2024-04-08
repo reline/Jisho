@@ -21,94 +21,94 @@ import okio.buffer
 import okio.source
 import java.io.File
 
-class KanjiPopulator(private val database: JishoDatabase) {
+fun JishoDatabase.populate(
+    dictionaries: List<Dictionary>,
+    kanji: Collection<File>,
+    radk: Collection<File>,
+    krad: Collection<File>,
+) {
+    populateKanji(kanji)
+    associateEntriesWithKanji(dictionaries)
+    populateRadicals(radk, krad)
+}
 
-    fun populate(dictionaries: List<Dictionary>, kanji: Collection<File>, radk: Collection<File>, krad: Collection<File>) {
-        populateKanji(kanji)
-        associateEntriesWithKanji(dictionaries)
-        populateRadicals(radk, krad)
+private fun JishoDatabase.populateKanji(dicts: Collection<File>) {
+    dicts.forEach { file ->
+        check(file.exists()) { "$file does not exist" }
+        val dictionary = extractKanji(file)
+        insertKanji(dictionary)
     }
+}
 
-    private fun populateKanji(dicts: Collection<File>) {
-        dicts.forEach { file ->
-            check(file.exists()) { "$file does not exist" }
-            val dictionary = extractKanji(file)
-            insertKanji(dictionary)
+private fun extractKanji(file: File): KanjiDictionary {
+    try {
+        file.inputStream().source().buffer().use { source ->
+            return TikXml.Builder()
+                .exceptionOnUnreadXml(false)
+                .build()
+                .read(source, KanjiDictionary::class.java)
+        }
+    } catch (e: IOException) {
+        throw RuntimeException("Failed to read ${file.name}", e)
+    }
+}
+
+private fun JishoDatabase.insertKanji(dictionary: KanjiDictionary) =
+    transaction {
+        dictionary.characters?.forEach {
+            kanjiRadicalQueries.insertKanji(it.literal, it.strokeCount.toLong())
         }
     }
 
-    private fun extractKanji(file: File): KanjiDictionary {
-        try {
-            file.inputStream().source().buffer().use { source ->
-                return TikXml.Builder()
-                    .exceptionOnUnreadXml(false)
-                    .build()
-                    .read(source, KanjiDictionary::class.java)
-            }
+
+private fun JishoDatabase.populateRadicals(
+    radk: Collection<File>,
+    krad: Collection<File>,
+) = runBlocking {
+    extractRadKFiles(radk)
+}
+
+private fun JishoDatabase.extractRadKFiles(files: Collection<File>) {
+    val radkparser = RadKParser()
+    files.forEach { file ->
+        check(file.exists()) { "$file does not exist" }
+        val radicals = try {
+            radkparser.parse(file)
         } catch (e: IOException) {
             throw RuntimeException("Failed to read ${file.name}", e)
         }
+        insertRadk(radicals)
     }
+}
 
-    private fun insertKanji(dictionary: KanjiDictionary) = with(database) {
-        transaction {
-            dictionary.characters?.forEach {
-                kanjiRadicalQueries.insertKanji(it.literal, it.strokeCount.toLong())
+private fun JishoDatabase.insertRadk(radicals: List<Radical>) =
+    transaction(noEnclosing = true) {
+        radicals.forEach { radical ->
+            kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
+            val radicalId = utilQueries.lastInsertRowId().executeAsOne()
+            radical.kanji.forEach { kanji ->
+                val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
+                kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
             }
         }
     }
 
-    private fun populateRadicals(radk: Collection<File>, krad: Collection<File>) = runBlocking {
-        extractRadKFiles(radk)
-    }
-
-    private fun extractRadKFiles(files: Collection<File>) {
-        val radkparser = RadKParser()
-        files.forEach { file ->
-            check(file.exists()) { "$file does not exist" }
-            val radicals = try {
-                radkparser.parse(file)
-            } catch (e: IOException) {
-                throw RuntimeException("Failed to read ${file.name}", e)
-            }
-            insertRadk(radicals)
-        }
-    }
-
-    private fun insertRadk(radicals: List<Radical>) = with(database) {
-        transaction(noEnclosing = true) {
-            radicals.forEach { radical ->
-                kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
-                // fixme: should be unique, can probably speed up a little here using lastInsertRowId()
-                val radicalId = kanjiRadicalQueries.selectRadical(radical.value.toString()).executeAsOne().id
-                radical.kanji.forEach { kanji ->
-                    val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
-                    kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
-                }
-            }
-        }
-    }
-
-    private fun associateEntriesWithKanji(dictionaries: List<Dictionary>) = with(database) {
-        check(dictionaries.isNotEmpty()) { "No dictionaries provided" }
-
-        transaction(noEnclosing = true) {
-            dictionaries.forEach { dictionary ->
-                dictionary.entries.forEach { entry ->
-                    entry.kanji?.forEach { word ->
-                        word.value.filter { char -> isCJK(char.code) }.forEach { kanji ->
-                            try {
-                                val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
-                                entryKanjiQueries.insert(entry.id, kanjiId)
-                            } catch (e: NullPointerException) {
-                                // todo: verbose/warning log
-                                println("$kanji couldn't be found, used in ${word.value}")
-                            }
-                        }
+private fun JishoDatabase.associateEntriesWithKanji(
+    dictionaries: List<Dictionary>,
+) = transaction(noEnclosing = true) {
+    dictionaries.forEach { dictionary ->
+        dictionary.entries.forEach { entry ->
+            entry.kanji?.forEach { word ->
+                word.value.filter { char -> isCJK(char.code) }.forEach { kanji ->
+                    try {
+                        val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
+                        entryKanjiQueries.insert(entry.id, kanjiId)
+                    } catch (e: NullPointerException) {
+                        // todo: verbose/warning log
+                        println("$kanji couldn't be found, used in ${word.value}")
                     }
                 }
             }
         }
     }
 }
-
