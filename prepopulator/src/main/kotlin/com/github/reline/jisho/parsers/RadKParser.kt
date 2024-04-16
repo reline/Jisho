@@ -14,7 +14,8 @@ import okio.source
 import java.io.File
 
 class RadKParser {
-    fun parse(file: File): List<Radical> {
+    // fixme: make cancellable
+    suspend fun parse(file: File): List<Radical> {
         val radk = ArrayList<Radical>()
         var currentRadical: Char? = null
         var strokes = 0

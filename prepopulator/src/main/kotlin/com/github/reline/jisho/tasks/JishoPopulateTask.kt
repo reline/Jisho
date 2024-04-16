@@ -3,6 +3,7 @@ package com.github.reline.jisho.tasks
 import com.github.reline.jisho.populators.DictionaryInput
 import com.github.reline.jisho.populators.populate
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
@@ -16,6 +17,8 @@ import org.gradle.kotlin.dsl.listProperty
 import java.io.File
 import java.io.Serializable
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.INFINITE
+import kotlin.time.toKotlinDuration
 
 data class Dictionary(
     @get:InputFile
@@ -49,13 +52,15 @@ abstract class JishoPopulateTask @Inject constructor(
     @TaskAction
     fun prepopulate() = runBlocking {
         val database = databaseOutputFile.get().asFile
-        // todo: use a timeout?
-        database.populate(
-            dictionaries.get(),
-            kanji = kanji.files,
-            radk = radicalKanjiMappings.files,
-            krad = kanjiRadicalMappings.files,
-        )
+        // fixme: timeout cli param
+        withTimeout(timeout.orNull?.toKotlinDuration() ?: INFINITE) {
+            database.populate(
+                dictionaries.get(),
+                kanji = kanji.files,
+                radk = radicalKanjiMappings.files,
+                krad = kanjiRadicalMappings.files,
+            )
+        }
         logger.info("Generated ${database.path}")
     }
 }

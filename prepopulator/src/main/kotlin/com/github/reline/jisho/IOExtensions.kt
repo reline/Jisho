@@ -24,3 +24,8 @@ fun File.touch() {
     parentFile.mkdirs()
     createNewFile()
 }
+
+fun requireFile(file: File) {
+    require(file.exists()) { "file does not exist: $file" }
+    require(file.isFile) { "not a file: $file" }
+}
