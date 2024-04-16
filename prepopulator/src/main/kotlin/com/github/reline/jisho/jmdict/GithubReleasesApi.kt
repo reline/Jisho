@@ -65,6 +65,7 @@ fun GithubReleasesApi(githubToken: String?): GithubReleasesApi {
         .build()
     val retrofit = Retrofit.Builder()
         .baseUrl(GITHUB_API_BASE_URL)
+        // todo: replace with kotlin serialization
         .addConverterFactory(MoshiConverterFactory.create())
         .callFactory(okHttpClient)
         .build()

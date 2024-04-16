@@ -8,17 +8,32 @@
 
 package com.github.reline.jisho.dictmodels.okurigana
 
-import com.squareup.moshi.JsonClass
+import com.github.reline.jisho.dictmodels.jmdict.Entry
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class OkuriganaEntry(
-        val text: String,
-        val reading: String,
-        val furigana: List<Okurigana>
+    val text: String,
+    val reading: String,
+    val furigana: List<Okurigana>
 )
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class Okurigana(
-        val ruby: String,
-        val rt: String? = null
+    val ruby: String,
+    val rt: String? = null
 )
+
+// fixme: rename
+data class Rubies(val text: String, val reading: String) {
+    companion object {
+        fun from(entry: Entry): Rubies? {
+            return Rubies(
+                text = entry.readings.firstOrNull()?.value ?: return null,
+                reading = entry.kanji?.firstOrNull()?.value ?: return null,
+            )
+        }
+    }
+
+    constructor(entry: OkuriganaEntry) : this(text = entry.text, reading = entry.reading)
+}

@@ -10,32 +10,34 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
+import com.github.reline.jisho.dictmodels.okurigana.Rubies
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import com.github.reline.jisho.jdbcSqliteDriver
+import com.github.reline.jisho.requireFile
 import com.github.reline.jisho.skipBom
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.touch
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeToSequence
 import okio.IOException
 import okio.buffer
 import okio.source
+import org.slf4j.LoggerFactory
 import java.io.File
-import java.lang.reflect.Type
+
+internal val logger by lazy { LoggerFactory.getLogger("prepopulator-logger") }
 
 interface DictionaryInput {
     val definitions: File
     val okurigana: File
 }
 
-// fixme
-// 2024-04-08T15:43:57.649-0700 [INFO] [org.gradle.execution.plan.DefaultPlanExecutor] Resolve mutations for :populateJishoDatabase (Thread[included builds,5,main]) started.
-// 2024-04-08T15:44:33.014-0700 [ERROR] [system.err] Exception in thread "Daemon client event forwarder" java.lang.OutOfMemoryError: Java heap space
 suspend fun File.populate(
     inputs: List<DictionaryInput>,
     kanji: Collection<File>,
@@ -60,14 +62,11 @@ suspend fun JishoDatabase.populate(dictionaryFile: File, okuriganaFile: File): D
     requireFile(dictionaryFile)
     requireFile(okuriganaFile)
     val dictionary = extractDictionary(dictionaryFile)
+    logger.debug("Populating database with ${dictionaryFile.nameWithoutExtension}")
     insertDictionary(dictionary)
-    insertOkurigana(dictionary, extractOkurigana(okuriganaFile))
+    logger.debug("Populating database with ${okuriganaFile.nameWithoutExtension}")
+    extractAndInsertOkurigana(okuriganaFile, dictionary)
     return dictionary
-}
-
-private fun requireFile(file: File) {
-    require(file.exists()) { "file does not exist: $file" }
-    require(file.isFile) { "not a file: $file" }
 }
 
 @Deprecated(
@@ -83,6 +82,7 @@ suspend fun JishoDatabase.populate(dicts: Collection<File>) = runBlocking {
     }
 }
 
+@Throws(IOException::class)
 private fun extractDictionary(file: File): Dictionary {
     try {
         file.inputStream().source().buffer().use {
@@ -92,72 +92,92 @@ private fun extractDictionary(file: File): Dictionary {
                 .read(it, Dictionary::class.java)
         }
     } catch (e: IOException) {
-        throw Exception("Failed to read ${file.name}", e)
+        throw IOException("Failed to read ${file.name}", e)
     }
 }
 
-private fun JishoDatabase.insertEntries(entries: List<Entry>) = transaction {
-    entries.forEach { entry ->
-        entryQueries.insert(
-            entry.id,
-            entry.isCommon(),
-            entry.kanji?.firstOrNull()?.value,
-            entry.readings.first().value,
-        )
-        entry.kanji?.forEach { kanji ->
-            japaneseQueries.insert(entry.id, kanji.value)
-        }
-        entry.readings.forEach { reading ->
-            readingQueries.insert(entry.id, reading.value)
-        }
-    }
-}
-
-private fun JishoDatabase.insertPartsOfSpeech(entries: List<Entry>) = transaction {
-    entries.forEach { entry ->
-        entry.senses.forEach { sense ->
-            sense.partsOfSpeech?.forEach { pos ->
-                partOfSpeechQueries.insert(pos.decoded())
+private suspend fun JishoDatabase.insertEntries(entries: List<Entry>) = coroutineScope {
+    logger.debug("Inserting entries...")
+    transaction {
+        entries.forEach { entry ->
+            ensureActive()
+            entryQueries.insert(
+                entry.id,
+                entry.isCommon(),
+                entry.kanji?.firstOrNull()?.value,
+                entry.readings.first().value,
+            )
+            entry.kanji?.forEach { kanji ->
+                ensureActive()
+                japaneseQueries.insert(entry.id, kanji.value)
+            }
+            entry.readings.forEach { reading ->
+                ensureActive()
+                readingQueries.insert(entry.id, reading.value)
             }
         }
     }
+    logger.debug("Inserted ${entries.size} entries")
 }
 
-private fun JishoDatabase.insertSenses(entries: List<Entry>) {
-    val list = arrayListOf<Long>()
+private suspend fun JishoDatabase.insertPartsOfSpeech(entries: List<Entry>) = coroutineScope {
+    logger.debug("Inserting parts of speech...")
+    val count = transactionWithResult {
+        val partsOfSpeech = entries
+            .flatMap { it.senses }
+            .mapNotNull { it.partsOfSpeech }
+            .flatten()
+            .map { it.decoded() }
+        partsOfSpeech.forEach {
+            ensureActive()
+            partOfSpeechQueries.insert(it)
+        }
+        partsOfSpeech.count()
+    }
+    logger.debug("Inserted $count parts of speech")
+}
 
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEach { sense ->
+private suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
+    logger.debug("Inserting senses...")
+    val senses = transactionWithResult {
+        entries.flatMap { entry ->
+            entry.senses.map { sense ->
+                ensureActive()
+                // todo: can the id be returned from insert to improve performance?
                 senseQueries.insert(entry.id)
                 val senseId = utilQueries.lastInsertRowId().executeAsOne()
                 sense.glosses?.forEach { gloss ->
+                    ensureActive()
                     glossQueries.insert(senseId, gloss.value)
                 }
-                list.add(senseId)
+                senseId
             }
         }
     }
+    logger.debug("Inserted ${senses.size} senses")
 
-    val iter = list.iterator()
+    val iter = senses.iterator()
 
-    transaction {
-        entries.forEach { entry ->
-            entry.senses.forEach { sense ->
+    logger.debug("Associating senses with part of speech...")
+    val executions = transactionWithResult {
+        entries.flatMap { entry ->
+            entry.senses.flatMap { sense ->
                 val senseId = iter.next()
-                sense.partsOfSpeech?.forEach { pos ->
+                sense.partsOfSpeech?.map { pos ->
+                    ensureActive()
                     sensePosTagQueries.insert(
                             senseId,
                             partOfSpeechQueries.selectPosIdWhereValueEquals(pos.decoded())
                                     .executeAsOne()
                     )
-                }
+                } ?: emptyList()
             }
-        }
+        }.count()
     }
+    logger.debug("Inserted $executions records")
 }
 
-private fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
+private suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
     val entries = dictionary.entries
 
     insertEntries(entries)
@@ -168,45 +188,26 @@ private fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
 /**
  * See okurigana.json
  */
-private fun extractOkurigana(file: File): OkuriganaEntries {
-    val moshi = Moshi.Builder()
-        .build()
-    val type: Type = Types.newParameterizedType(List::class.java, OkuriganaEntry::class.java)
-    val adapter: JsonAdapter<List<OkuriganaEntry>> = moshi.adapter(type)
-
-    val map = OkuriganaEntries()
-    try {
-        file.inputStream().source().buffer().use { source ->
-            source.skipBom()
-            val entries = adapter.fromJson(source) ?:
-                throw IllegalStateException("Entries were null")
-            entries.forEach {
-                map.addOkurigana(it)
+@Throws(IOException::class)
+private suspend fun JishoDatabase.extractAndInsertOkurigana(file: File, dictionary: Dictionary) =
+    coroutineScope {
+        val dict = dictionary.entries.associateBy { Rubies.from(it) }
+        logger.debug("Extracting okurigana from ${file.name}...")
+        try {
+            file.inputStream().source().buffer().use { source ->
+                source.skipBom()
+                transaction {
+                    Json.decodeToSequence<OkuriganaEntry>(source.inputStream()).forEach { rubies ->
+                        val entry = dict[Rubies(rubies)] ?: return@forEach
+                        rubies.furigana.forEach { okurigana ->
+                            ensureActive()
+                            rubyQueries.insert(entry.id, okurigana.ruby, okurigana.rt)
+                        }
+                    }
+                }
             }
-            println("Finished reading ${file.name}")
+        } catch (e: IOException) {
+            throw IOException("Failed to read ${file.name}", e)
         }
-    } catch (e: IOException) {
-        throw RuntimeException("Failed to read ${file.name}", e)
+        logger.debug("Finished inserting records from ${file.name}")
     }
-    return map
-}
-
-private fun JishoDatabase.insertOkurigana(
-    dictionary: Dictionary,
-    furigana: OkuriganaEntries,
-) = transaction {
-    dictionary.entries.forEach { entry ->
-        val match = furigana.getOkurigana(entry) ?: return@forEach
-        match.furigana.forEach { okurigana ->
-            rubyQueries.insert(entry.id, okurigana.ruby, okurigana.rt)
-        }
-    }
-}
-
-typealias OkuriganaEntries = HashMap<String, OkuriganaEntry>
-fun OkuriganaEntries.getOkurigana(entry: Entry): OkuriganaEntry? {
-    return get(entry.readings.firstOrNull()?.value + entry.kanji?.firstOrNull()?.value)
-}
-fun OkuriganaEntries.addOkurigana(entry: OkuriganaEntry) {
-    put(entry.reading+entry.text, entry)
-}

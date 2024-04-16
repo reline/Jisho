@@ -6,6 +6,7 @@ plugins {
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val functionalTest by sourceSets.creating
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.okhttp.loggingInterceptor)
+    implementation(libs.kotlin.serialization.json)
     implementation(libs.moshi)
     kapt(libs.moshi.codegen)
     implementation(libs.okio)
