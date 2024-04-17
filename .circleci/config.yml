@@ -12,15 +12,31 @@ jobs:
             git submodule update --remote
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies --no-daemon
+          command: ./gradlew dependencies --no-daemon
       - run:
-          name: Tests
-          command: ./gradlew test --no-daemon
+          name: Database Tests
+          command: ./gradlew :database:test --no-daemon
+      - store_test_results:
+          path: database/build/test-results
+      - store_artifacts:
+          path: database/build/reports
+          destination: circleci/reports/database
+      - run:
+          name: Prepopulator Tests
+          command: ./gradlew :prepopulator:test --no-daemon
+      - store_test_results:
+          path: prepopulator/build/test-results
+      - store_artifacts:
+          path: prepopulator/build/reports
+          destination: circleci/reports/prepopulator
+      - run:
+          name: Android Tests
+          command: ./gradlew :android:test --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:
           path: android/build/reports
-          destination: circleci/reports
+          destination: circleci/reports/android
   build_artifacts:
     docker:
       - image: cimg/android:2024.01.1
@@ -33,7 +49,7 @@ jobs:
             git submodule update --remote
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies --no-daemon
+          command: ./gradlew dependencies --no-daemon
       - run:
           name: Build APK
           command: ./gradlew :android:assembleRelease --no-daemon --max-workers 4
