@@ -4,6 +4,8 @@ import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.sql.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
 import com.github.reline.jisho.populators.populate
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import java.io.File
 import kotlin.test.*
 
@@ -12,6 +14,7 @@ class KanjiPopulatorTest {
     private lateinit var dbFile: File
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
+    private lateinit var scope: TestScope
     private val emptyDictionary = Dictionary().also { it.entries = mutableListOf() }
 
     @BeforeTest
@@ -21,52 +24,53 @@ class KanjiPopulatorTest {
         dbFile.forceCreate()
         driver = dbFile.jdbcSqliteDriver
         database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
+        scope = TestScope()
     }
 
     @Test
-    fun smokeTestKanji() = with(database) {
-        populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
-        transaction {
-            val kanji = kanjiRadicalQueries.selectAllKanji().executeAsList()
+    fun smokeTestKanji() = scope.runTest {
+        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
+        database.transaction {
+            val kanji = database.kanjiRadicalQueries.selectAllKanji().executeAsList()
             assert(kanji.isNotEmpty())
         }
     }
 
     @Test
-    fun hasStrokes() = with(database) {
-        populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
-        transaction {
-            val kanji = kanjiRadicalQueries.selectKanji("亜").executeAsOne()
+    fun hasStrokes() = scope.runTest {
+        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
+        database.transaction {
+            val kanji = database.kanjiRadicalQueries.selectKanji("亜").executeAsOne()
             assertEquals(expected = 7, actual = kanji.strokes)
         }
     }
 
     @Test
-    fun smokeTestRadicals() = with(database) {
-        populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), listOf(
+    fun smokeTestRadicals() = scope.runTest {
+        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), listOf(
             File("$buildDir/dict/radkfile"),
             File("$buildDir/dict/radkfile2"),
             File("$buildDir/dict/radkfilex"),
         ), emptyList())
-        transaction {
-            val radicals = kanjiRadicalQueries.selectAllRadicals().executeAsList()
+        database.transaction {
+            val radicals = database.kanjiRadicalQueries.selectAllRadicals().executeAsList()
             assertTrue(radicals.isNotEmpty())
         }
     }
 
     @Test
-    fun testKanjiForEntries() = with(database) {
-        val dictionaries = populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
-        populate(
+    fun testKanjiForEntries() = scope.runTest {
+        val dictionaries = database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        database.populate(
             dictionaries,
             listOf(File("$buildDir/dict/kanjidic2.xml")),
             emptyList(),
             emptyList(),
         )
-        transaction {
-            val entryId = entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()
+        database.transaction {
+            val entryId = database.entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()
                 .first().id
-            val kanji = entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
+            val kanji = database.entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
                 .map { it.value_ }
             assertEquals(expected = 2, actual = kanji.size)
             assertTrue(kanji.contains("海"))

@@ -24,7 +24,6 @@ data class Okurigana(
     val rt: String? = null
 )
 
-// fixme: rename
 data class Rubies(val text: String, val reading: String) {
     companion object {
         fun from(entry: Entry): Rubies? {

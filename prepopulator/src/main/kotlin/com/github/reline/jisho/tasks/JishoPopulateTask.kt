@@ -6,12 +6,13 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.listProperty
 import java.io.File
@@ -42,8 +43,12 @@ abstract class JishoPopulateTask @Inject constructor(
     @get:InputFiles
     abstract val kanjiRadicalMappings: ConfigurableFileCollection
 
-    @get:OutputFile
-    abstract val databaseOutputFile: RegularFileProperty
+    @get:Input
+    abstract val databaseFileName: Property<String>
+
+    // build/generated/assets/populateJishoDatabase
+    @get:OutputDirectory
+    abstract val databaseOutputDirectory: DirectoryProperty
 
     /**
      * In order to maintain data integrity, a previously generated database cannot be reused and
@@ -51,7 +56,8 @@ abstract class JishoPopulateTask @Inject constructor(
      */
     @TaskAction
     fun prepopulate() = runBlocking {
-        val database = databaseOutputFile.get().asFile
+        val database = databaseOutputDirectory.file(databaseFileName.get()).get().asFile
+        if (database.exists()) return@runBlocking // fixme: enable caching
         // fixme: timeout cli param
         withTimeout(timeout.orNull?.toKotlinDuration() ?: INFINITE) {
             database.populate(

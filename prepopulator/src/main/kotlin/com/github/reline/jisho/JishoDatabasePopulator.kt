@@ -23,16 +23,22 @@ abstract class JishoDatabasePopulator @Inject constructor(
 
     private val tasks = project.tasks
 
-    private val buildDir: DirectoryProperty
-        get() = projectLayout.buildDirectory
+    private val buildDir = projectLayout.buildDirectory
 
-    private val intermediates
-        get() = buildDir.dir("intermediates/jisho")
+    /**
+     * fixme
+     *  java.io.IOException: Unable to delete directory 'C:\Users\natha\development\Jisho\android\build'
+     *     Failed to delete some children. This might happen because a process has files open or has its working directory set in the target directory.
+     *     - C:\Users\natha\development\Jisho\android\build\intermediates\assets\mockDebug
+     *     - C:\Users\natha\development\Jisho\android\build\intermediates\assets
+     *     - C:\Users\natha\development\Jisho\android\build\intermediates
+     */
+    private val intermediates = buildDir.dir("intermediates/jisho")
+
+    private val generated = buildDir.dir("generated/jisho")
 
     // todo: functional test
-    val destination = objectFactory.fileProperty().convention(
-        buildDir.file("generated/jisho/jisho.sqlite")
-    )
+    var fileName = "jisho.sqlite"
 
     internal fun registerTasks(githubToken: Property<String>, jmdictVersion: Property<String>) {
         val jmdictClient = providerFactory.provider { defaultJmdictClient(githubToken.orNull) }
@@ -112,7 +118,8 @@ abstract class JishoDatabasePopulator @Inject constructor(
 //                builtBy(extractRadicals)
 //            })
 
-            databaseOutputFile.set(destination)
+            databaseFileName.set(fileName)
+            databaseOutputDirectory.set(generated)
         }
     }
 }
