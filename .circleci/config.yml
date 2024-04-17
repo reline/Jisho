@@ -15,7 +15,7 @@ jobs:
           command: ./gradlew androidDependencies --no-daemon
       - run:
           name: Tests
-          command: ./gradlew check --no-daemon
+          command: ./gradlew test --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:
