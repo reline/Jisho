@@ -2,6 +2,7 @@ package com.github.reline.jisho
 
 import okio.BufferedSource
 import okio.ByteString.Companion.decodeHex
+import okio.FileNotFoundException
 import okio.IOException
 import okio.Options
 import java.io.File
@@ -26,6 +27,6 @@ fun File.touch() {
 }
 
 fun requireFile(file: File) {
-    require(file.exists()) { "file does not exist: $file" }
+    if (!file.exists()) throw FileNotFoundException("file does not exist: $file")
     require(file.isFile) { "not a file: $file" }
 }

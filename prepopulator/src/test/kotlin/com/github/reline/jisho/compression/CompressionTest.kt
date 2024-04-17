@@ -40,7 +40,7 @@ class CompressionTest {
 
     @Test
     fun testGzip() {
-        val fakeGzip = "JMdict_e_test.xml.gz".toPath()
+        val fakeGzip = "JMdict_e.xml.gz".toPath()
         val extractedFile = fakeGzip.toFile().nameWithoutExtension.toPath()
         val dest = fakeFileSystem.workingDirectory/extractedFile
         resources.extractGzip(fakeGzip, fakeFileSystem to dest)

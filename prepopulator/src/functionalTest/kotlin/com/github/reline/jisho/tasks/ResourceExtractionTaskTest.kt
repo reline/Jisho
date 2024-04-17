@@ -102,7 +102,6 @@ class ResourceExtractionTaskTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":extractZip")?.outcome)
 
         listOf(
-            "radkfile",
             "radkfile2",
             "radkfilex",
             "kradfile",

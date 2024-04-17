@@ -109,7 +109,7 @@ abstract class JishoDatabasePopulator @Inject constructor(
 
             kanji.from(extractKanjidic2)
 
-//            val radk = listOf("radkfile", "radkfile2", "radkfilex").forEach { radicals.resolve(it) }
+//            val radk = listOf("radkfile2", "radkfilex").forEach { radicals.resolve(it) }
 //            radicalKanjiMappings.from(files(radk) {
 //                builtBy(extractRadicals)
 //            })
