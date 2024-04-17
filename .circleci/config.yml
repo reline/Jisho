@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   unit_test:
     docker:
-      - image: circleci/android:api-29
+      - image: cimg/android:2024.01.1
     steps:
       - checkout
       - run:
@@ -23,7 +23,7 @@ jobs:
           destination: circleci/reports
   build_artifacts:
     docker:
-      - image: circleci/android:api-30
+      - image: cimg/android:2024.01.1
     steps:
       - checkout
       - run:
@@ -40,9 +40,6 @@ jobs:
       - store_artifacts:
           path: android/build/outputs/apk/release
           destination: circleci/apk
-      - store_artifacts:
-          path: android/build/intermediates/assets/main/jisho.sqlite
-          destination: circleci/database/jisho.sqlite
 workflows:
   pull_request:
     jobs:
