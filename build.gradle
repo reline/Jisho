@@ -1,9 +1,0 @@
-tasks.register("clean", Delete) {
-    delete rootProject.layout.buildDirectory
-}
-
-tasks.matching {
-    it.name.startsWith("assemble")
-}.configureEach {
-    it.dependsOn(tasks.named("populateJishoDatabase"))
-}

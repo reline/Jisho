@@ -138,6 +138,7 @@ private suspend fun JishoDatabase.associateEntriesWithKanji(
                             entryKanjiQueries.insert(entry.id, kanjiId)
                         } catch (e: NullPointerException) {
                             // fixme: characters are printed as ?
+                            // fixme: gradle task log is vague
                             logger.warn("$kanji couldn't be found, used in ${word.value}")
                         }
                     }

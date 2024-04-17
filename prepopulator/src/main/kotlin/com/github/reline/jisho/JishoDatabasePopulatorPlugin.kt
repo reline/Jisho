@@ -10,8 +10,6 @@ abstract class JishoDatabasePopulatorPlugin : Plugin<Project> {
         val extension = with(project.extensions) {
             findByType(JishoExtension::class.java) ?: create(jisho, JishoExtension::class.java)
         }
-        project.afterEvaluate {
-            extension.database.registerTasks(extension.githubToken, extension.jmdictVersion)
-        }
+        extension.database.registerTasks(extension.githubToken, extension.jmdictVersion)
     }
 }

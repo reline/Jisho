@@ -12,7 +12,8 @@ import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.sql.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
 import com.github.reline.jisho.populators.populate
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.rules.ErrorCollector
 import java.io.File
@@ -32,6 +33,7 @@ class DictionaryPopulatorTest {
 
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
+    private lateinit var scope: TestScope
 
     @BeforeTest
     fun setUp() {
@@ -40,6 +42,7 @@ class DictionaryPopulatorTest {
         db.forceCreate()
         driver = db.jdbcSqliteDriver
         database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
+        scope = TestScope()
     }
 
     @AfterTest
@@ -51,17 +54,17 @@ class DictionaryPopulatorTest {
     // todo: benchmark queries; should take ~250ms
 
     @Test
-    fun smokeTest() = with(database) {
-        val dictionaries = populate(listOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
+    fun smokeTest() = scope.runTest {
+        val dictionaries = database.populate(listOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
         assert(dictionaries.isNotEmpty())
-        assert(entryQueries.selectAll().executeAsList().isNotEmpty())
+        assert(database.entryQueries.selectAll().executeAsList().isNotEmpty())
     }
 
     @Test
-    fun testHello() = with(database) {
-        populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+    fun testHello() = scope.runTest {
+        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
-        val results = entryQueries.selectEntries("hello").executeAsList()
+        val results = database.entryQueries.selectEntries("hello").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         // missing from dictionary: アンニョンハシムニカ, チョリース, やあやあ, ちわ, いよう, 挨拶まわり
         /**
@@ -117,10 +120,10 @@ class DictionaryPopulatorTest {
     }
 
     @Test
-    fun testHouse() = with(database) {
-        populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+    fun testHouse() = scope.runTest {
+        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
-        val results = entryQueries.selectEntries("house").executeAsList()
+        val results = database.entryQueries.selectEntries("house").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "家屋", "宅", "住まい", "人家", "宿", "参議院", "衆議院", "ハウス", "部族", "一家", "借家", "お宅", "貸家", "番地", "別荘", "満員")
         expected.forEach {
@@ -131,10 +134,10 @@ class DictionaryPopulatorTest {
     }
 
     @Test
-    fun test家() = with(database) {
-        populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+    fun test家() = scope.runTest {
+        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
-        val results = entryQueries.selectEntries("家").executeAsList()
+        val results = database.entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
         expected.forEach {
@@ -145,7 +148,7 @@ class DictionaryPopulatorTest {
     }
 
     @Test
-    fun test走った() = runBlocking {
+    fun test走った() = scope.runTest {
         database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
 
         val dao = JapaneseMultilingualDao(database, coroutineContext)

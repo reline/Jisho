@@ -1,3 +1,5 @@
+import com.github.reline.jisho.tasks.JishoPopulateTask
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,8 +7,6 @@ plugins {
     alias(libs.plugins.dagger.hilt.android)
     id("com.github.reline.jisho.prepopulator")
 }
-
-val databaseFilename = "jisho.sqlite"
 
 android {
     namespace = "com.github.reline.jisho"
@@ -19,12 +19,11 @@ android {
         versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "DATABASE_FILE_NAME", "\"$databaseFilename\"")
-    }
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs(jisho.database.destination)
-        }
+        buildConfigField(
+            "String",
+            "DATABASE_FILE_NAME",
+            "\"${jisho.database.fileName}\"",
+        )
     }
     buildTypes {
         getByName("release") {
@@ -70,12 +69,17 @@ androidComponents {
             it.enable = false
         }
     }
-}
 
-tasks.matching { task ->
-    task.name.matches("^merge.*Assets$".toRegex())
-}.configureEach {
-    dependsOn(tasks.named("prepopulateJishoDatabase"))
+    onVariants { variant ->
+        if (!variant.productFlavors.contains("environment" to "mock")) {
+            variant.sources.assets?.let { assets ->
+                assets.addGeneratedSourceDirectory(
+                    tasks.named<JishoPopulateTask>("populateJishoDatabase"),
+                    JishoPopulateTask::databaseOutputDirectory,
+                )
+            }
+        }
+    }
 }
 
 jisho {
