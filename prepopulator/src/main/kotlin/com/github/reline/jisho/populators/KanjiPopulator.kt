@@ -25,10 +25,10 @@ import okio.source
 import java.io.File
 
 suspend fun JishoDatabase.populate(
-    dictionaries: List<Dictionary>,
-    kanji: Collection<File>,
-    radk: Collection<File>,
-    krad: Collection<File>,
+    dictionaries: List<Dictionary> = emptyList(),
+    kanji: Collection<File> = emptyList(),
+    radk: Collection<File> = emptyList(),
+    krad: Collection<File> = emptyList(),
 ) = coroutineScope {
     populateKanji(kanji)
     associateEntriesWithKanji(dictionaries)
@@ -114,8 +114,8 @@ private suspend fun JishoDatabase.insertRadk(radicals: List<Radical>) = coroutin
     transaction {
         kanji.forEach { (radicalId, kanji) ->
             ensureActive()
-            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
-            kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId)
+            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOneOrNull()?.id
+            kanjiId?.let { kanjiRadicalQueries.insertKanjiRadicalTag(kanjiId, radicalId) }
         }
     }
     logger.debug("Inserted ${kanji.size} records")

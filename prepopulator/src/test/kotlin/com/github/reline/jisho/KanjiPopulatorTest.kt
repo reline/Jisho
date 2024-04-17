@@ -1,35 +1,52 @@
 package com.github.reline.jisho
 
-import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.sql.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.github.reline.jisho.compression.copy
 import com.github.reline.jisho.populators.populate
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import java.io.File
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
 import kotlin.test.*
 
 class KanjiPopulatorTest {
 
-    private lateinit var dbFile: File
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
     private lateinit var scope: TestScope
-    private val emptyDictionary = Dictionary().also { it.entries = mutableListOf() }
+    private val jmdict_e by lazy { prepareResource("JMdict_e.xml".toPath()) }
+    private val kanjidic2 by lazy { prepareResource("kanjidic2.xml".toPath()) }
+    private val radkfile2 by lazy { prepareResource("radkfile2".toPath()) }
+    private val radkfilex by lazy { prepareResource("radkfilex".toPath()) }
 
     @BeforeTest
     fun setUp() {
-        val dbPath = "$buildDir/test/${KanjiPopulatorTest::class.simpleName}/jisho.sqlite"
-        dbFile = File(dbPath)
-        dbFile.forceCreate()
-        driver = dbFile.jdbcSqliteDriver
+        driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
         scope = TestScope()
     }
 
+    private fun prepareResource(path: Path): Path {
+        val source = FileSystem.RESOURCES.source(path)
+        val destination = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.div(path)
+        val sink = FileSystem.SYSTEM.sink(destination)
+        copy(source, sink)
+        return destination
+    }
+
+    @AfterTest
+    fun tearDown() {
+        driver.close()
+        scope.cancel()
+    }
+
     @Test
     fun smokeTestKanji() = scope.runTest {
-        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
+        database.populate(kanji = listOf(kanjidic2.toFile()))
         database.transaction {
             val kanji = database.kanjiRadicalQueries.selectAllKanji().executeAsList()
             assert(kanji.isNotEmpty())
@@ -38,20 +55,19 @@ class KanjiPopulatorTest {
 
     @Test
     fun hasStrokes() = scope.runTest {
-        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), emptyList(), emptyList())
+        database.populate(kanji = listOf(kanjidic2.toFile()))
         database.transaction {
-            val kanji = database.kanjiRadicalQueries.selectKanji("亜").executeAsOne()
-            assertEquals(expected = 7, actual = kanji.strokes)
+            val kanji = database.kanjiRadicalQueries.selectKanji("今").executeAsOne()
+            assertEquals(expected = 4, actual = kanji.strokes)
         }
     }
 
     @Test
     fun smokeTestRadicals() = scope.runTest {
-        database.populate(listOf(emptyDictionary), listOf(File("$buildDir/dict/kanjidic2.xml")), listOf(
-            File("$buildDir/dict/radkfile"),
-            File("$buildDir/dict/radkfile2"),
-            File("$buildDir/dict/radkfilex"),
-        ), emptyList())
+        database.populate(
+            kanji = listOf(kanjidic2.toFile()),
+            radk = listOf(radkfile2.toFile(), radkfilex.toFile()),
+        )
         database.transaction {
             val radicals = database.kanjiRadicalQueries.selectAllRadicals().executeAsList()
             assertTrue(radicals.isNotEmpty())
@@ -60,28 +76,19 @@ class KanjiPopulatorTest {
 
     @Test
     fun testKanjiForEntries() = scope.runTest {
-        val dictionaries = database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        val dictionaries = database.populate(listOf(jmdict_e.toFile()))
         database.populate(
-            dictionaries,
-            listOf(File("$buildDir/dict/kanjidic2.xml")),
-            emptyList(),
-            emptyList(),
+            dictionaries = dictionaries,
+            kanji = listOf(kanjidic2.toFile()),
         )
         database.transaction {
-            val entryId = database.entryQueries.selectEntriesByComplexJapanese("海豚").executeAsList()
-                .first().id
+            val entryId = database.entryQueries.selectEntriesBySimpleJapanese("こんにちは")
+                .executeAsList().first().id
             val kanji = database.entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
                 .map { it.value_ }
             assertEquals(expected = 2, actual = kanji.size)
-            assertTrue(kanji.contains("海"))
-            assertTrue(kanji.contains("豚"))
+            assertTrue(kanji.contains("今"))
+            assertTrue(kanji.contains("日"))
         }
     }
-
-    @AfterTest
-    fun tearDown() {
-        driver.close()
-        dbFile.delete()
-    }
-
 }

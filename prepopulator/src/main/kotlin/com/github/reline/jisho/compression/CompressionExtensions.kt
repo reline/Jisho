@@ -4,6 +4,8 @@ import com.github.reline.jisho.text.EUC_JP
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.Sink
+import okio.Source
 import okio.buffer
 import okio.gzip
 import okio.openZip
@@ -47,6 +49,7 @@ fun FileSystem.extractZip(
         val file = base/path.name
         // todo: inject logger
         logger.debug("Extracting $path to $base")
+        // todo: use `copy(zip.source(path), fileSystem.sink(file))`
         zip.read(path) {
             fileSystem.write(file) {
                 // todo: investigate performance
@@ -66,10 +69,20 @@ fun FileSystem.extractGzip(gzip: Path, destination: FileSystemPath): Path {
         fileSystem.createDirectories(parent, mustCreate = true)
     }
     logger.info("Extracting $gzip to $file")
+    // todo: use `copy(source(gzip).gzip(), fileSystem.sink(file))`
     source(gzip).gzip().buffer().use { source ->
         fileSystem.write(file) {
             source.readAll(this)
         }
     }
     return file
+}
+
+@Throws(IOException::class)
+internal fun copy(source: Source, target: Sink) {
+    source.use { bytesIn ->
+        target.buffer().use { bytesOut ->
+            bytesOut.writeAll(bytesIn)
+        }
+    }
 }

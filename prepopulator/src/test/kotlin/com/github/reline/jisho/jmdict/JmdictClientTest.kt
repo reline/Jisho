@@ -12,6 +12,7 @@ import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -104,12 +105,14 @@ class JmdictClientTest {
         assertEquals(emptySet(), fakeFileSystem.allPaths)
     }
 
+    @Ignore("TODO")
     @Test
     fun testAvoidConcurrentRequests() = scope.runTest {
         TODO()
     }
 
-    // todo: @Test
+    @Ignore("TODO")
+    @Test
     fun testConditionalRequests() = scope.runTest {
         // https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api#use-conditional-requests-if-appropriate
     }
