@@ -27,15 +27,18 @@ class CompressionTest {
     @Test
     fun testZip() {
         val fakeZip = "kradzip.zip".toPath()
-        val dest = fakeFileSystem.workingDirectory/"dest".toPath()
+        val dest = fakeFileSystem.workingDirectory
         resources.extractZip(fakeZip, fakeFileSystem to dest)
         assertTrue(fakeFileSystem.exists(dest), "Output file not found")
 
-        val extractedFile = fakeZip.toFile().nameWithoutExtension.toPath()
-        check(resources.exists(extractedFile)) { "Matching test/resources file not found" }
-        val expected = resources.read(extractedFile) { readUtf8() }
-        val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
-        assertEquals(expected.trimMargin(), actual.trimMargin())
+        fakeFileSystem.list(dest).forEach { extractedFile ->
+            check(resources.exists(extractedFile)) {
+                "Matching test/resources file not found: $extractedFile"
+            }
+            val expected = resources.read(extractedFile) { readUtf8() }
+            val actual = fakeFileSystem.read(dest/extractedFile) { readUtf8() }
+            assertEquals(expected.trimMargin(), actual.trimMargin())
+        }
     }
 
     @Test
