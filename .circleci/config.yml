@@ -63,21 +63,21 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
   build:
     jobs:
       - unit_test:
           filters:
             branches:
               only:
-                - master
+                - main
       - build_artifacts:
           requires:
             - unit_test
           filters:
             branches:
               only:
-                - master
+                - main
   nightly:
     triggers:
       - schedule:
@@ -85,6 +85,6 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       - unit_test
