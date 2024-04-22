@@ -25,7 +25,7 @@ sqldelight {
 dependencies {
     api(libs.kotlin.coroutines.core)
     api(libs.sqldelight.coroutines)
-    implementation("uk.co.birchlabs.ve:ve")
+    implementation(libs.birchlabs.ve)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlin.test.junit)

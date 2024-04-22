@@ -20,6 +20,7 @@ minSdk = "23"
 
 [libraries]
 jisho-database = { module = "com.github.reline.jisho:database" }
+birchlabs-ve = { module = "uk.co.birchlabs.ve:ve" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
