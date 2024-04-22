@@ -5,5 +5,8 @@ tasks.register("clean", Delete::class) {
 // todo: forward cli params
 tasks.named("dependencies").configure {
     dependsOn(subprojects.map { it.tasks.dependencies })
-    dependsOn(gradle.includedBuilds.map { it.task(":dependencies") })
+    dependsOn(
+        gradle.includedBuilds.filterNot { it.name == rootProject.name }
+            .map { it.task(":dependencies") }
+    )
 }
