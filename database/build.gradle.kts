@@ -16,12 +16,6 @@ sqldelight {
     }
 }
 
-//tasks.jar {
-//    manifest {
-//        attributes("Automatic-Module-Name" to "com.github.reline.jisho.database")
-//    }
-//}
-
 dependencies {
     api(libs.kotlin.coroutines.core)
     api(libs.sqldelight.coroutines)

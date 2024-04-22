@@ -1,39 +1,20 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("../build-logic")
+
     repositories {
         gradlePluginPortal()
-        mavenCentral()
     }
+}
+
+plugins {
+    id("com.github.reline.jisho.gradle")
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-                }
-            }
-            filter {
-                includeGroup("com.tickaroo.tikxml")
-            }
-        }
-
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = uri("https://www.atilika.org/nexus/content/repositories/atilika")
-                }
-            }
-            filter {
-                includeGroup("org.atilika.kuromoji")
-            }
-        }
-
-        includeBuild("../database")
     }
 
     versionCatalogs {
@@ -42,5 +23,7 @@ dependencyResolutionManagement {
         }
     }
 }
+
+includeBuild("../database")
 
 rootProject.name = "prepopulator"
