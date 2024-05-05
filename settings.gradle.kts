@@ -33,5 +33,6 @@ dependencyResolutionManagement {
 
 include("android")
 includeBuild("database")
+includeBuild("ve/java") { name = "ve" }
 
 rootProject.name = "Jisho"
