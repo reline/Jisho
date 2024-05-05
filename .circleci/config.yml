@@ -32,7 +32,7 @@ jobs:
           destination: circleci/reports/prepopulator
       - run:
           name: Android Tests
-          command: ./gradlew :android:test --no-daemon
+          command: ./gradlew :android:check --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:
