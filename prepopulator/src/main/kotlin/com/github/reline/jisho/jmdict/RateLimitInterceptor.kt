@@ -14,30 +14,35 @@ internal const val RetryAfter = "retry-after"
 internal const val RateLimitRemaining = "x-ratelimit-remaining"
 internal const val RateLimitReset = "x-ratelimit-reset"
 
+private val DEFAULT_RETRY_DELAY = 1.minutes
+private const val MAX_ATTEMPTS = 3
 private val Response.rateLimitRemaining get() = header(RateLimitRemaining)?.toLongOrNull()
 private val Response.rateLimitReset get() = header(RateLimitReset)?.toLongOrNull()?.seconds
 private val Response.retryAfter get() = header(RetryAfter)?.toLongOrNull()?.seconds
 
+private val Response.hasRateLimitError get() = code == 403 || code == 429
+
 class RateLimitInterceptor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain) = runBlocking(ioDispatcher) {
-        val request = chain.request()
-        val response = chain.proceed(request)
-        if (response.code == 403 || response.code == 429) {
+    override fun intercept(chain: Interceptor.Chain): Response = runBlocking(ioDispatcher) {
+        var attempt = 1
+        var response: Response
+        do {
+            response = chain.proceed(chain.request())
+            if (!response.hasRateLimitError) break
+
             val retryAfter = response.retryAfter
             val rateLimitReset = response.rateLimitReset
-            val duration = when {
+            val currentDelay = when {
                 retryAfter != null -> retryAfter
                 response.rateLimitRemaining == 0L && rateLimitReset != null -> {
                     rateLimitReset - response.sentRequestAtMillis.milliseconds
                 }
-                else -> 1.minutes
+                else -> DEFAULT_RETRY_DELAY
             }
-            delay(duration)
-            chain.proceed(request)
-        } else {
-            response
-        }
+            delay(currentDelay)
+        } while (attempt++ <= MAX_ATTEMPTS)
+        return@runBlocking response
     }
 }
