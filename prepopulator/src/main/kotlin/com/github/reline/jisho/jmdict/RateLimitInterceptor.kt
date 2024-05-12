@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -26,6 +27,7 @@ class RateLimitInterceptor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = runBlocking(ioDispatcher) {
+        var currentDelay = DEFAULT_RETRY_DELAY
         var attempt = 1
         var response: Response
         do {
@@ -34,11 +36,12 @@ class RateLimitInterceptor(
 
             val retryAfter = response.retryAfter
             val rateLimitReset = response.rateLimitReset
-            val currentDelay = when {
+            currentDelay = when {
                 retryAfter != null -> retryAfter
                 response.rateLimitRemaining == 0L && rateLimitReset != null -> {
                     rateLimitReset - response.sentRequestAtMillis.milliseconds
                 }
+                attempt > 1 -> 2.0.pow(currentDelay.inWholeSeconds.toDouble()).seconds
                 else -> DEFAULT_RETRY_DELAY
             }
             delay(currentDelay)
