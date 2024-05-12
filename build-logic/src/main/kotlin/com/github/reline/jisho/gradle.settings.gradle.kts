@@ -1,21 +1,27 @@
 package com.github.reline.jisho
 
 fun RepositoryHandler.jisho() {
-    atilika()
-
-    exclusiveContent {
-        forRepository { jitpack() }
-        filter { includeGroup("com.github.reline") }
+    google {
+        content {
+            includeGroupByRegex("com\\.android.*")
+            includeGroupByRegex("com\\.google.*")
+            includeGroupByRegex("androidx.*")
+        }
     }
+
+    atilika()
 
     exclusiveContent {
         forRepository { sonatypeSnapshots() }
         filter { includeGroup("com.tickaroo.tikxml") }
     }
+
+    mavenCentral()
 }
 
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         jisho()
     }
 }
