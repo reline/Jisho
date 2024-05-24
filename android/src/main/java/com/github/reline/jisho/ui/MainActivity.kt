@@ -6,24 +6,20 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.main
+package com.github.reline.jisho.ui
 
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.LiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.R
-import com.github.reline.jisho.databinding.ActivityMainBinding
-import com.github.reline.jisho.models.Result
-import com.github.reline.jisho.util.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,11 +33,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
-        setContent(binding, viewModel.wordList, viewModel.showNoMatch, viewModel.showProgressBar, viewModel.showLogo)
+        setContent {
+            val results by viewModel.wordList.observeAsState(emptyList())
+            val noMatch by viewModel.query.observeAsState()
+            val showProgressBar by viewModel.showProgressBar.observeAsState(false)
+            val showLogo by viewModel.showLogo.observeAsState(true)
+            MainContent(
+                results = results,
+                query = noMatch,
+                showProgressBar = showProgressBar,
+                showLogo = showLogo,
+            )
+        }
 
         lifecycleScope.launch {
             for (each in viewModel.hideKeyboardCommand) {
@@ -84,38 +89,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-}
-
-fun MainActivity.setContent(
-    binding: ActivityMainBinding,
-    wordList: LiveData<List<Result>>,
-    showNoMatch: LiveData<String?>,
-    showProgressBar: LiveData<Boolean>,
-    showLogo: LiveData<Boolean>
-) {
-    val adapter = WordRecyclerViewAdapter()
-
-    wordList.observe(this, {
-        adapter.updateData(it)
-    })
-
-    binding.recycler.adapter = adapter
-
-    showNoMatch.observe(this) {
-        if (it == null) {
-            binding.noMatch.visibility = View.GONE
-        } else {
-            binding.noMatch.text = getString(R.string.no_match).format(it)
-            binding.noMatch.visibility = View.VISIBLE
-        }
-    }
-
-    showProgressBar.observe(this) {
-        binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
-    }
-
-    showLogo.observe(this) {
-        binding.logo.visibility = if (it) View.VISIBLE else View.GONE
     }
 }

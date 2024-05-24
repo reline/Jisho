@@ -11,7 +11,7 @@ package com.github.reline.jisho.injection.modules
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.github.reline.jisho.injection.ViewModelKey
-import com.github.reline.jisho.main.MainViewModel
+import com.github.reline.jisho.ui.MainViewModel
 import com.github.reline.jisho.util.JishoViewModelFactory
 import dagger.Binds
 import dagger.Module

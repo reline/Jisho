@@ -10,11 +10,11 @@ plugins {
 
 android {
     namespace = "com.github.reline.jisho"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.github.reline.jisho"
         minSdk = 23
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 4
         versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -38,7 +38,8 @@ android {
         }
     }
     buildFeatures {
-        viewBinding = true
+        buildConfig = true
+        compose = true
     }
 
     flavorDimensions += "environment"
@@ -59,6 +60,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    composeOptions {
+        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     lint {
         abortOnError = false
@@ -119,6 +124,11 @@ dependencies {
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.coroutines.android)
 
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.material3)
+    implementation(libs.compose.runtime.livedata)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
@@ -127,6 +137,13 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 
     implementation(libs.retrofit)
     implementation(libs.okhttp.loggingInterceptor)
