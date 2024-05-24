@@ -6,7 +6,7 @@
  * send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 
-package com.github.reline.jisho.main
+package com.github.reline.jisho.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -33,10 +33,10 @@ class MainViewModel @Inject constructor(
     private val showProgressBarData = MutableLiveData<Boolean>()
     val showProgressBar: LiveData<Boolean> = showProgressBarData
 
-    private val showNoMatchData = MutableLiveData<String?>()
-    val showNoMatch: LiveData<String?> = showNoMatchData
+    private val queryData = MutableLiveData<String?>()
+    val query: LiveData<String?> = queryData
 
-    private val showLogoData = MutableLiveData<Boolean>(false)
+    private val showLogoData = MutableLiveData<Boolean>()
     val showLogo: LiveData<Boolean> = showLogoData
 
     var searchQuery: String? = null
@@ -52,7 +52,7 @@ class MainViewModel @Inject constructor(
 
     fun onSearchClicked(query: String) = viewModelScope.launch(Dispatchers.IO) {
         hideKeyboardCommand.call()
-        showNoMatchData.postValue(null)
+        queryData.postValue(query)
         showLogoData.postValue(false)
         showProgressBarData.postValue(true)
 
@@ -66,9 +66,9 @@ class MainViewModel @Inject constructor(
         showProgressBarData.postValue(false)
         if (words.isEmpty()) {
             results.postValue(emptyList())
-            showNoMatchData.postValue(query)
+            queryData.postValue(query)
         } else {
-            showNoMatchData.postValue(null)
+            queryData.postValue(null)
             results.postValue(words)
         }
     }
