@@ -62,8 +62,7 @@ android {
         jvmTarget = "17"
     }
     composeOptions {
-        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
     lint {
         abortOnError = false
@@ -112,7 +111,7 @@ kapt {
 
 dependencies {
     testImplementation("junit:junit:4.12")
-    testImplementation("androidx.test:core:1.3.0")
+    testImplementation(libs.androidx.test.core)
     testImplementation("org.robolectric:robolectric:4.4")
 
     implementation(libs.jisho.database)
@@ -129,11 +128,7 @@ dependencies {
     implementation(libs.compose.runtime.livedata)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation(libs.androidx.appcompat)
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
