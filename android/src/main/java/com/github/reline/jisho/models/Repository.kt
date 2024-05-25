@@ -8,18 +8,20 @@
 
 package com.github.reline.jisho.models
 
+import androidx.datastore.core.DataStore
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.persistence.Preferences
+import io.github.reline.jisho.datastore.Settings
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class Repository @Inject constructor(
-        private val preferences: Preferences,
-        private val api: SearchApi,
-        private val dao: JapaneseMultilingualDao
+    private val settings: DataStore<Settings>,
+    private val api: SearchApi,
+    private val dao: JapaneseMultilingualDao
 ) {
     suspend fun search(query: String): List<Result> {
-        return if (preferences.isOfflineModeEnabled()) {
+        return if (settings.data.first().offline_mode) {
             dao.search(query).map {
                 Result(
                         it.isCommon,

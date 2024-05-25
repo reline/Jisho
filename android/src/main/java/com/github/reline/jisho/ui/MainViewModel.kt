@@ -8,23 +8,26 @@
 
 package com.github.reline.jisho.ui
 
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.reline.jisho.models.Repository
 import com.github.reline.jisho.models.Result
-import com.github.reline.jisho.persistence.Preferences
 import com.github.reline.jisho.util.call
+import io.github.reline.jisho.datastore.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-        private val repo: Repository,
-        private val preferences: Preferences
+    private val repo: Repository,
+    private val settings: DataStore<Settings>,
 ) : ViewModel() {
 
     private val results = MutableLiveData<List<Result>>()
@@ -41,8 +44,8 @@ class MainViewModel @Inject constructor(
 
     var searchQuery: String? = null
         private set
-    val isOfflineModeEnabled: Boolean
-        get() = preferences.isOfflineModeEnabled()
+
+    val isOfflineModeEnabled: Flow<Boolean> = settings.data.map { it.offline_mode }
 
     val hideKeyboardCommand = Channel<Unit>()
 
@@ -74,7 +77,11 @@ class MainViewModel @Inject constructor(
     }
 
     fun onOfflineModeToggled(enabled: Boolean) {
-        preferences.setOfflineMode(enabled)
+        viewModelScope.launch {
+            settings.updateData {
+                it.copy(offline_mode = enabled)
+            }
+        }
     }
 
 }

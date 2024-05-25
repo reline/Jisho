@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.wire)
     id("com.github.reline.jisho.prepopulator")
 }
 
@@ -109,6 +110,10 @@ kapt {
 //    }
 //}
 
+wire {
+    kotlin {}
+}
+
 dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation(libs.androidx.test.core)
@@ -119,6 +124,9 @@ dependencies {
     implementation(libs.sqldelight.android.driver)
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.sqlite.framework)
+
+    implementation(libs.androidx.datastore)
+    implementation(libs.wire)
 
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.coroutines.android)
