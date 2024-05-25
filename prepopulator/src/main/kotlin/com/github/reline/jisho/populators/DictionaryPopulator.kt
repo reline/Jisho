@@ -23,6 +23,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeToSequence
 import okio.IOException
@@ -188,6 +189,7 @@ private suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
 /**
  * See okurigana.json
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Throws(IOException::class)
 private suspend fun JishoDatabase.extractAndInsertOkurigana(file: File, dictionary: Dictionary) =
     coroutineScope {
