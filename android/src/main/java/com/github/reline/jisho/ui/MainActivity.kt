@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.reline.jisho.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -59,7 +60,11 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.search_menu, menu)
 
         val offlineModeItem = menu.findItem(R.id.action_offline_mode)
-        offlineModeItem?.isChecked = viewModel.isOfflineModeEnabled
+        lifecycleScope.launch {
+            viewModel.isOfflineModeEnabled.collectLatest {
+                offlineModeItem?.isChecked = it
+            }
+        }
 
         val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView

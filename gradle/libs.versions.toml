@@ -10,6 +10,7 @@ androidxSqlite = "2.1.0"
 sqldelight = "2.0.0"
 sqliteJdbc = "3.21.0.1"
 dagger = "2.48"
+wire = "4.9.9"
 retrofit = "2.9.0"
 okhttp = "4.10.0"
 okio = "3.5.0"
@@ -33,6 +34,7 @@ kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializat
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-test-core = "androidx.test:core:1.5.0"
 androidx-test-runner = "androidx.test:runner:1.5.2"
+androidx-datastore = { module = "androidx.datastore:datastore", version = "1.1.1" }
 androidx-sqlite = { module = "androidx.sqlite:sqlite-ktx", version.ref = "androidxSqlite" }
 androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "androidxSqlite" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.0" }
@@ -61,6 +63,7 @@ moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
+wire = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
 
 tikxml-core = { module = "com.tickaroo.tikxml:core", version.ref = "tikxml" }
 tikxml-annotation = { module = "com.tickaroo.tikxml:annotation", version.ref = "tikxml" }
@@ -90,5 +93,6 @@ kotlin-android-extensions = { id = "org.jetbrains.kotlin.android.extensions", ve
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+wire = { id = "com.squareup.wire", version.ref = "wire" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

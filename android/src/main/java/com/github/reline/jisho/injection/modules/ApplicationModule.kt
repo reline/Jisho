@@ -9,7 +9,6 @@
 package com.github.reline.jisho.injection.modules
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.AssetManager
 import dagger.Module
 import dagger.Provides
@@ -20,18 +19,8 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 class ApplicationModule {
-
     @Provides
     fun provideAssets(@ApplicationContext context: Context): AssetManager {
         return context.assets
-    }
-
-    @Provides
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(GENERAL_PREFERENCES, Context.MODE_PRIVATE)
-    }
-
-    companion object {
-        private const val GENERAL_PREFERENCES = "general_preferences.xml"
     }
 }
