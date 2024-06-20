@@ -2,19 +2,29 @@ package com.github.reline.jisho.settings
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.squareup.wire.ProtoAdapter
+import androidx.datastore.dataStore
+import com.squareup.wire.Message
 import okio.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-internal fun <T> ProtoAdapter<T>.asSerializer(defaultValue: T) = object : Serializer<T> {
-    override val defaultValue = defaultValue
+fun <M : Message<M, B>, B : Message.Builder<M, B>> wireDataStore(
+    fileName: String,
+    defaultValue: M,
+) = dataStore(
+    fileName,
+    ProtoSerializer(defaultValue),
+)
 
+class ProtoSerializer<M : Message<M, B>, B : Message.Builder<M, B>>(
+    override val defaultValue: M,
+) : Serializer<M> {
+    private val adapter = defaultValue.adapter
     override suspend fun readFrom(input: InputStream) = try {
-        decode(input)
+        adapter.decode(input)
     } catch (e: IOException) {
         throw CorruptionException("Cannot read proto.", e)
     }
 
-    override suspend fun writeTo(t: T, output: OutputStream) = encode(output, t)
+    override suspend fun writeTo(t: M, output: OutputStream) = adapter.encode(output, t)
 }
