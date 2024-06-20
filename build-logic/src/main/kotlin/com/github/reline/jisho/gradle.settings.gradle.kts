@@ -12,6 +12,9 @@ fun RepositoryHandler.jisho() {
         forRepository { sonatypeSnapshots() }
         filter { includeGroup("com.tickaroo.tikxml") }
     }
+
+    // todo: consider using `releasesOnly` with other repositories
+    sonatypeSnapshots()
 }
 
 pluginManagement {
