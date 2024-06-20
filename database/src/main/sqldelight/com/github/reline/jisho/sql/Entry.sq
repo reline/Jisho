@@ -8,79 +8,83 @@ import kotlin.Boolean;
 
 CREATE TABLE IF NOT EXISTS Entry (
   id INTEGER NOT NULL PRIMARY KEY,
-  is_common INTEGER AS Boolean NOT NULL,
-  kanji TEXT,
-  reading TEXT NOT NULL
+  is_common INTEGER AS Boolean NOT NULL
 );
 
+CREATE VIEW IF NOT EXISTS entry_view
+AS
+SELECT
+    Entry.id AS entry_id,
+    Entry.is_common,
+    Japanese.id AS japanese_id,
+    Japanese.value AS kanji,
+    Reading.id AS reading_id,
+    Reading.value AS reading,
+    Sense.id AS sense_id,
+    Gloss.value AS gloss,
+    EntryRuby.position AS ruby_position,
+    Ruby.okurigana AS rt,
+    Ruby.japanese AS ruby
+FROM Entry
+LEFT JOIN EntryJapanese
+    ON Entry.id = EntryJapanese.entry_id
+LEFT JOIN Japanese
+    ON EntryJapanese.japanese_id = Japanese.id
+INNER JOIN EntryReading
+    ON Entry.id = EntryReading.entry_id
+INNER JOIN Reading
+    ON EntryReading.reading_id = Reading.id
+-- results are required to have a gloss/translation
+INNER JOIN Sense
+    ON Entry.id = Sense.entry_id
+INNER JOIN Gloss
+    ON Gloss.sense_id = Sense.id
+LEFT JOIN EntryRuby
+    ON Reading.id = EntryRuby.reading_id
+    AND Japanese.id = EntryRuby.japanese_id
+LEFT JOIN Ruby
+    ON EntryRuby.ruby_id = Ruby.id
+ORDER BY Entry.is_common DESC
+;
+
 insert:
-INSERT INTO Entry (id, is_common, kanji, reading)
-VALUES (:id, :isCommon, :kanji, :reading);
+INSERT INTO Entry (id, is_common)
+VALUES (:id, :isCommon);
 
 selectAll:
 SELECT *
-FROM Entry;
+FROM entry_view
+;
 
-selectEntryIdWhereValuesEqual:
-SELECT Entry.id
-FROM Entry
-LEFT JOIN Japanese
-    ON Entry.id = Japanese.entry_id
-LEFT JOIN Reading
-    ON Entry.id = Reading.entry_id
-WHERE Japanese.value = :japanese
-    AND Reading.value = :reading;
+selectReadings:
+SELECT
+    japanese_id,
+    kanji,
+    reading_id,
+    reading
+FROM entry_view
+WHERE
+    japanese_id IS NOT NULL AND kanji IS NOT NULL
+;
 
 selectEntries:
-SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
-FROM Entry
-WHERE Entry.id IN (
-    SELECT sub.id
-    FROM Entry AS sub
-    LEFT JOIN Japanese
-        ON sub.id = Japanese.entry_id
-    LEFT JOIN Reading
-        ON sub.id = Reading.entry_id
-    LEFT JOIN Sense
-        ON sub.id = Sense.entry_id
-    LEFT JOIN Gloss
-        ON Gloss.sense_id = Sense.id
-    WHERE Japanese.value LIKE :keyword||'%'
-        OR Reading.value LIKE :keyword||'%'
-        OR Gloss.value LIKE '%'||:keyword||'%'
-);
+SELECT *
+FROM entry_view
+WHERE kanji LIKE :keyword||'%'
+    OR reading LIKE :keyword||'%'
+    OR gloss LIKE '%'||:keyword||'%';
 
 selectEntriesByGloss:
-SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
-FROM Entry
-WHERE Entry.id IN (
-    SELECT sub.id
-    FROM Entry AS sub
-    LEFT JOIN Sense
-        ON sub.id = Sense.entry_id
-    LEFT JOIN Gloss
-        ON Gloss.sense_id = Sense.id
-    WHERE Gloss.value LIKE '%'||:keyword||'%'
-);
+SELECT *
+FROM entry_view
+WHERE gloss LIKE '%'||:keyword||'%';
 
 selectEntriesBySimpleJapanese:
-SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
-FROM Entry
-WHERE Entry.id IN (
-    SELECT sub.id
-    FROM Entry AS sub
-    LEFT JOIN Reading
-        ON sub.id = Reading.entry_id
-    WHERE Reading.value LIKE :keyword||'%'
-);
+SELECT *
+FROM entry_view
+WHERE reading LIKE :keyword||'%';
 
 selectEntriesByComplexJapanese:
-SELECT Entry.id, Entry.is_common AS isCommon, Entry.kanji, Entry.reading
-FROM Entry
-WHERE Entry.id IN (
-    SELECT sub.id
-    FROM Entry AS sub
-    LEFT JOIN Japanese
-        ON sub.id = Japanese.entry_id
-    WHERE Japanese.value LIKE :keyword||'%'
-);
+SELECT *
+FROM entry_view
+WHERE kanji LIKE :keyword||'%';

@@ -25,9 +25,9 @@ class PartOfSpeechQueriesTest {
         JishoDatabase.Schema.create(driver)
         database = JishoDatabase(driver).apply {
             transaction {
-                entryQueries.insert(1, false, "今日は", "こんにちは")
-                japaneseQueries.insert(1, "今日は")
-                readingQueries.insert(1, "こんにちは")
+                entryQueries.insert(1, false)
+                japaneseQueries.insert("今日は")
+                readingQueries.insert("こんにちは")
                 senseQueries.insert(1)
                 senseId = utilQueries.lastInsertRowId().executeAsOne()
             }

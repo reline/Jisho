@@ -24,6 +24,7 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.mockk)
     testImplementation(libs.sqldelight.runtime)
     testImplementation(libs.sqldelight.sqlite.driver)
 }

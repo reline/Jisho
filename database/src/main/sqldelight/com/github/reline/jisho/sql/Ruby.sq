@@ -5,24 +5,48 @@
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 CREATE TABLE IF NOT EXISTS Ruby (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    entry_id INTEGER NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY,
     japanese TEXT NOT NULL, -- 1+ kanji characters OR furigana/katakana
     okurigana TEXT -- if null, then the 'japanese' column is furigana/katakana
 );
 
-CREATE INDEX IF NOT EXISTS index_ruby_entryid
-ON Ruby (entry_id);
+CREATE UNIQUE INDEX IF NOT EXISTS index_ruby_jo
+ON Ruby (japanese, ifnull(okurigana, ''));
+
+CREATE TABLE IF NOT EXISTS EntryRuby (
+    japanese_id INTEGER NOT NULL,
+    reading_id INTEGER NOT NULL,
+    ruby_id INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    FOREIGN KEY (japanese_id) REFERENCES Japanese(id),
+    FOREIGN KEY (reading_id) REFERENCES Reading(id),
+    FOREIGN KEY (ruby_id) REFERENCES Ruby(id),
+    PRIMARY KEY (japanese_id, reading_id, ruby_id, position)
+);
+
+CREATE INDEX IF NOT EXISTS index_er_jrid
+ON EntryRuby (japanese_id, reading_id);
+
+CREATE INDEX IF NOT EXISTS index_er_rubyid
+ON EntryRuby (ruby_id);
 
 insert:
-INSERT OR IGNORE INTO Ruby (entry_id, japanese, okurigana)
-VALUES (:entryId, ?, ?);
+INSERT OR IGNORE INTO Ruby (japanese, okurigana)
+VALUES (?, ?);
 
-selectRubies:
-SELECT japanese, okurigana
+insertRelationship:
+INSERT OR IGNORE INTO EntryRuby (japanese_id, reading_id, ruby_id, position)
+VALUES (?, ?, ?, ?);
+
+selectRuby:
+SELECT id
 FROM Ruby
-WHERE entry_id = :entryId;
+WHERE japanese = ? AND okurigana = ?;
 
-selectAllRubies:
-SELECT *
-FROM Ruby;
+-- todo: remove this query, it's only used for unit tests
+selectRubies:
+SELECT Ruby.japanese, Ruby.okurigana, EntryRuby.position
+FROM Ruby
+INNER JOIN EntryRuby
+    ON Ruby.id = EntryRuby.ruby_id
+WHERE EntryRuby.japanese_id = ? AND EntryRuby.reading_id = ?;

@@ -24,7 +24,7 @@ class EntryKanjiQueriesTest {
     @Test
     fun testKanjiForEntries() = with(database) {
         transaction {
-            entryQueries.insert(ENTRY_ID, true, "今日は", "こんにちは")
+            entryQueries.insert(ENTRY_ID, true)
             kanjiRadicalQueries.insertKanji("今", 4)
             entryKanjiQueries.insert(ENTRY_ID, utilQueries.lastInsertRowId().executeAsOne())
             kanjiRadicalQueries.insertKanji("日", 4)

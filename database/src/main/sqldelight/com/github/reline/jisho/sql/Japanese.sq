@@ -5,20 +5,30 @@
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 CREATE TABLE IF NOT EXISTS Japanese (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    entry_id INTEGER NOT NULL,
-    value TEXT NOT NULL,
-    FOREIGN KEY (entry_id) REFERENCES Entry(id)
+    id INTEGER NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL UNIQUE
 );
 
-CREATE INDEX IF NOT EXISTS index_japanese_entryid
-ON Japanese (entry_id);
+CREATE TABLE IF NOT EXISTS EntryJapanese (
+    entry_id INTEGER NOT NULL,
+    japanese_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (japanese_id) REFERENCES Japanese(id),
+    PRIMARY KEY (entry_id, japanese_id)
+);
+
+CREATE INDEX IF NOT EXISTS index_entryjapanese_ejid
+ON EntryJapanese (entry_id, japanese_id);
+
+select:
+SELECT id
+FROM Japanese
+WHERE value = :japanese;
 
 insert:
-INSERT INTO Japanese (entry_id, value)
-VALUES (:entryId, :japanese);
+INSERT OR IGNORE INTO Japanese (value)
+VALUES (:japanese);
 
-selectJapanese:
-SELECT value
-FROM Japanese
-WHERE entry_id = :entryId;
+insertRelationship:
+INSERT INTO EntryJapanese (entry_id, japanese_id)
+VALUES (?, ?);

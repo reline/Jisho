@@ -8,7 +8,6 @@
 
 package com.github.reline.jisho.dictmodels.okurigana
 
-import com.github.reline.jisho.dictmodels.jmdict.Entry
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,16 +22,3 @@ data class Okurigana(
     val ruby: String,
     val rt: String? = null
 )
-
-data class Rubies(val text: String, val reading: String) {
-    companion object {
-        fun from(entry: Entry): Rubies? {
-            return Rubies(
-                text = entry.readings.firstOrNull()?.value ?: return null,
-                reading = entry.kanji?.firstOrNull()?.value ?: return null,
-            )
-        }
-    }
-
-    constructor(entry: OkuriganaEntry) : this(text = entry.text, reading = entry.reading)
-}

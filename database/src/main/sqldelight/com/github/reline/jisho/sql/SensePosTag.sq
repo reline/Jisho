@@ -5,7 +5,7 @@
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 CREATE TABLE IF NOT EXISTS SensePosTag (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER NOT NULL PRIMARY KEY,
     sense_id INTEGER NOT NULL,
     pos_id INTEGER NOT NULL,
     FOREIGN KEY (sense_id) REFERENCES Sense(id),

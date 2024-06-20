@@ -5,20 +5,30 @@
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 CREATE TABLE IF NOT EXISTS Reading (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    entry_id INTEGER NOT NULL,
-    value TEXT NOT NULL,
-    FOREIGN KEY (entry_id) REFERENCES Entry(id)
+    id INTEGER NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL UNIQUE
 );
 
-CREATE INDEX IF NOT EXISTS index_reading_entryid
-ON Reading (entry_id);
+CREATE TABLE IF NOT EXISTS EntryReading (
+    entry_id INTEGER NOT NULL,
+    reading_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES Entry(id),
+    FOREIGN KEY (reading_id) REFERENCES Reading(id),
+    PRIMARY KEY (entry_id, reading_id)
+);
+
+CREATE INDEX IF NOT EXISTS index_entryreading_erid
+ON EntryReading (entry_id, reading_id);
+
+select:
+SELECT id
+FROM Reading
+WHERE value = :reading;
 
 insert:
-INSERT INTO Reading (entry_id, value)
-VALUES (:entryId, :reading);
+INSERT OR IGNORE INTO Reading (value)
+VALUES (:reading);
 
-selectReading:
-SELECT value
-FROM Reading
-WHERE entry_id = :entryId;
+insertRelationship:
+INSERT INTO EntryReading (entry_id, reading_id)
+VALUES (?, ?);

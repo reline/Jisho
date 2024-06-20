@@ -8,64 +8,89 @@
 
 package com.github.reline.jisho
 
-import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.sql.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
-import com.github.reline.jisho.populators.populate
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.persistence.Ruby
+import com.github.reline.jisho.populators.decodeDictionary
+import com.github.reline.jisho.populators.decodeOkurigana
+import com.github.reline.jisho.populators.insertDictionary
+import com.github.reline.jisho.populators.insertOkurigana
+import com.github.reline.jisho.sql.EntryQueries
+import com.github.reline.jisho.sql.JishoDatabase
+import io.mockk.every
+import io.mockk.spyk
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
-import org.junit.rules.ErrorCollector
-import java.io.File
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-private val testDbPath = "$buildDir/test/${DictionaryPopulatorTest::class.java.name}/jisho.sqlite"
-
-@Ignore("Large Test")
+// todo: move integration tests to functional test suite
 class DictionaryPopulatorTest {
 
-    @JvmField
-    @Rule
-    var collector = ErrorCollector()
+    private val resources = FileSystem.RESOURCES
+    private val jmdictEntries = "JMdict_e.xml".toPath()
+    private val jmdictFurigana = "JmdictFurigana.json".toPath()
 
+    private lateinit var scope: TestScope
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
-    private lateinit var scope: TestScope
+    private lateinit var entryQueries: EntryQueries
+    private lateinit var dao: JapaneseMultilingualDao
 
     @BeforeTest
     fun setUp() {
-        val db = File(testDbPath)
-
-        db.forceCreate()
-        driver = db.jdbcSqliteDriver
-        database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
         scope = TestScope()
+        driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        database = spyk(JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) })
+        entryQueries = spyk(database.entryQueries)
+        every { database.entryQueries } returns entryQueries
+        dao = JapaneseMultilingualDao(database, scope.coroutineContext)
     }
 
     @AfterTest
     fun tearDown() {
         driver.close()
-        File(testDbPath).delete()
     }
 
     // todo: benchmark queries; should take ~250ms
 
     @Test
     fun smokeTest() = scope.runTest {
-        val dictionaries = database.populate(listOf(File("$buildDir/dict/JMdict_e.xml"), File("$buildDir/dict/JMnedict.xml")))
-        assert(dictionaries.isNotEmpty())
-        assert(database.entryQueries.selectAll().executeAsList().isNotEmpty())
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
+        // todo: name entries
+        val entries = database.entryQueries.selectAll().executeAsList()
+        assertTrue(entries.isNotEmpty())
     }
 
     @Test
+    fun testRubies() = scope.runTest {
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
+        resources.read(jmdictFurigana) { database.insertOkurigana(decodeOkurigana(this)) }
+
+        val rubies = dao.search("hello").first().rubies
+        val expected = setOf(
+            Ruby(japanese = "今", okurigana = "こん", position = 0),
+            Ruby(japanese = "日", okurigana = "にち", position = 1),
+            Ruby(japanese = "は", okurigana = null, position = 2),
+        )
+        assertEquals(expected, rubies)
+    }
+
+    // todo: move these functional tests
+    @Ignore("functional test")
+    @Test
     fun testHello() = scope.runTest {
-        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
 
         val results = database.entryQueries.selectEntries("hello").executeAsList()
-        val actual = results.map{ it.kanji ?: it.reading }
+        val actual = results.map { it.kanji ?: it.reading }
         // missing from dictionary: アンニョンハシムニカ, チョリース, やあやあ, ちわ, いよう, 挨拶まわり
         /**
          * <entry>
@@ -107,58 +132,39 @@ class DictionaryPopulatorTest {
         </entry>
          */
         val expected = listOf("今日は", "もしもし", "こんにちわ", "ハイサイ", "アニョハセヨ", "ニーハオ", "ハロー", "どうも", "はいはい", "ハローワーク", "ハローページ", "ポケハロ", "ほいほい"/*, "公共職業安定所" todo: support xref*/)
-        expected.forEach {
-            collector.checkSucceeds {
-                assert(actual.contains(it)) { println("Missing $it") }
-            }
-        }
-        actual.forEach {
-            if (!expected.contains(it)) {
-                println("Unexpected result: $it")
-            }
-        }
+        assertEquals(expected.sorted(), actual.sorted())
     }
 
+    @Ignore("functional test")
     @Test
     fun testHouse() = scope.runTest {
-        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
 
         val results = database.entryQueries.selectEntries("house").executeAsList()
-        val actual = results.map{ it.kanji ?: it.reading }
+        val actual = results.map { it.kanji ?: it.reading }
         val expected = listOf("家", "家屋", "宅", "住まい", "人家", "宿", "参議院", "衆議院", "ハウス", "部族", "一家", "借家", "お宅", "貸家", "番地", "別荘", "満員")
-        expected.forEach {
-            collector.checkSucceeds {
-                assert(actual.contains(it)) { println("Missing $it") }
-            }
-        }
+        assertEquals(expected.sorted(), actual.sorted())
     }
 
+    @Ignore("functional test")
     @Test
     fun test家() = scope.runTest {
-        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
 
         val results = database.entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
-        expected.forEach {
-            collector.checkSucceeds {
-                assert(actual.contains(it)) { println("Missing $it") }
-            }
-        }
+        assertEquals(expected.sorted(), actual.sorted())
     }
 
+    @Ignore("functional test")
     @Test
     fun test走った() = scope.runTest {
-        database.populate(listOf(File("$buildDir/dict/JMdict_e.xml")))
+        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
 
-        val dao = JapaneseMultilingualDao(database, coroutineContext)
         val results = dao.search("走った")
         val actual = results.map { it.japanese }
         val expected = listOf("走る")
-        expected.forEach {
-            collector.checkSucceeds {
-                assert(actual.contains(it)) { println("Missing $it") }
-            }
-        }
+        assertEquals(expected.sorted(), actual.sorted())
     }
 }

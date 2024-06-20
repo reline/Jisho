@@ -11,6 +11,7 @@ package com.github.reline.jisho.models
 import androidx.datastore.core.DataStore
 import com.github.reline.jisho.network.services.SearchApi
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
+import com.github.reline.jisho.persistence.Ruby
 import io.github.reline.jisho.datastore.Settings
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -18,30 +19,30 @@ import javax.inject.Inject
 class Repository @Inject constructor(
     private val settings: DataStore<Settings>,
     private val api: SearchApi,
-    private val dao: JapaneseMultilingualDao
+    private val dao: JapaneseMultilingualDao,
 ) {
     suspend fun search(query: String): List<Result> {
         return if (settings.data.first().offline_mode) {
             dao.search(query).map {
                 Result(
-                        it.isCommon,
-                        japanese = it.japanese,
-                        okurigana = it.okurigana,
-                        rubies = it.rubies,
-                        senses = it.senses.map { sense -> Definition(sense.glosses, sense.partsOfSpeech) }
+                    it.isCommon,
+                    japanese = it.japanese,
+                    okurigana = it.okurigana,
+                    rubies = it.rubies,
+                    senses = it.senses.map { sense -> Definition(sense.glosses, sense.partsOfSpeech) },
                 )
             }
         } else {
             api.searchQuery(query).data.map {
                 val japanese = it.japanese[0]
                 Result(
-                        isCommon = it.isCommon,
-                        japanese = japanese.word ?: japanese.reading,
-                        okurigana = if (japanese.word != null) japanese.reading else null,
-                        tags = it.tags,
-                        jlpt = it.jlpt,
-                        senses = it.senses.map { sense -> Definition(sense.englishDefinitions, sense.partsOfSpeech) },
-                        attribution = it.attribution
+                    isCommon = it.isCommon,
+                    japanese = japanese.word ?: japanese.reading,
+                    okurigana = if (japanese.word != null) japanese.reading else null,
+                    tags = it.tags,
+                    jlpt = it.jlpt,
+                    senses = it.senses.map { sense -> Definition(sense.englishDefinitions, sense.partsOfSpeech) },
+                    attribution = it.attribution,
                 )
             }
         }
@@ -49,17 +50,17 @@ class Repository @Inject constructor(
 }
 
 data class Result(
-        val isCommon: Boolean,
-        val japanese: String,
-        val okurigana: String?,
-        val rubies: List<Pair<String, String?>> = emptyList(),
-        val senses: List<Definition>,
-        val tags: List<String> = emptyList(),
-        val jlpt: List<String> = emptyList(),
-        val attribution: Attribution = Attribution()
+    val isCommon: Boolean,
+    val japanese: String,
+    val okurigana: String?,
+    val rubies: Set<Ruby> = emptySet(),
+    val senses: List<Definition>,
+    val tags: List<String> = emptyList(),
+    val jlpt: List<String> = emptyList(),
+    val attribution: Attribution = Attribution(),
 )
 
 data class Definition(
-        val values: List<String>,
-        val partsOfSpeech: List<String>
+    val values: List<String>,
+    val partsOfSpeech: List<String>
 )
