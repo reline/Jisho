@@ -43,6 +43,16 @@ fun FileSystem.extractZip(
     if (!fileSystem.exists(base)) {
         fileSystem.createDirectories(base, mustCreate = true)
     }
+    // fixme:
+    //  Caused by: java.lang.UnsupportedOperationException: not implemented yet!
+    //	 at okio.ZipFileSystem.openReadOnly(ZipFileSystem.kt:79)
+    //	 at okio.internal.ResourceFileSystem.openReadOnly(ResourceFileSystem.kt:106)
+    //	 at okio.internal.ZipFilesKt.openZip(ZipFiles.kt:66)
+    //	 at okio.internal.ZipFilesKt.openZip$default(ZipFiles.kt:61)
+    //	 at okio.Okio__ZlibOkioKt.openZip(ZlibOkio.kt:26)
+    //   at okio.Okio.openZip(Unknown Source)
+    //	 at com.github.reline.jisho.compression.CompressionExtensionsKt.extractZip(CompressionExtensions.kt:46)
+    //	 at com.github.reline.jisho.compression.CompressionExtensionsKt.extractZip$default(CompressionExtensions.kt:37)
     val zip = openZip(zipPath)
     logger.info("Extracting $zipPath to $base")
     return zip.list(ROOT).map { path ->

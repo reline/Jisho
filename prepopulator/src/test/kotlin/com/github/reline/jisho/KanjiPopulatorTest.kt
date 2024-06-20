@@ -19,6 +19,7 @@ class KanjiPopulatorTest {
     private lateinit var database: JishoDatabase
     private lateinit var scope: TestScope
     private val jmdict_e by lazy { prepareResource("JMdict_e.xml".toPath()) }
+    private val jmdictFurigana by lazy { prepareResource("JmdictFurigana.json".toPath()) }
     private val kanjidic2 by lazy { prepareResource("kanjidic2.xml".toPath()) }
     private val radkfile2 by lazy { prepareResource("radkfile2".toPath()) }
     private val radkfilex by lazy { prepareResource("radkfilex".toPath()) }
@@ -74,16 +75,16 @@ class KanjiPopulatorTest {
         }
     }
 
+    @Ignore("Feature under test is disabled")
     @Test
     fun testKanjiForEntries() = scope.runTest {
-        val dictionaries = database.populate(listOf(jmdict_e.toFile()))
+        database.populate(jmdict_e.toFile(), jmdictFurigana.toFile())
         database.populate(
-            dictionaries = dictionaries,
             kanji = listOf(kanjidic2.toFile()),
         )
         database.transaction {
             val entryId = database.entryQueries.selectEntriesBySimpleJapanese("こんにちは")
-                .executeAsList().first().id
+                .executeAsList().first().entry_id
             val kanji = database.entryKanjiQueries.selectKanjiForEntryId(entryId).executeAsList()
                 .map { it.value_ }
             assertEquals(expected = 2, actual = kanji.size)

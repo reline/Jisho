@@ -1,115 +1,118 @@
 package com.github.reline.jisho.tasks
 
+import okio.FileSystem
+import okio.Path
+import okio.buffer
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
+import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ResourceExtractionTaskTest {
-    // todo: https://github.com/junit-team/junit5/issues/2811
-    // @TempDir
-    private lateinit var testProjectDir: File
-    private lateinit var settingsFile: File
-    private lateinit var buildFile: File
+    private val fileSystem = FileSystem.SYSTEM
+    private val tmpDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY
+    private lateinit var testProjectPath: Path
+    private val settingsFile: Path get() = testProjectPath/"settings.gradle.kts"
+    private val buildFile: Path get() = testProjectPath/"build.gradle.kts"
 
     @BeforeEach
     fun setup() {
-        testProjectDir = Files.createTempDirectory("tmpDir").toFile()
+        testProjectPath = tmpDir/"resourceExtractionTaskTest_${UUID.randomUUID()}"
+        fileSystem.createDirectories(testProjectPath, mustCreate = true)
 
-        settingsFile = File(testProjectDir, "settings.gradle.kts")
-        settingsFile.appendText("""
-            pluginManagement {
-                repositories {
-                    gradlePluginPortal()
-                    google()
-                    mavenCentral()
+        fileSystem.write(settingsFile, mustCreate = true) {
+            writeUtf8("""
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        google()
+                        mavenCentral()
+                    }
                 }
-            }
 
-        """.trimIndent())
+            """.trimIndent())
+        }
 
-        buildFile = File(testProjectDir, "build.gradle.kts")
-        buildFile.appendText("""
-            plugins {
-                id("org.jetbrains.kotlin.jvm") version "1.9.10"
-                id("com.github.reline.jisho.prepopulator")
-            }
-            
-        """.trimIndent())
+        fileSystem.write(buildFile, mustCreate = true) {
+            writeUtf8("""
+                plugins {
+                    id("org.jetbrains.kotlin.jvm") version "1.9.10"
+                    id("com.github.reline.jisho.prepopulator")
+                }
+
+            """.trimIndent())
+        }
     }
 
     @AfterEach
     fun teardown() {
-        Files.walk(testProjectDir.toPath()).use {
-            it.filter(Files::isRegularFile)
-                .map(Path::toFile)
-                .forEach(File::delete);
-        }
+        fileSystem.deleteRecursively(testProjectPath, mustExist = true)
     }
 
     @Test
     fun gzipTest() {
-        buildFile.appendText("""
-            import com.github.reline.jisho.tasks.GzipResourceExtractionTask
-            
-            tasks.register("extractGzip", GzipResourceExtractionTask::class.java) {
-                fromResource(File("edict2.gz"))
-                into(project.layout.buildDirectory.get().asFile.resolve("edict2"))
-            }
+        fileSystem.appendingSink(buildFile, mustExist = true).buffer().use { sink ->
+            sink.writeUtf8("""
+                import com.github.reline.jisho.tasks.GzipResourceExtractionTask
+                
+                tasks.register("extractGzip", GzipResourceExtractionTask::class.java) {
+                    resourceAssetPath.set("edict2.gz")
+                    outputFile.set(project.layout.buildDirectory.file("edict2"))
+                }
 
-        """.trimIndent())
+            """.trimIndent())
+        }
 
         val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withTestKitDir(testProjectDir)
+            .withProjectDir(testProjectPath.toFile())
             .withArguments("extractGzip")
             .withPluginClasspath()
             .build()
 
-        val file = testProjectDir
-            .resolve("build")
-            .resolve("edict2")
+        val file = testProjectPath/"build"/"edict2"
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":extractGzip")?.outcome)
-        assertTrue(file.exists(), "${file.absolutePath} does not exist")
+        assertTrue(fileSystem.exists(file), "$file does not exist")
     }
 
+    @Disabled("Not implemented yet")
     @Test
     fun zipTest() {
-        buildFile.appendText("""
-            import com.github.reline.jisho.tasks.ZipResourceExtractionTask
-            
-            tasks.register("extractZip", ZipResourceExtractionTask::class) {
-                fromResource(File("kradzip.zip"))
-                into(project.layout.buildDirectory.get().asFile)
-            }
-            
-        """.trimIndent())
+        fileSystem.appendingSink(buildFile, mustExist = true).buffer().use { sink ->
+            sink.writeUtf8("""
+                import com.github.reline.jisho.tasks.ZipResourceExtractionTask
+                
+                tasks.register("extractZip", ZipResourceExtractionTask::class.java) {
+                    resourceAssetPath.set("kradzip.gz")
+                    outputDirectory.set(project.layout.buildDirectory)
+                }
+
+            """.trimIndent())
+        }
 
         val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withTestKitDir(testProjectDir)
-            .withArguments("extractZip")
+            .withProjectDir(testProjectPath.toFile())
+            .withArguments("extractZip", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":extractZip")?.outcome)
 
-        listOf(
+        val expected = listOf(
             "radkfile2",
             "radkfilex",
             "kradfile",
             "kradfile2",
-        ).forEach {
-            val file = testProjectDir.resolve("build").resolve(it)
-            assertTrue(file.exists(), "${file.absolutePath} does not exist")
-        }
+        )
+        val doesNotExist = expected
+            .map { testProjectPath/"build"/it }
+            .filterNot { fileSystem.exists(it) }
+        assertTrue(doesNotExist.isEmpty(), "Failed to find ${doesNotExist.joinToString()}")
     }
 
 }

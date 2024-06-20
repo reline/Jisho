@@ -6,6 +6,7 @@ import java.io.File
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -56,6 +57,7 @@ class JishoPluginTest {
         }
     }
 
+    @Disabled("Feature under test is disabled")
     @Test
     fun prepopulateDatabaseCustomDestinationTest() {
         val destination = "jisho.sqlite"

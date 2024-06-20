@@ -10,7 +10,6 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
-import com.github.reline.jisho.dictmodels.okurigana.Rubies
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import com.github.reline.jisho.jdbcSqliteDriver
 import com.github.reline.jisho.requireFile
@@ -18,14 +17,15 @@ import com.github.reline.jisho.skipBom
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.touch
 import com.tickaroo.tikxml.TikXml
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeToSequence
+import okio.BufferedSource
 import okio.IOException
 import okio.buffer
 import okio.source
@@ -39,116 +39,125 @@ interface DictionaryInput {
     val okurigana: File
 }
 
+class JishoInput(
+    val dictionaries: List<DictionaryInput>,
+    val kanji: Collection<File>,
+    val radicals: Collection<File>, /* radk */
+)
+
+class JishoPopulator(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
+    suspend fun populate(
+        databaseFile: File,
+        input: JishoInput,
+    ) = withContext(dispatcher) {
+        databaseFile.touch() // todo: is this required?
+        val jdbcSqliteDriver = databaseFile.jdbcSqliteDriver
+        jdbcSqliteDriver.use { driver ->
+            val database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
+
+            input.dictionaries.forEach { dictionary ->
+                ensureActive()
+                database.populate(
+                    dictionaryFile = dictionary.definitions,
+                    okuriganaFile = dictionary.okurigana,
+                )
+            }
+            database.populate(kanji = input.kanji, radk = input.radicals, krad = emptyList())
+        }
+    }
+}
+
+@Deprecated(
+    "Deprecated in favor of dependency injection",
+    replaceWith = ReplaceWith("JishoPopulator#populate"),
+)
 suspend fun File.populate(
     inputs: List<DictionaryInput>,
     kanji: Collection<File>,
     radk: Collection<File>,
     krad: Collection<File>,
-) = withContext(Dispatchers.IO) { // todo: inject dispatcher
-    touch()
-    jdbcSqliteDriver.use { driver ->
-        val database = JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) }
+) = JishoPopulator().populate(this, JishoInput(inputs, kanji, radk))
 
-        val dicts = inputs.map { dictionary ->
-            database.populate(
-                dictionaryFile = dictionary.definitions,
-                okuriganaFile = dictionary.okurigana,
-            )
-        }
-        database.populate(dicts, kanji = kanji, radk = radk, krad = krad)
-    }
-}
-
-suspend fun JishoDatabase.populate(dictionaryFile: File, okuriganaFile: File): Dictionary {
-    requireFile(dictionaryFile)
-    requireFile(okuriganaFile)
-    val dictionary = extractDictionary(dictionaryFile)
+suspend fun JishoDatabase.populate(dictionaryFile: File, okuriganaFile: File) {
     logger.debug("Populating database with ${dictionaryFile.nameWithoutExtension}")
-    insertDictionary(dictionary)
-    logger.debug("Populating database with ${okuriganaFile.nameWithoutExtension}")
-    extractAndInsertOkurigana(okuriganaFile, dictionary)
-    return dictionary
-}
+    requireFile(dictionaryFile)
+    dictionaryFile.source().buffer().use { source ->
+        insertDictionary(decodeDictionary(source))
+    }
 
-@Deprecated(
-    "Populate with okurigana instead",
-    ReplaceWith("this.populate(dictionaryFile, okuriganaFile)")
-)
-suspend fun JishoDatabase.populate(dicts: Collection<File>) = runBlocking {
-    return@runBlocking dicts.mapNotNull { dict ->
-        if (!dict.exists()) return@mapNotNull null
-        val dictionary = extractDictionary(dict)
-        insertDictionary(dictionary)
-        return@mapNotNull dictionary
+    logger.debug("Populating database with ${okuriganaFile.nameWithoutExtension}")
+    requireFile(okuriganaFile)
+    okuriganaFile.source().buffer().use { source ->
+        insertOkurigana(decodeOkurigana(source))
     }
 }
 
 @Throws(IOException::class)
-private fun extractDictionary(file: File): Dictionary {
-    try {
-        file.inputStream().source().buffer().use {
-            return TikXml.Builder()
-                .exceptionOnUnreadXml(false)
-                .build()
-                .read(it, Dictionary::class.java)
-        }
-    } catch (e: IOException) {
-        throw IOException("Failed to read ${file.name}", e)
-    }
+fun decodeDictionary(source: BufferedSource): Dictionary {
+    return TikXml.Builder()
+        .exceptionOnUnreadXml(false)
+        .build()
+        .read(source, Dictionary::class.java)
 }
 
-private suspend fun JishoDatabase.insertEntries(entries: List<Entry>) = coroutineScope {
+suspend fun JishoDatabase.insertEntries(entries: List<Entry>) = coroutineScope {
     logger.debug("Inserting entries...")
     transaction {
         entries.forEach { entry ->
             ensureActive()
-            entryQueries.insert(
-                entry.id,
-                entry.isCommon(),
-                entry.kanji?.firstOrNull()?.value,
-                entry.readings.first().value,
-            )
+            entryQueries.insert(entry.id, entry.isCommon())
+            // todo: consider inserting only one of each the kanji & reading (which ones?)
             entry.kanji?.forEach { kanji ->
                 ensureActive()
-                japaneseQueries.insert(entry.id, kanji.value)
+                japaneseQueries.insert(kanji.value)
+                // todo: use upsert or lastInsertRowId()
+                val id = japaneseQueries.select(kanji.value).executeAsOne()
+                japaneseQueries.insertRelationship(entry_id = entry.id, japanese_id = id)
             }
             entry.readings.forEach { reading ->
                 ensureActive()
-                readingQueries.insert(entry.id, reading.value)
+                readingQueries.insert(reading.value)
+                // todo: use upsert or lastInsertRowId()
+                val id = readingQueries.select(reading.value).executeAsOne()
+                readingQueries.insertRelationship(entry_id = entry.id, reading_id = id)
             }
         }
     }
     logger.debug("Inserted ${entries.size} entries")
 }
 
-private suspend fun JishoDatabase.insertPartsOfSpeech(entries: List<Entry>) = coroutineScope {
+suspend fun JishoDatabase.insertPartsOfSpeech(entries: List<Entry>) = coroutineScope {
     logger.debug("Inserting parts of speech...")
-    val count = transactionWithResult {
-        val partsOfSpeech = entries
+    transaction {
+        entries.asSequence()
             .flatMap { it.senses }
             .mapNotNull { it.partsOfSpeech }
             .flatten()
+            .distinct()
             .map { it.decoded() }
-        partsOfSpeech.forEach {
-            ensureActive()
-            partOfSpeechQueries.insert(it)
-        }
-        partsOfSpeech.count()
+            .forEach {
+                ensureActive()
+                partOfSpeechQueries.insert(it)
+            }
     }
-    logger.debug("Inserted $count parts of speech")
+    logger.debug("Inserted parts of speech")
 }
 
-private suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
+suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
     logger.debug("Inserting senses...")
     val senses = transactionWithResult {
         entries.flatMap { entry ->
             entry.senses.map { sense ->
                 ensureActive()
-                // todo: can the id be returned from insert to improve performance?
+                // todo: research using upsert (`RETURNING` clause)
+                //  but only for populating db, not supported on android yet
                 senseQueries.insert(entry.id)
                 val senseId = utilQueries.lastInsertRowId().executeAsOne()
                 sense.glosses?.forEach { gloss ->
                     ensureActive()
+                    // todo: make gloss values unique
                     glossQueries.insert(senseId, gloss.value)
                 }
                 senseId
@@ -178,7 +187,7 @@ private suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutine
     logger.debug("Inserted $executions records")
 }
 
-private suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
+suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
     val entries = dictionary.entries
 
     insertEntries(entries)
@@ -191,25 +200,50 @@ private suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
  */
 @OptIn(ExperimentalSerializationApi::class)
 @Throws(IOException::class)
-private suspend fun JishoDatabase.extractAndInsertOkurigana(file: File, dictionary: Dictionary) =
-    coroutineScope {
-        val dict = dictionary.entries.associateBy { Rubies.from(it) }
-        logger.debug("Extracting okurigana from ${file.name}...")
-        try {
-            file.inputStream().source().buffer().use { source ->
-                source.skipBom()
-                transaction {
-                    Json.decodeToSequence<OkuriganaEntry>(source.inputStream()).forEach { rubies ->
-                        val entry = dict[Rubies(rubies)] ?: return@forEach
-                        rubies.furigana.forEach { okurigana ->
-                            ensureActive()
-                            rubyQueries.insert(entry.id, okurigana.ruby, okurigana.rt)
-                        }
-                    }
-                }
-            }
-        } catch (e: IOException) {
-            throw IOException("Failed to read ${file.name}", e)
+fun decodeOkurigana(source: BufferedSource): Sequence<OkuriganaEntry> {
+    logger.debug("Extracting okurigana...")
+    source.skipBom()
+    return Json.decodeToSequence<OkuriganaEntry>(source.inputStream())
+}
+
+suspend fun JishoDatabase.insertOkurigana(
+    okurigana: Sequence<OkuriganaEntry>,
+) = coroutineScope {
+    data class RubyId(val readingId: Long, val japaneseId: Long?)
+    data class Ruby(val reading: String, val kanji: String?)
+
+    val entries = entryQueries.selectReadings().executeAsList()
+        .associate {
+            Ruby(reading = it.reading, kanji = it.kanji) to
+                    RubyId(readingId = it.reading_id, japaneseId = it.japanese_id)
         }
-        logger.debug("Finished inserting records from ${file.name}")
+
+    logger.info("${entries.size} unique combinations")
+
+    transaction {
+        var previousInsertRowId = -1L
+        okurigana.forEach { (kanji, reading, furigana) ->
+            ensureActive()
+            val entry = entries[Ruby(reading = reading, kanji = kanji)]
+            if (entry?.japaneseId == null) return@forEach
+
+            furigana.forEachIndexed { i, (ruby, rt) ->
+                ensureActive()
+                rubyQueries.insert(japanese = ruby, okurigana = rt)
+                val lastInsertRowId = utilQueries.lastInsertRowId().executeAsOne()
+                val rubyId = if (previousInsertRowId == lastInsertRowId) {
+                    rubyQueries.selectRuby(japanese = ruby, okurigana = rt).executeAsOne()
+                } else {
+                    previousInsertRowId = lastInsertRowId
+                    lastInsertRowId
+                }
+                rubyQueries.insertRelationship(
+                    japanese_id = entry.japaneseId,
+                    reading_id = entry.readingId,
+                    ruby_id = rubyId,
+                    position = i.toLong(),
+                )
+            }
+        }
     }
+}

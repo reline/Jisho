@@ -5,19 +5,23 @@
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 CREATE TABLE IF NOT EXISTS Radical (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER NOT NULL PRIMARY KEY,
+    -- https://sqlite.org/datatype3.html
+    -- todo: use CHARINT to save 2 bytes per row! CHARINT affinity is INTEGER, store as codepoint
     value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE,
     strokes INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Kanji (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER NOT NULL PRIMARY KEY,
+    -- https://sqlite.org/datatype3.html
+    -- todo: use CHARINT to save 2 bytes per row! CHARINT affinity is INTEGER, store as codepoint
     value TEXT NOT NULL UNIQUE ON CONFLICT IGNORE,
     strokes INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS KanjiRadical (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER NOT NULL PRIMARY KEY,
     kanji_id INTEGER NOT NULL,
     radical_id INTEGER NOT NULL,
     FOREIGN KEY(kanji_id) REFERENCES Kanji(id),

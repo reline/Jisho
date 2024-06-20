@@ -4,8 +4,9 @@
 -- To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or
 -- send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
+-- todo: create bridge table to eliminate duplicate rows
 CREATE TABLE IF NOT EXISTS Gloss(
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER NOT NULL PRIMARY KEY,
     value TEXT NOT NULL,
     sense_id INTEGER NOT NULL,
     FOREIGN KEY (sense_id) REFERENCES Sense(id)

@@ -12,7 +12,7 @@ import com.github.reline.jisho.dictmodels.Radk
 import com.github.reline.jisho.dictmodels.decodeRadicals
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
-import com.github.reline.jisho.linguist.isCJK
+import com.github.reline.jisho.linguist.isKanji
 import com.github.reline.jisho.requireFile
 import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
@@ -25,13 +25,11 @@ import okio.source
 import java.io.File
 
 suspend fun JishoDatabase.populate(
-    dictionaries: List<Dictionary> = emptyList(),
     kanji: Collection<File> = emptyList(),
     radk: Collection<File> = emptyList(),
     krad: Collection<File> = emptyList(),
 ) = coroutineScope {
     populateKanji(kanji)
-    associateEntriesWithKanji(dictionaries)
     populateRadicals(radk, krad)
 }
 
@@ -123,7 +121,7 @@ private suspend fun JishoDatabase.associateEntriesWithKanji(
         transaction(noEnclosing = true) {
             entries.forEach { entry ->
                 entry.kanji?.forEach { word ->
-                    word.value.filter { char -> isCJK(char.code) }.forEach { kanji ->
+                    word.value.filter { char -> char.isKanji() }.forEach { kanji ->
                         ensureActive()
                         try {
                             val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
