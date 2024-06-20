@@ -10,3 +10,7 @@ tasks.named("dependencies").configure {
             .map { it.task(":dependencies") }
     )
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
