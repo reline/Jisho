@@ -8,8 +8,8 @@
 
 package com.github.reline.jisho.populators
 
-import com.github.reline.jisho.parsers.RadKParser
-import com.github.reline.jisho.dictmodels.Radical
+import com.github.reline.jisho.dictmodels.Radk
+import com.github.reline.jisho.dictmodels.decodeRadicals
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
 import com.github.reline.jisho.linguist.isCJK
@@ -72,38 +72,30 @@ private suspend fun JishoDatabase.insertKanji(dictionary: KanjiDictionary) = cor
     logger.debug("Inserted ${dictionary.characters?.size ?: 0} kanji characters")
 }
 
-
+@Throws(IOException::class)
 private fun JishoDatabase.populateRadicals(
     radk: Collection<File>,
     krad: Collection<File>,
 ) = runBlocking {
-    extractRadKFiles(radk)
+    radk.map { file ->
+        check(file.exists()) { "$file does not exist" }
+        ensureActive()
+        file.source().buffer().use { decodeRadicals(it) }
+    }.forEach {
+        ensureActive()
+        insertRadk(it)
+    }
+
     // todo: insert krad
 }
 
-@Throws(IOException::class)
-private suspend fun JishoDatabase.extractRadKFiles(files: Collection<File>) = coroutineScope {
-    val radkparser = RadKParser()
-    files.forEach { file ->
-        check(file.exists()) { "$file does not exist" }
-        ensureActive()
-        val radicals = try {
-            logger.debug("Parsing ${file.name}...")
-            radkparser.parse(file)
-        } catch (e: IOException) {
-            throw IOException("Failed to read ${file.name}", e)
-        }
-        insertRadk(radicals)
-    }
-}
-
-private suspend fun JishoDatabase.insertRadk(radicals: List<Radical>) = coroutineScope {
+suspend fun JishoDatabase.insertRadk(radicals: List<Radk>) = coroutineScope {
     logger.debug("Inserting radicals...")
     val kanji = transactionWithResult(noEnclosing = true) {
         radicals.flatMap { radical ->
             ensureActive()
-            // todo: can the id be returned from insert to improve performance?
-            kanjiRadicalQueries.insertRadical(radical.value.toString(), radical.strokes.toLong())
+            // todo: upsert to improve performance
+            kanjiRadicalQueries.insertRadical(radical.radical.toString(), radical.strokes.toLong())
             val radicalId = utilQueries.lastInsertRowId().executeAsOne()
             radical.kanji.map { radicalId to it }
         }
