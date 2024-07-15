@@ -39,14 +39,41 @@ tasks.withType<JavaCompile>().configureEach {
     classpath += files("src/main/resources")
 }
 
+configurations {
+    create("jisho")
+}
+
+tasks.register("jishoConfigurationExample") {
+    doLast {
+        configurations.named("jisho").get().forEach {
+            println(it.absolutePath)
+            // todo: unarchive
+        }
+    }
+}
+
 dependencies {
+    // todo: fix file resolution
+    // JMdict_e-.gz
+    // JMnedict--xml.gz
+    // kanjidic-2-xml.gz
+    // kradzip-.zip
+    // todo: unarchive
+    "jisho"("org.edrdg:JMdict_e@gz")
+    "jisho"("org.edrdg:JMnedict::xml@gz")
+    "jisho"("org.edrdg:kanjidic:2:xml@gz")
+    "jisho"("org.edrdg:kradzip@zip")
+    "jisho"("Doublevil:JmdictFurigana:2.3.1+2024-06-25:JmdictFurigana.json@zip")
+
     implementation(gradleApi())
 
+    implementation(libs.jisho.unicode)
     implementation(libs.jisho.database)
 
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.sqlite.jdbc)
     implementation(libs.sqldelight.sqlite.driver)
+    implementation(libs.sqldelight.coroutines)
 
     implementation(libs.tikxml.core)
     implementation(libs.tikxml.annotation)

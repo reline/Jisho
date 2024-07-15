@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.github.reline.jisho.R
 import com.github.reline.jisho.models.Definition
 import com.github.reline.jisho.models.Result
-import com.github.reline.jisho.persistence.Ruby
+import com.github.reline.jisho.models.Ruby
 
 @Composable
 fun DictionaryEntries(results: List<Result>) {
@@ -62,7 +62,7 @@ fun DictionaryEntryContent(word: Result) {
 
 @Composable
 fun DictionaryEntryReading(
-    rubies: Set<Ruby>,
+    rubies: List<Ruby>,
     japanese: String,
     okurigana: String?,
 ) {
@@ -74,8 +74,7 @@ fun DictionaryEntryReading(
             if (rubies.isEmpty()) {
                 DictionaryReadingRuby(japanese, okurigana)
             } else {
-                // fixme: don't sort if already sorted e.g. SortedSet is always sorted
-                rubies.sorted().forEach { ruby ->
+                rubies.forEach { ruby ->
                     DictionaryReadingRuby(ruby.japanese, ruby.okurigana)
                 }
             }

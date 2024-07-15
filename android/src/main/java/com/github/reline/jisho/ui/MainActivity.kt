@@ -27,14 +27,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var factory: ViewModelProvider.Factory
-
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setContent {
             val results by viewModel.wordList.observeAsState(emptyList())

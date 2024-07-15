@@ -3,7 +3,7 @@ package com.github.reline.jisho
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import app.cash.sqldelight.db.QueryResult
-import com.github.reline.jisho.injection.modules.DatabaseModule
+import com.github.reline.jisho.db.DatabaseModule
 import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -24,8 +24,7 @@ class DatabaseTest {
 
     @Before
     fun setup() {
-        val dbModule = DatabaseModule()
-        driver = dbModule.provideSqlDriver(getApplicationContext(), FrameworkSQLiteOpenHelperFactory())
+//        driver = dbModule.provideSqlDriver(getApplicationContext(), FrameworkSQLiteOpenHelperFactory())
     }
 
     @Test

@@ -23,7 +23,9 @@ jmdictfurigana = "2.3.0+2023-10-25"
 agp = "8.2.2"
 
 [libraries]
-jisho-database = { module = "com.github.reline.jisho:database" }
+jisho-unicode = { module = "io.github.reline.jisho:unicode" }
+jisho-database = { module = "io.github.reline.jisho:database" }
+jisho-database-readonly = { module = "io.github.reline.jisho:database-readonly" }
 birchlabs-ve = { module = "uk.co.birchlabs.ve:ve" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

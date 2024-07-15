@@ -14,7 +14,7 @@ import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import com.github.reline.jisho.jdbcSqliteDriver
 import com.github.reline.jisho.requireFile
 import com.github.reline.jisho.skipBom
-import com.github.reline.jisho.sql.JishoDatabase
+import io.github.reline.jisho.db.JishoDatabase
 import com.github.reline.jisho.touch
 import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.CoroutineDispatcher
@@ -51,7 +51,7 @@ class JishoPopulator(
     suspend fun populate(
         databaseFile: File,
         input: JishoInput,
-    ) = withContext(dispatcher) {
+    ): Unit = withContext(dispatcher) {
         databaseFile.touch() // todo: is this required?
         val jdbcSqliteDriver = databaseFile.jdbcSqliteDriver
         jdbcSqliteDriver.use { driver ->

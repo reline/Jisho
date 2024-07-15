@@ -115,22 +115,12 @@ wire {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.12")
-    testImplementation(libs.androidx.test.core)
-    testImplementation("org.robolectric:robolectric:4.4")
-
-    implementation(libs.jisho.database)
-    implementation("com.github.reline:sqlitecopyopenhelper:0.1.0")
-    implementation(libs.sqldelight.android.driver)
-    implementation(libs.androidx.sqlite)
-    implementation(libs.androidx.sqlite.framework)
-
-    implementation(libs.androidx.datastore)
-    implementation(libs.wire)
-
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.coroutines.android)
 
+    implementation(libs.jisho.unicode)
+
+    // ui
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.runtime.livedata)
@@ -140,24 +130,45 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
 
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.compose.ui.test.junit4)
-    debugImplementation(libs.compose.ui.test.manifest)
-
+    // networking
     implementation(libs.retrofit)
     implementation(libs.okhttp.loggingInterceptor)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.moshi)
     kapt(libs.moshi.codegen)
-
     implementation(libs.okio)
 
+    // persistence
+    implementation(libs.androidx.datastore)
+    implementation(libs.wire)
+    implementation(libs.jisho.database.readonly)
+    implementation("io.github.reline:sqlitecopyopenhelper:0.1.1")
+    implementation(libs.sqldelight.android.driver)
+    implementation(libs.sqldelight.coroutines)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.sqlite.framework)
+
+    // logging
     implementation(libs.timber)
 
+    // di
     implementation(libs.dagger.hilt.android)
     kapt(libs.dagger.hilt.android.compiler)
+
+    testImplementation("junit:junit:4.12")
+    testImplementation(libs.androidx.test.core)
+    testImplementation("org.robolectric:robolectric:4.4")
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.sqldelight.runtime)
+    testImplementation(libs.sqldelight.sqlite.driver)
+
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

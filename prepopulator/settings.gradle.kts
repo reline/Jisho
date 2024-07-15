@@ -24,6 +24,6 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("../database")
+includeBuild("../core")
 
 rootProject.name = "prepopulator"
