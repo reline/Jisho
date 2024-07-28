@@ -31,6 +31,7 @@ dependencyResolutionManagement {
     }
 }
 
+include("composeApp")
 include("android")
 includeBuild("database")
 includeBuild("ve/java") { name = "ve" }

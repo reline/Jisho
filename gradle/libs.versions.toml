@@ -1,11 +1,12 @@
 [versions]
-appcompat = "1.6.1"
-kotlin = "1.9.20"
+appcompat = "1.7.0"
+kotlin = "2.0.0"
 kotlinCoroutines = "1.8.1"
 kotlinSerialization = "1.6.3"
 compose = "2024.05.00"
 # https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 composeCompiler = "1.5.5"
+compose-plugin = "1.6.11"
 androidxSqlite = "2.1.0"
 # https://github.com/cashapp/sqldelight/issues/4078
 sqldelight = "2.1.0-SNAPSHOT"
@@ -14,17 +15,22 @@ dagger = "2.48"
 wire = "4.9.9"
 retrofit = "2.9.0"
 okhttp = "4.10.0"
-okio = "3.5.0"
+okio = "3.9.0"
 moshi = "1.15.0"
 tikxml = "0.9.3-SNAPSHOT"
 timber = "4.7.1"
 mockk = "1.13.10"
 jmdictfurigana = "2.3.0+2023-10-25"
 agp = "8.2.2"
+android-compileSdk = "34"
+android-minSdk = "24"
+android-targetSdk = "34"
 
 [libraries]
 jisho-database = { module = "com.github.reline.jisho:database" }
+androidx-sqlite-copyopenhelper = { module = "io.github.reline:sqlitecopyopenhelper", version = "0.1.1" }
 birchlabs-ve = { module = "uk.co.birchlabs.ve:ve" }
+
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
@@ -88,6 +94,8 @@ jisho-prepopulator = { id = "com.github.reline.jisho" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-native-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-android-extensions = { id = "org.jetbrains.kotlin.android.extensions", version.ref = "kotlin" }
