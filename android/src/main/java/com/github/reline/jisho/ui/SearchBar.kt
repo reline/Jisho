@@ -1,7 +1,7 @@
 package com.github.reline.jisho.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -29,6 +29,7 @@ fun SearchBar(
     placeholder: @Composable (() -> Unit)? = null,
     onClearSearch: () -> Unit,
     trailingIcon: @Composable (() -> Unit)? = null,
+    content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -73,7 +74,11 @@ fun SearchBar(
                 },
             )
         },
-        expanded = false,
+        expanded = if (content != null) expanded else false,
         onExpandedChange = { expanded = it },
-    ) {}
+    ) {
+        if (content != null) {
+            content()
+        }
+    }
 }
