@@ -3,10 +3,11 @@ package com.github.reline.jisho.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Card
@@ -26,16 +27,17 @@ import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.persistence.Ruby
 
 @Composable
-fun DictionaryEntries(
-    results: List<Result>,
+fun SearchResults(
     modifier: Modifier = Modifier,
+    results: List<Result>,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    SafeLazyColumn(
         modifier = modifier,
+        contentPadding = contentPadding,
     ) {
-        items(results.size) {
-            DictionaryEntryCard(results[it])
+        items(results) {
+            DictionaryEntryCard(it)
         }
     }
 }

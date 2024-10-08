@@ -1,8 +1,13 @@
 package com.github.reline.jisho.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,23 +21,18 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.reline.jisho.R
-import com.github.reline.jisho.models.Result
 
 @Composable
 fun MainContent(
     viewModel: MainViewModel = viewModel(),
 ) {
-    val results by viewModel.results.collectAsState(emptyList())
-    val noMatch by viewModel.query.collectAsState("")
-    val showProgressBar by viewModel.showProgressBar.collectAsState(false)
-    val showLogo by viewModel.showLogo.collectAsState(true)
+    val viewState by viewModel.state.collectAsState()
+    val query by viewModel.query.collectAsState()
     val isOfflineModeEnabled by viewModel.isOfflineModeEnabled.collectAsState(false)
 
     MainContent(
-        results = results,
-        query = noMatch,
-        showProgressBar = showProgressBar,
-        showLogo = showLogo,
+        viewState = viewState,
+        query = query,
         onQueryChange = viewModel::onSearchQueryChanged,
         onSearch = viewModel::onSearchClicked,
         onClearSearch = viewModel::onClearSearchClicked,
@@ -41,11 +41,10 @@ fun MainContent(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
-    results: List<Result>,
-    showProgressBar: Boolean,
-    showLogo: Boolean,
+    viewState: ViewState,
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -55,7 +54,9 @@ fun MainContent(
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true },
+        modifier = Modifier
+            .fillMaxSize()
+            .semantics { isTraversalGroup = true },
     ) {
         SearchBar(
             query = query,
@@ -65,19 +66,22 @@ fun MainContent(
             onClearSearch = onClearSearch,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 8.dp)
+                .windowInsetsPadding(WindowInsets.statusBars)
                 .semantics { traversalIndex = 0f },
             trailingIcon = { SearchBarOptionsMenuIcon(isOfflineModeEnabled, onOfflineModeToggled) }
         )
 
         SearchContent(
-            results = results,
-            showProgressBar = showProgressBar,
-            showLogo = showLogo,
-            query = query,
             modifier = Modifier
-                .padding(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxSize()
                 .semantics { traversalIndex = 1f },
+            contentPadding = PaddingValues(
+                top = SearchBarDefaults.InputFieldHeight,
+                start = 16.dp,
+                end = 16.dp,
+            ),
+            query = query,
+            viewState = viewState,
         )
     }
 }

@@ -17,11 +17,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.reline.jisho.datastore.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+
+sealed interface ViewState {
+    data object Initial : ViewState
+    data object Loading : ViewState
+    data object NoResults : ViewState
+    data class Results(val results: List<Result>) : ViewState
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -29,41 +39,38 @@ class MainViewModel @Inject constructor(
     private val settings: DataStore<Settings>,
 ) : ViewModel() {
 
-    private val _results = MutableStateFlow<List<Result>>(emptyList())
-    val results get() = _results
-
-    private val _showProgressBar = MutableStateFlow(false)
-    val showProgressBar get() = _showProgressBar
+    private val _state = MutableStateFlow<ViewState>(ViewState.Initial)
+    val state get() = _state.asStateFlow()
 
     private val _query = MutableStateFlow("")
-    val query get() = _query
-
-    private val _showLogo = MutableStateFlow(true)
-    val showLogo get() = _showLogo
+    val query get() = _query.asStateFlow()
 
     val isOfflineModeEnabled get() = settings.data.map { it.offline_mode }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun onSearchQueryChanged(query: String) {
         _query.value = query
     }
 
     fun onSearchClicked(query: String) = viewModelScope.launch {
-        _showLogo.value = false
-        _showProgressBar.value = true
+        _state.value = ViewState.Loading
 
-        _results.value = try {
+        val results = try {
             withContext(Dispatchers.IO) { repo.search(query) }
         } catch (t: Throwable) {
             Timber.e(t, "Search query $query failed")
             emptyList()
         }
 
-        _showProgressBar.value = false
+        _state.value = if (results.isNotEmpty()) {
+            ViewState.Results(results)
+        } else {
+            ViewState.NoResults
+        }
     }
 
     fun onClearSearchClicked() {
         _query.value = ""
-        _showLogo.value = true
     }
 
     fun onOfflineModeToggled(enabled: Boolean) {

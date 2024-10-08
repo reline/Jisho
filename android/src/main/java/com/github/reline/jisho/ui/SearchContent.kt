@@ -2,7 +2,7 @@ package com.github.reline.jisho.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,25 +16,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.reline.jisho.R
-import com.github.reline.jisho.models.Result
 
 @Composable
 fun SearchContent(
     modifier: Modifier = Modifier,
-    results: List<Result>,
-    showProgressBar: Boolean,
-    showLogo: Boolean,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     query: String,
+    viewState: ViewState,
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier,
     ) {
-        when {
-            showLogo -> Logo()
-            showProgressBar -> ProgressBar()
-            results.isEmpty() -> EmptyResultsText(query)
-            else -> DictionaryEntries(results = results, modifier = Modifier.fillMaxSize())
+        when (viewState) {
+            is ViewState.Initial -> Logo()
+            is ViewState.Loading -> ProgressBar()
+            is ViewState.NoResults -> EmptyResultsText(query)
+            is ViewState.Results -> SearchResults(
+                contentPadding = contentPadding,
+                results = viewState.results,
+            )
         }
     }
 }
