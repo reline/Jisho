@@ -3,7 +3,6 @@ package com.github.reline.jisho.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,12 +26,16 @@ import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.persistence.Ruby
 
 @Composable
-fun DictionaryEntries(results: List<Result>) {
-    LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
-        results.forEach { word ->
-            item {
-                DictionaryEntryCard(word)
-            }
+fun DictionaryEntries(
+    results: List<Result>,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier,
+    ) {
+        items(results.size) {
+            DictionaryEntryCard(results[it])
         }
     }
 }
@@ -43,9 +46,7 @@ fun DictionaryEntryCard(word: Result) {
         elevation = CardDefaults.elevatedCardElevation(),
         shape = CardDefaults.elevatedShape,
         colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         DictionaryEntryContent(word)
     }
