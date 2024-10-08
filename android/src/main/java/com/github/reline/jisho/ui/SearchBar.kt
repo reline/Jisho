@@ -60,19 +60,15 @@ fun SearchBar(
                     }
                 },
                 trailingIcon = {
-                    Row {
-                        if (expanded) {
-                            Icon(
-                                Icons.Default.Clear,
-                                contentDescription = stringResource(R.string.clear_search),
-                                modifier = Modifier
-                                    .clickable(onClick = onClearSearch),
-                            )
-                        }
-
-                        if (trailingIcon != null) {
-                            trailingIcon()
-                        }
+                    if (expanded) {
+                        Icon(
+                            Icons.Default.Clear,
+                            contentDescription = stringResource(R.string.clear_search),
+                            modifier = Modifier
+                                .clickable(onClick = onClearSearch),
+                        )
+                    } else if (trailingIcon != null) {
+                        trailingIcon()
                     }
                 },
             )
