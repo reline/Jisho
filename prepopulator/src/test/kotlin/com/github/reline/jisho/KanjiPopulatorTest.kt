@@ -1,6 +1,6 @@
 package com.github.reline.jisho
 
-import com.github.reline.jisho.sql.JishoDatabase
+import io.github.reline.jisho.db.JishoDatabase
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.github.reline.jisho.compression.copy

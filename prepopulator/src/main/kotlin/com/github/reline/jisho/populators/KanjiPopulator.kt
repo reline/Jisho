@@ -12,10 +12,10 @@ import com.github.reline.jisho.dictmodels.Radk
 import com.github.reline.jisho.dictmodels.decodeRadicals
 import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
-import com.github.reline.jisho.linguist.isKanji
 import com.github.reline.jisho.requireFile
-import com.github.reline.jisho.sql.JishoDatabase
 import com.tickaroo.tikxml.TikXml
+import io.github.reline.jisho.db.JishoDatabase
+import io.github.reline.jisho.unicode.isKanji
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking

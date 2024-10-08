@@ -10,14 +10,10 @@ package com.github.reline.jisho
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.persistence.Ruby
 import com.github.reline.jisho.populators.decodeDictionary
-import com.github.reline.jisho.populators.decodeOkurigana
 import com.github.reline.jisho.populators.insertDictionary
-import com.github.reline.jisho.populators.insertOkurigana
-import com.github.reline.jisho.sql.EntryQueries
-import com.github.reline.jisho.sql.JishoDatabase
+import io.github.reline.jisho.db.EntryQueries
+import io.github.reline.jisho.db.JishoDatabase
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.test.TestScope
@@ -42,7 +38,6 @@ class DictionaryPopulatorTest {
     private lateinit var driver: SqlDriver
     private lateinit var database: JishoDatabase
     private lateinit var entryQueries: EntryQueries
-    private lateinit var dao: JapaneseMultilingualDao
 
     @BeforeTest
     fun setUp() {
@@ -51,7 +46,6 @@ class DictionaryPopulatorTest {
         database = spyk(JishoDatabase(driver).also { JishoDatabase.Schema.create(driver) })
         entryQueries = spyk(database.entryQueries)
         every { database.entryQueries } returns entryQueries
-        dao = JapaneseMultilingualDao(database, scope.coroutineContext)
     }
 
     @AfterTest
@@ -67,20 +61,6 @@ class DictionaryPopulatorTest {
         // todo: name entries
         val entries = database.entryQueries.selectAll().executeAsList()
         assertTrue(entries.isNotEmpty())
-    }
-
-    @Test
-    fun testRubies() = scope.runTest {
-        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
-        resources.read(jmdictFurigana) { database.insertOkurigana(decodeOkurigana(this)) }
-
-        val rubies = dao.search("hello").first().rubies
-        val expected = setOf(
-            Ruby(japanese = "今", okurigana = "こん", position = 0),
-            Ruby(japanese = "日", okurigana = "にち", position = 1),
-            Ruby(japanese = "は", okurigana = null, position = 2),
-        )
-        assertEquals(expected, rubies)
     }
 
     // todo: move these functional tests
@@ -154,17 +134,6 @@ class DictionaryPopulatorTest {
         val results = database.entryQueries.selectEntries("家").executeAsList()
         val actual = results.map{ it.kanji ?: it.reading }
         val expected = listOf("家", "屋", "家族", "家庭", "屋根", "家具")
-        assertEquals(expected.sorted(), actual.sorted())
-    }
-
-    @Ignore("functional test")
-    @Test
-    fun test走った() = scope.runTest {
-        resources.read(jmdictEntries) { database.insertDictionary(decodeDictionary(this)) }
-
-        val results = dao.search("走った")
-        val actual = results.map { it.japanese }
-        val expected = listOf("走る")
         assertEquals(expected.sorted(), actual.sorted())
     }
 }

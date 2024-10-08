@@ -1,12 +1,15 @@
 package com.github.reline.jisho
 
-fun RepositoryHandler.jisho() {
-    atilika()
+import com.github.reline.jisho.artifactrepository.atilika
+import com.github.reline.jisho.artifactrepository.edrdg
+import com.github.reline.jisho.artifactrepository.googleContent
+import com.github.reline.jisho.artifactrepository.jmdictfurigana
+import com.github.reline.jisho.artifactrepository.sonatypeSnapshots
 
-    exclusiveContent {
-        forRepository { jitpack() }
-        filter { includeGroup("com.github.reline") }
-    }
+fun RepositoryHandler.jisho() {
+    jmdictfurigana(providers.environmentVariable("GITHUB_TOKEN"))
+    atilika()
+    edrdg()
 
     exclusiveContent {
         forRepository { sonatypeSnapshots() }
@@ -15,10 +18,13 @@ fun RepositoryHandler.jisho() {
 
     // todo: consider using `releasesOnly` with other repositories
     sonatypeSnapshots()
+
+    googleContent()
 }
 
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         jisho()
     }
 }

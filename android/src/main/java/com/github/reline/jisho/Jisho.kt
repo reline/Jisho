@@ -9,7 +9,15 @@
 package com.github.reline.jisho
 
 import android.app.Application
+import android.content.Context
+import android.content.res.AssetManager
+import dagger.Module
+import dagger.Provides
+import dagger.Reusable
+import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -23,4 +31,12 @@ class Jisho : Application() {
         super.onCreate()
         Timber.plant(tree)
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object ApplicationModule {
+    @Provides
+    @Reusable
+    fun provideAssets(@ApplicationContext context: Context): AssetManager = context.assets
 }

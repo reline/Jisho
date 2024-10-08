@@ -18,21 +18,7 @@ plugins {
     id("com.github.reline.jisho.gradle")
 }
 
-dependencyResolutionManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-    }
-}
-
-include("android")
-includeBuild("database")
-includeBuild("ve/java") { name = "ve" }
+includeBuild("android")
+includeBuild("core")
 
 rootProject.name = "Jisho"

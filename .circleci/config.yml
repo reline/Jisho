@@ -15,24 +15,23 @@ jobs:
           name: Download Dependencies
           command: ./gradlew dependencies --no-daemon
       - run:
-          name: Database Tests
-          command: ./gradlew :database:test --no-daemon
+          name: Tests
+          command: ./gradlew test --no-daemon
       - store_test_results:
-          path: database/build/test-results
+          path: core/unicode/build/test-results
       - store_artifacts:
-          path: database/build/reports
+          path: core/unicode/build/reports
+          destination: circleci/reports/unicode
+      - store_test_results:
+          path: core/database/build/test-results
+      - store_artifacts:
+          path: core/database/build/reports
           destination: circleci/reports/database
-      - run:
-          name: Prepopulator Tests
-          command: ./gradlew :prepopulator:test --no-daemon
       - store_test_results:
           path: prepopulator/build/test-results
       - store_artifacts:
           path: prepopulator/build/reports
           destination: circleci/reports/prepopulator
-      - run:
-          name: Android Tests
-          command: ./gradlew :android:check --no-daemon
       - store_test_results:
           path: android/build/test-results
       - store_artifacts:

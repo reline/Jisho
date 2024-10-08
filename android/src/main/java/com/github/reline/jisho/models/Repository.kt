@@ -9,11 +9,11 @@
 package com.github.reline.jisho.models
 
 import androidx.datastore.core.DataStore
+import com.github.reline.jisho.db.JapaneseMultilingualDao
 import com.github.reline.jisho.network.services.SearchApi
-import com.github.reline.jisho.persistence.JapaneseMultilingualDao
-import com.github.reline.jisho.persistence.Ruby
 import io.github.reline.jisho.datastore.Settings
 import kotlinx.coroutines.flow.first
+import java.util.SortedSet
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -28,7 +28,7 @@ class Repository @Inject constructor(
                     it.isCommon,
                     japanese = it.japanese,
                     okurigana = it.okurigana,
-                    rubies = it.rubies,
+                    rubies = it.rubies.map { ruby -> Ruby(japanese = ruby.japanese, okurigana = ruby.okurigana) },
                     senses = it.senses.map { sense -> Definition(sense.glosses, sense.partsOfSpeech) },
                 )
             }
@@ -53,12 +53,14 @@ data class Result(
     val isCommon: Boolean,
     val japanese: String,
     val okurigana: String?,
-    val rubies: Set<Ruby> = emptySet(),
+    val rubies: List<Ruby> = emptyList(),
     val senses: List<Definition>,
     val tags: List<String> = emptyList(),
     val jlpt: List<String> = emptyList(),
     val attribution: Attribution = Attribution(),
 )
+
+data class Ruby(val japanese: String, val okurigana: String?)
 
 data class Definition(
     val values: List<String>,

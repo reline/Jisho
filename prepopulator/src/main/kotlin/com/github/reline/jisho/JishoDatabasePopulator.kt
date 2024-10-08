@@ -6,23 +6,19 @@ import com.github.reline.jisho.tasks.JishoDownloadTask
 import com.github.reline.jisho.tasks.JishoPopulateTask
 import com.github.reline.jisho.tasks.GzipResourceExtractionTask
 import com.github.reline.jisho.tasks.ZipResourceExtractionTask
-import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.TaskContainer
 import javax.inject.Inject
 
 abstract class JishoDatabasePopulator @Inject constructor(
-    project: Project,
     private val projectLayout: ProjectLayout,
-    private val objectFactory: ObjectFactory,
     private val providerFactory: ProviderFactory,
+    private val tasks: TaskContainer,
+    private val configurations: ConfigurationContainer,
 ) {
-
-    private val tasks = project.tasks
-
     private val buildDir = projectLayout.buildDirectory
 
     /**

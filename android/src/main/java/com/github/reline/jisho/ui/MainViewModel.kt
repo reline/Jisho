@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.reline.jisho.models.Repository
 import com.github.reline.jisho.models.Result
 import com.github.reline.jisho.util.call
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.reline.jisho.datastore.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+@HiltViewModel
 class MainViewModel @Inject constructor(
     private val repo: Repository,
     private val settings: DataStore<Settings>,
