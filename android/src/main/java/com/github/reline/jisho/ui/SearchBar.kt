@@ -77,7 +77,7 @@ fun SearchBar(
                 },
             )
         },
-        expanded = expanded,
+        expanded = false,
         onExpandedChange = { expanded = it },
     ) {}
 }
