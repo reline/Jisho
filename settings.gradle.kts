@@ -35,6 +35,4 @@ include("android")
 includeBuild("database")
 includeBuild("ve/java") { name = "ve" }
 
-includeBuild("pages")
-
 rootProject.name = "Jisho"
