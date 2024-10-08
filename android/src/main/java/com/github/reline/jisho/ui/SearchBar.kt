@@ -28,6 +28,7 @@ fun SearchBar(
     onSearch: (String) -> Unit,
     placeholder: @Composable (() -> Unit)? = null,
     onClearSearch: () -> Unit,
+    enabled: Boolean = true,
     trailingIcon: @Composable (() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
@@ -45,6 +46,7 @@ fun SearchBar(
                 },
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
+                enabled = enabled,
                 placeholder = placeholder,
                 leadingIcon = {
                     if (expanded) {
