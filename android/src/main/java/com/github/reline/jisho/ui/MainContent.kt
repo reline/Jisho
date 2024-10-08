@@ -1,38 +1,43 @@
 package com.github.reline.jisho.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.reline.jisho.R
-import com.github.reline.jisho.models.Result
+import com.github.reline.jisho.ui.nestedscroll.rememberOffsetNestedScrollConnection
 
 @Composable
 fun MainContent(
     viewModel: MainViewModel = viewModel(),
 ) {
-    val results by viewModel.results.collectAsState(emptyList())
-    val noMatch by viewModel.query.collectAsState("")
-    val showProgressBar by viewModel.showProgressBar.collectAsState(false)
-    val showLogo by viewModel.showLogo.collectAsState(true)
+    val viewState by viewModel.state.collectAsState()
+    val query by viewModel.query.collectAsState()
     val isOfflineModeEnabled by viewModel.isOfflineModeEnabled.collectAsState(false)
 
     MainContent(
-        results = results,
-        query = noMatch,
-        showProgressBar = showProgressBar,
-        showLogo = showLogo,
+        viewState = viewState,
+        query = query,
         onQueryChange = viewModel::onSearchQueryChanged,
         onSearch = viewModel::onSearchClicked,
         onClearSearch = viewModel::onClearSearchClicked,
@@ -41,11 +46,10 @@ fun MainContent(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
-    results: List<Result>,
-    showProgressBar: Boolean,
-    showLogo: Boolean,
+    viewState: ViewState,
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -53,31 +57,52 @@ fun MainContent(
     isOfflineModeEnabled: Boolean,
     onOfflineModeToggled: ((Boolean) -> Unit)?,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true },
-    ) {
-        SearchBar(
-            query = query,
-            onQueryChange = onQueryChange,
-            onSearch = onSearch,
-            placeholder = { Text(stringResource(R.string.search)) },
-            onClearSearch = onClearSearch,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp)
-                .semantics { traversalIndex = 0f },
-            trailingIcon = { SearchBarOptionsMenuIcon(isOfflineModeEnabled, onOfflineModeToggled) }
-        )
+    Scaffold { innerPadding ->
+        val searchBarHeight = SearchBarDefaults.InputFieldHeight
 
-        SearchContent(
-            results = results,
-            showProgressBar = showProgressBar,
-            showLogo = showLogo,
-            query = query,
+        val nestedScrollConnection = with(LocalDensity.current) {
+            rememberOffsetNestedScrollConnection(
+                initialOffset = Offset(x = 0f, y = innerPadding.calculateTopPadding().toPx()),
+                minOffset = Offset(x = 0f, y = -searchBarHeight.toPx()),
+            )
+        }
+
+        val isSearchBarEnabled = nestedScrollConnection.offset == nestedScrollConnection.initialOffset
+
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .padding(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp)
-                .semantics { traversalIndex = 1f },
-        )
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+                .semantics { isTraversalGroup = true },
+        ) {
+            SearchBar(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = onSearch,
+                placeholder = { Text(stringResource(R.string.search)) },
+                onClearSearch = onClearSearch,
+                enabled = isSearchBarEnabled,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .height(searchBarHeight)
+                    .offset { nestedScrollConnection.offset.round() }
+                    .semantics { traversalIndex = 0f },
+                trailingIcon = { SearchBarOptionsMenuIcon(isOfflineModeEnabled, onOfflineModeToggled) }
+            )
+
+            SearchContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .semantics { traversalIndex = 1f },
+                contentPadding = PaddingValues(
+                    top = searchBarHeight,
+                    start = 16.dp,
+                    end = 16.dp,
+                ),
+                query = query,
+                viewState = viewState,
+            )
+        }
     }
 }
