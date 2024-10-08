@@ -9,11 +9,7 @@
 package com.github.reline.jisho.util
 
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.trySendBlocking
 import org.intellij.lang.annotations.Language
-
-fun SendChannel<Unit>.call() = trySendBlocking(Unit)
 
 fun SupportSQLiteDatabase.execQuery(@Language("SqlDelight") sql: String) {
     query(sql).use {
