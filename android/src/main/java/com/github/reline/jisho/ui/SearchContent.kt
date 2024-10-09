@@ -1,9 +1,7 @@
 package com.github.reline.jisho.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -11,8 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.reline.jisho.R
@@ -29,8 +25,8 @@ fun SearchContent(
         modifier = modifier,
     ) {
         when (viewState) {
-            is ViewState.Initial -> Logo()
-            is ViewState.Loading -> ProgressBar()
+            is ViewState.Initial -> { /* show nothing */ }
+            is ViewState.Loading -> CircularProgressIndicator()
             is ViewState.NoResults -> EmptyResultsText(query)
             is ViewState.Results -> SearchResults(
                 contentPadding = contentPadding,
@@ -54,20 +50,6 @@ fun SearchBarOptionsMenuIcon(
             },
         )
     }
-}
-
-@Composable
-fun Logo() {
-    Image(painter = painterResource(id = R.drawable.banner), contentDescription = null)
-}
-
-@Composable
-fun ProgressBar() {
-    CircularProgressIndicator(
-        color = colorResource(id = R.color.colorPrimary),
-        modifier = Modifier.size(76.dp),
-        strokeWidth = 6.dp,
-    )
 }
 
 @Composable

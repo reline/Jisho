@@ -8,16 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,10 +43,7 @@ fun SearchResults(
 
 @Composable
 fun DictionaryEntryCard(word: Result) {
-    Card(
-        elevation = CardDefaults.elevatedCardElevation(),
-        shape = CardDefaults.elevatedShape,
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+    ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         DictionaryEntryContent(word)
@@ -100,38 +96,33 @@ fun DictionaryReadingRuby(japanese: String, okurigana: String?) {
 fun DictionaryTags(isCommon: Boolean, tags: List<String>) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         if (isCommon) {
-            DictionaryTag(
-                text = stringResource(id = R.string.common_word),
-                modifier = Modifier.tagBackground(color = colorResource(id = R.color.colorCommon)),
-            )
+            CommonTag()
         }
         tags.forEach { tag ->
-            DictionaryTag(
-                text = tag,
-                modifier = Modifier.tagBackground(color = colorResource(id = R.color.colorTag)),
-            )
+            DictionaryTag(text = tag)
         }
     }
 }
 
-private fun Modifier.tagBackground(color: Color): Modifier {
-    return this.then(
-        background(
-            color = color,
-            shape = RoundedCornerShape(size = 5.dp),
-        )
+@Composable
+fun CommonTag() {
+    DictionaryTag(
+        text = stringResource(id = R.string.common_word),
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
     )
 }
 
 @Composable
 fun DictionaryTag(
     text: String,
-    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
 ) {
     Text(
         text = text,
-        color = Color.White,
-        modifier = modifier.then(Modifier.padding(horizontal = 10.dp, vertical = 2.dp)),
+        modifier = Modifier
+            .background(color = backgroundColor, shape = MaterialTheme.shapes.extraSmall)
+            .padding(horizontal = 10.dp, vertical = 2.dp),
+        color = MaterialTheme.colorScheme.contentColorFor(backgroundColor),
     )
 }
 
@@ -151,13 +142,16 @@ fun DictionarySenses(senses: List<Definition>) {
 fun PartsOfSpeech(partsOfSpeech: List<String>) {
     if (partsOfSpeech.isNotEmpty()) {
         Text(
-            text = partsOfSpeech.joinToString(", "),
-            color = colorResource(id = R.color.colorAccent),
+            text = partsOfSpeech.joinToString(),
+            color = MaterialTheme.colorScheme.secondary,
         )
     }
 }
 
 @Composable
 fun Definitions(number: Int, values: List<String>) {
-    Text(text = "$number. ${values.joinToString("; ")}")
+    Row {
+        Text(text = "$number.")
+        Text(text = values.joinToString("; "))
+    }
 }
