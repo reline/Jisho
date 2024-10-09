@@ -33,7 +33,7 @@ fun MainContent(
 ) {
     val viewState by viewModel.state.collectAsState()
     val query by viewModel.query.collectAsState()
-    val isOfflineModeEnabled by viewModel.isOfflineModeEnabled.collectAsState(false)
+    val isOfflineModeEnabled by viewModel.isOfflineModeEnabled.collectAsState()
 
     MainContent(
         viewState = viewState,

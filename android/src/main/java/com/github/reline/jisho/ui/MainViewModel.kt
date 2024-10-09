@@ -45,7 +45,7 @@ class MainViewModel @Inject constructor(
     private val _query = MutableStateFlow("")
     val query get() = _query.asStateFlow()
 
-    val isOfflineModeEnabled get() = settings.data.map { it.offline_mode }
+    val isOfflineModeEnabled = settings.data.map { it.offline_mode }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun onSearchQueryChanged(query: String) {
