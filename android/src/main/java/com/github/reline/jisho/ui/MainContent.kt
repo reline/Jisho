@@ -100,7 +100,6 @@ fun MainContent(
                     start = 16.dp,
                     end = 16.dp,
                 ),
-                query = query,
                 viewState = viewState,
             )
         }

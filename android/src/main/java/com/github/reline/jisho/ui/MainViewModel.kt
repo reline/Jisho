@@ -29,7 +29,7 @@ import javax.inject.Inject
 sealed interface ViewState {
     data object Initial : ViewState
     data object Loading : ViewState
-    data object NoResults : ViewState
+    data class NoResults(val query: String) : ViewState
     data class Results(val results: List<Result>) : ViewState
 }
 
@@ -53,6 +53,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun onSearchClicked(query: String) = viewModelScope.launch {
+        if (query.isBlank()) return@launch
+
         _state.value = ViewState.Loading
 
         val results = try {
@@ -65,7 +67,7 @@ class MainViewModel @Inject constructor(
         _state.value = if (results.isNotEmpty()) {
             ViewState.Results(results)
         } else {
-            ViewState.NoResults
+            ViewState.NoResults(query)
         }
     }
 

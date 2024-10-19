@@ -17,7 +17,6 @@ import com.github.reline.jisho.R
 fun SearchContent(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    query: String,
     viewState: ViewState,
 ) {
     Box(
@@ -27,7 +26,7 @@ fun SearchContent(
         when (viewState) {
             is ViewState.Initial -> { /* show nothing */ }
             is ViewState.Loading -> CircularProgressIndicator()
-            is ViewState.NoResults -> EmptyResultsText(query)
+            is ViewState.NoResults -> EmptyResultsText(viewState.query)
             is ViewState.Results -> SearchResults(
                 contentPadding = contentPadding,
                 results = viewState.results,
