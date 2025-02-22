@@ -74,13 +74,4 @@ workflows:
             branches:
               only:
                 - main
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - unit_test
+ 
