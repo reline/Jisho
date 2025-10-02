@@ -1,10 +1,13 @@
 import com.github.reline.jisho.tasks.JishoPopulateTask
+import com.google.devtools.ksp.gradle.KspAATask
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.google.ksp)
     alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.wire)
     id("com.github.reline.jisho.prepopulator")
 }
@@ -80,11 +83,18 @@ androidComponents {
 
     onVariants { variant ->
         if (!variant.productFlavors.contains("environment" to "mock")) {
-            variant.sources.assets?.let { assets ->
-                assets.addGeneratedSourceDirectory(
-                    tasks.named<JishoPopulateTask>("populateJishoDatabase"),
-                    JishoPopulateTask::databaseOutputDirectory,
-                )
+            variant.sources.assets?.addGeneratedSourceDirectory(
+                tasks.named<JishoPopulateTask>("populateJishoDatabase"),
+                JishoPopulateTask::databaseOutputDirectory,
+            )
+        }
+
+        // https://github.com/square/wire/issues/2335
+        val buildType = variant.buildType.toString()
+        val flavor = variant.flavorName.toString()
+        tasks.withType<KspAATask> {
+            if (name.contains(buildType, ignoreCase = true) && name.contains(flavor, ignoreCase = true)) {
+                dependsOn("generate${flavor.capitalize()}${buildType.capitalize()}Protos")
             }
         }
     }
@@ -152,7 +162,7 @@ dependencies {
     implementation(libs.okhttp.loggingInterceptor)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.moshi)
-    kapt(libs.moshi.codegen)
+    ksp(libs.moshi.codegen)
 
     implementation(libs.okio)
 

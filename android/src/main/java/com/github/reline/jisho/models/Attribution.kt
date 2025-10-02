@@ -18,7 +18,7 @@ class Attribution(
     val isJmdict: Boolean = false,
     @field:Json(name = "jmnedict")
     val isJmnedict: Boolean = false,
-    @field:Dbpedia
+//    @Dbpedia
     val dbpedia: String = false.toString()
 ) {
     val isDbpedia: Boolean

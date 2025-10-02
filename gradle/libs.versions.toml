@@ -10,8 +10,8 @@ composeCompiler = "1.5.5"
 androidxSqlite = "2.1.0"
 sqldelight = "2.1.0"
 sqliteJdbc = "3.21.0.1"
-dagger = "2.48"
-wire = "4.9.9"
+dagger = "2.57.2"
+wire = "5.4.0"
 retrofit = "3.0.0"
 okhttp = "4.10.0"
 okio = "3.5.0"
@@ -20,7 +20,7 @@ ksoup = "0.2.5"
 timber = "4.7.1"
 mockk = "1.13.10"
 jmdictfurigana = "2.3.0+2023-10-25"
-agp = "8.2.2"
+agp = "8.13.0"
 
 [libraries]
 jisho-database = { module = "com.github.reline.jisho:database" }
@@ -94,3 +94,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
