@@ -8,7 +8,25 @@
 
 package com.github.reline.jisho.dictmodels.okurigana
 
+import com.github.reline.jisho.populators.logger
+import com.github.reline.jisho.skipBom
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeToSequence
+import okio.BufferedSource
+import okio.IOException
+
+/**
+ * See okurigana.json
+ */
+@OptIn(ExperimentalSerializationApi::class)
+@Throws(IOException::class)
+fun decodeOkurigana(source: BufferedSource): Sequence<OkuriganaEntry> {
+    logger.debug("Extracting okurigana...")
+    source.skipBom()
+    return Json.decodeToSequence<OkuriganaEntry>(source.inputStream())
+}
 
 @Serializable
 data class OkuriganaEntry(

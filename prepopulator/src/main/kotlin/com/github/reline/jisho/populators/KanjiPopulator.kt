@@ -10,12 +10,11 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.Radk
 import com.github.reline.jisho.dictmodels.decodeRadicals
-import com.github.reline.jisho.dictmodels.jmdict.Dictionary
+import com.github.reline.jisho.dictmodels.jmdict.JMdict
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
 import com.github.reline.jisho.linguist.isKanji
 import com.github.reline.jisho.requireFile
 import com.github.reline.jisho.sql.JishoDatabase
-import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
@@ -49,10 +48,7 @@ private fun extractKanji(file: File): KanjiDictionary {
     logger.debug("Extracting kanji from ${file.name}...")
     try {
         file.inputStream().source().buffer().use { source ->
-            return TikXml.Builder()
-                .exceptionOnUnreadXml(false)
-                .build()
-                .read(source, KanjiDictionary::class.java)
+            TODO()
         }
     } catch (e: IOException) {
         throw IOException("Failed to read ${file.name}", e)
@@ -112,29 +108,29 @@ suspend fun JishoDatabase.insertRadk(radicals: List<Radk>) = coroutineScope {
 }
 
 private suspend fun JishoDatabase.associateEntriesWithKanji(
-    dictionaries: List<Dictionary>,
+    dictionaries: List<JMdict>,
 ) = coroutineScope {
-    val allEntries = dictionaries.flatMap { it.entries }
-    logger.debug("Associating entries with kanji... (${allEntries.count()})")
-    allEntries.chunked(500_000).forEach { entries ->
-        logger.debug("compiling kanji...")
-        transaction(noEnclosing = true) {
-            entries.forEach { entry ->
-                entry.kanji?.forEach { word ->
-                    word.value.filter { char -> char.isKanji() }.forEach { kanji ->
-                        ensureActive()
-                        try {
-                            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
-                            entryKanjiQueries.insert(entry.id, kanjiId)
-                        } catch (e: NullPointerException) {
-                            // fixme: characters are printed as ?
-                            // fixme: gradle task log is vague
-                            logger.warn("$kanji couldn't be found, used in ${word.value}")
-                        }
-                    }
-                }
-            }
-            logger.debug("Inserted records")
-        }
-    }
+//    val allEntries = dictionaries.flatMap { it.entries }
+//    logger.debug("Associating entries with kanji... (${allEntries.count()})")
+//    allEntries.chunked(500_000).forEach { entries ->
+//        logger.debug("compiling kanji...")
+//        transaction(noEnclosing = true) {
+//            entries.forEach { entry ->
+//                entry.kanji?.forEach { word ->
+//                    word.value.filter { char -> char.isKanji() }.forEach { kanji ->
+//                        ensureActive()
+//                        try {
+//                            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
+//                            entryKanjiQueries.insert(entry.id, kanjiId)
+//                        } catch (e: NullPointerException) {
+//                            // fixme: characters are printed as ?
+//                            // fixme: gradle task log is vague
+//                            logger.warn("$kanji couldn't be found, used in ${word.value}")
+//                        }
+//                    }
+//                }
+//            }
+//            logger.debug("Inserted records")
+//        }
+//    }
 }

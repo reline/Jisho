@@ -8,21 +8,16 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Attribute
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
 /**
  * The cp_value contains the codepoint of the character in a particular
  * standard. The standard will be identified in the cp_type attribute.
  */
-@Xml
+//@Xml
 open class CodePoint{
-    @Element
+//    @Element
     lateinit var codings: MutableList<Coding>
 
-    @Xml(name = "cp_value")
+//    @Xml(name = "cp_value")
     open class Coding {
         /**
          * The cp_type attribute states the coding standard applying to the
@@ -32,10 +27,10 @@ open class CodePoint{
          * jis213 - JIS X 0213-2000 - kuten coding (p-nn-nn)
          * ucs - Unicode 4.0 - hex coding (4 or 5 hexadecimal digits)
          */
-        @Attribute(name = "cp_type")
+//        @Attribute(name = "cp_type")
         lateinit var type: String
 
-        @TextContent
+//        @TextContent
         lateinit var value: String
     }
 }

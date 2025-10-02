@@ -8,9 +8,6 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.Xml
-
 /**
  * This is the DTD of the XML-format kanji file combining information from
  * the KANJIDIC and KANJD212 files. It is intended to be largely self-
@@ -32,12 +29,12 @@ import com.tickaroo.tikxml.annotation.Xml
  * The KANJIDIC documentation should also be read for additional
  * information about the information in the file.
  */
-@Xml(name = "kanjidic2")
+//@Xml(name = "kanjidic2")
 open class KanjiDictionary {
 
-    @Element(name = "header")
+//    @Element(name = "header")
     lateinit var header: Header
 
-    @Element
+//    @Element
     var characters: MutableList<Character>? = null
 }

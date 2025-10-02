@@ -5,8 +5,9 @@ plugins {
     `java-gradle-plugin`
 
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.google.ksp)
     alias(libs.plugins.kotlin.serialization)
+    // todo: github artifact plugin for resolving dictionary resource files
 }
 
 val functionalTest by sourceSets.creating
@@ -48,18 +49,15 @@ dependencies {
     implementation(libs.sqlite.jdbc)
     implementation(libs.sqldelight.sqlite.driver)
 
-    implementation(libs.tikxml.core)
-    implementation(libs.tikxml.annotation)
-    kapt(libs.tikxml.processor)
-    kapt(libs.tikxml.processorCommon)
-
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.okhttp.loggingInterceptor)
     implementation(libs.kotlin.serialization.json)
+    implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.2")
+    implementation(libs.kotlin.serialization.xml)
     implementation(libs.moshi)
-    kapt(libs.moshi.codegen)
+    ksp(libs.moshi.codegen)
     implementation(libs.okio)
 
     testImplementation(kotlin("test"))

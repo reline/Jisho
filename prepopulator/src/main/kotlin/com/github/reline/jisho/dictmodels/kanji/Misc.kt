@@ -8,9 +8,7 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.*
-
-@Xml
+//@Xml
 open class Misc {
     /**
      * The kanji grade level. 1 through 6 indicates a Kyouiku kanji
@@ -22,7 +20,7 @@ open class Misc {
     also indicates a Jinmeiyou kanji which is a variant of a
     Jouyou kanji. [G]
      */
-    @PropertyElement(name = "grade")
+//    @PropertyElement(name = "grade")
     var grade: Int? = null
 
     /**
@@ -32,11 +30,15 @@ open class Misc {
     for some of the rules applied when counting strokes in some of the
     radicals.) [S]
      */
-    @Element
+//    @Element
     lateinit var strokeCounts: MutableList<StrokeCount>
-    @Xml(name = "stroke_count") open class StrokeCount { @TextContent lateinit var strokeCount: String }
+//    @Xml(name = "stroke_count")
+    open class StrokeCount {
+//        @TextContent
+        lateinit var strokeCount: String
+    }
 
-    @Element
+//    @Element
     var variants: MutableList<Variant>? = null
 
     /**
@@ -44,9 +46,9 @@ open class Misc {
     variant, or an alternative indexing code for the current kanji.
     The type of variant is given in the var_type attribute.
      */
-    @Xml(name = "variant")
+//    @Xml(name = "variant")
     open class Variant {
-        @TextContent
+//        @TextContent
         lateinit var value: String
 
         /**
@@ -64,7 +66,7 @@ open class Misc {
         oneill - Japanese Names (O'Neill) - numeric
         ucs - Unicode codepoint- hex
          */
-        @Attribute(name = "var_type")
+//        @Attribute(name = "var_type")
         lateinit var type: String
     }
 
@@ -78,16 +80,20 @@ open class Misc {
     frequently used kanji is not strong. (Actually there are 2,501
     kanji ranked as there was a tie.)
      */
-    @PropertyElement(name = "freq")
+//    @PropertyElement(name = "freq")
     var frequency: Int? = null
 
-    @Element
+//    @Element
     var radicalNames: MutableList<RadicalName>? = null
     /**
      * When the kanji is itself a radical and has a name, this element
     contains the name (in hiragana.) [T2]
      */
-    @Xml(name = "rad_name") open class RadicalName { @TextContent lateinit var value: String }
+//    @Xml(name = "rad_name")
+    open class RadicalName {
+//        @TextContent
+        lateinit var value: String
+    }
 
     /**
      * The (former) Japanese Language Proficiency test level for this kanji.
@@ -99,6 +105,6 @@ open class Misc {
     being similar to the old levels except that the old level 2 is
     now divided between N2 and N3.
      */
-    @PropertyElement(name = "jlpt")
+//    @PropertyElement(name = "jlpt")
     var jlpt: String? = null
 }

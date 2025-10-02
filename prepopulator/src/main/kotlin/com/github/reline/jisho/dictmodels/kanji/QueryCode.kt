@@ -8,26 +8,21 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Attribute
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
 /**
  * These codes contain information relating to the glyph, and can be used
 for finding a required kanji. The type of code is defined by the
 qc_type attribute.
  */
-@Xml
+//@Xml
 open class QueryCode {
-    @Element
+//    @Element
     lateinit var codes: Code
 
     /**
      * The q_code contains the actual query-code value, according to the
     qc_type attribute.
      */
-    @Xml(name = "q_code")
+//    @Xml(name = "q_code")
     open class Code {
 
         /**
@@ -58,7 +53,7 @@ open class QueryCode {
         to one of the code types. (See the "Z" codes in the KANJIDIC
         documentation for more details.)
          */
-        @Attribute(name = "qc_type")
+//        @Attribute(name = "qc_type")
         lateinit var type: String
 
         /**
@@ -69,10 +64,10 @@ open class QueryCode {
         - stroke_and_posn - mistakes in both division and strokes
         - stroke_diff - ambiguous stroke counts depending on glyph
          */
-        @Attribute(name = "skip_misclass")
+//        @Attribute(name = "skip_misclass")
         var skipMisclass: String? = null
 
-        @TextContent
+//        @TextContent
         lateinit var value: String
     }
 }

@@ -8,24 +8,22 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.*
-
 /**
  * This element contains the index numbers and similar unstructured
 information such as page numbers in a number of published dictionaries,
 and instructional books on kanji.
  */
-@Xml
+//@Xml
 open class DictionaryNumber {
 
-    @Element
+//    @Element
     lateinit var dictionaryReferences: MutableList<DictionaryReference>
 
     /**
      * Each dic_ref contains an index number. The particular dictionary,
     etc. is defined by the dr_type attribute.
      */
-    @Xml(name = "dic_ref")
+//    @Xml(name = "dic_ref")
     open class DictionaryReference {
 
         /**
@@ -72,22 +70,22 @@ open class DictionaryNumber {
         kodansha_compact - the "Kodansha Compact Kanji Guide".
         maniette - codes from Yves Maniette's "Les Kanjis dans la tete" French adaptation of Heisig.
          */
-        @Attribute(name = "dr_type")
+//        @Attribute(name = "dr_type")
         lateinit var type: String
 
         /**
          * See [type] under "moro".
          */
-        @Attribute(name = "m_vol")
+//        @Attribute(name = "m_vol")
         lateinit var vol: String
 
         /**
          * See [type] under "moro".
          */
-        @Attribute(name = "m_page")
+//        @Attribute(name = "m_page")
         lateinit var page: String
 
-        @TextContent
+//        @TextContent
         lateinit var value: String
     }
 }

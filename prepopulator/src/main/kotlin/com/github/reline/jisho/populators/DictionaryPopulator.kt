@@ -8,25 +8,20 @@
 
 package com.github.reline.jisho.populators
 
-import com.github.reline.jisho.dictmodels.jmdict.Dictionary
 import com.github.reline.jisho.dictmodels.jmdict.Entry
+import com.github.reline.jisho.dictmodels.jmdict.JMdict
+import com.github.reline.jisho.dictmodels.jmdict.decodeDictionary
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
+import com.github.reline.jisho.dictmodels.okurigana.decodeOkurigana
 import com.github.reline.jisho.jdbcSqliteDriver
 import com.github.reline.jisho.requireFile
-import com.github.reline.jisho.skipBom
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.touch
-import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeToSequence
-import okio.BufferedSource
-import okio.IOException
 import okio.buffer
 import okio.source
 import org.slf4j.LoggerFactory
@@ -94,14 +89,6 @@ suspend fun JishoDatabase.populate(dictionaryFile: File, okuriganaFile: File) {
     }
 }
 
-@Throws(IOException::class)
-fun decodeDictionary(source: BufferedSource): Dictionary {
-    return TikXml.Builder()
-        .exceptionOnUnreadXml(false)
-        .build()
-        .read(source, Dictionary::class.java)
-}
-
 suspend fun JishoDatabase.insertEntries(entries: List<Entry>) = coroutineScope {
     logger.debug("Inserting entries...")
     transaction {
@@ -136,7 +123,6 @@ suspend fun JishoDatabase.insertPartsOfSpeech(entries: List<Entry>) = coroutineS
             .mapNotNull { it.partsOfSpeech }
             .flatten()
             .distinct()
-            .map { it.decoded() }
             .forEach {
                 ensureActive()
                 partOfSpeechQueries.insert(it)
@@ -157,8 +143,8 @@ suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
                 val senseId = utilQueries.lastInsertRowId().executeAsOne()
                 sense.glosses?.forEach { gloss ->
                     ensureActive()
-                    // todo: make gloss values unique
-                    glossQueries.insert(senseId, gloss.value)
+                    // todo: make gloss values unique (normalize database table)
+                    glossQueries.insert(senseId, gloss)
                 }
                 senseId
             }
@@ -177,7 +163,7 @@ suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
                     ensureActive()
                     sensePosTagQueries.insert(
                             senseId,
-                            partOfSpeechQueries.selectPosIdWhereValueEquals(pos.decoded())
+                            partOfSpeechQueries.selectPosIdWhereValueEquals(pos)
                                     .executeAsOne()
                     )
                 } ?: emptyList()
@@ -187,23 +173,10 @@ suspend fun JishoDatabase.insertSenses(entries: List<Entry>) = coroutineScope {
     logger.debug("Inserted $executions records")
 }
 
-suspend fun JishoDatabase.insertDictionary(dictionary: Dictionary) {
-    val entries = dictionary.entries
-
+suspend fun JishoDatabase.insertDictionary(dictionary: JMdict) = with(dictionary) {
     insertEntries(entries)
     insertPartsOfSpeech(entries)
     insertSenses(entries)
-}
-
-/**
- * See okurigana.json
- */
-@OptIn(ExperimentalSerializationApi::class)
-@Throws(IOException::class)
-fun decodeOkurigana(source: BufferedSource): Sequence<OkuriganaEntry> {
-    logger.debug("Extracting okurigana...")
-    source.skipBom()
-    return Json.decodeToSequence<OkuriganaEntry>(source.inputStream())
 }
 
 suspend fun JishoDatabase.insertOkurigana(
@@ -225,7 +198,10 @@ suspend fun JishoDatabase.insertOkurigana(
         okurigana.forEach { (kanji, reading, furigana) ->
             ensureActive()
             val entry = entries[Ruby(reading = reading, kanji = kanji)]
-            if (entry?.japaneseId == null) return@forEach
+            if (entry?.japaneseId == null) {
+                logger.warn("No matching entry found for $kanji ($reading)")
+                return@forEach
+            }
 
             furigana.forEachIndexed { i, (ruby, rt) ->
                 ensureActive()

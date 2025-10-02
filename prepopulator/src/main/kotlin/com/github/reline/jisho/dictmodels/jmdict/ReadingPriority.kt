@@ -8,9 +8,6 @@
 
 package com.github.reline.jisho.dictmodels.jmdict
 
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
 
 /**
  *  This and the equivalent ke_pri field are provided to record
@@ -43,10 +40,10 @@ The reason both the kanji and reading elements are tagged is because
 on occasions a priority is only associated with a particular
 kanji/reading pair.
  */
-@Xml(name = "re_pri")
+//@Xml(name = "re_pri")
 open class ReadingPriority {
 
-    @TextContent
+//    @TextContent
     lateinit var value: String
 
     val statement: String
