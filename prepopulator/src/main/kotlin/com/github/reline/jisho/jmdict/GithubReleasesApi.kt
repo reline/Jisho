@@ -1,5 +1,6 @@
 package com.github.reline.jisho.jmdict
 
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -59,6 +60,7 @@ fun GithubReleasesApi(githubToken: String?): GithubReleasesApi {
         setLevel(HttpLoggingInterceptor.Level.HEADERS)
     }
     val okHttpClient = OkHttpClient.Builder()
+        .dispatcher(Dispatcher().apply { maxRequestsPerHost = 1 })
         .addInterceptor(loggingInterceptor)
         .addInterceptor(BearerAuthorizationInterceptor(githubToken))
         .addInterceptor(RateLimitInterceptor())
