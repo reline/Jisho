@@ -18,9 +18,14 @@ class Attribution(
     val isJmdict: Boolean = false,
     @field:Json(name = "jmnedict")
     val isJmnedict: Boolean = false,
-//    @Dbpedia
+    @field:Dbpedia
     val dbpedia: String = false.toString()
 ) {
     val isDbpedia: Boolean
         get() = dbpedia != false.toString()
 }
+
+/**
+ * Error preparing Attribution: jdk.proxy11/jdk.proxy11.$Proxy347.value(Unknown Source)
+ * com.squareup.moshi.kotlin.codegen.ksp.MoshiApiUtilKt.generator(MoshiApiUtil.kt:77)
+ */

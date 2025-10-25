@@ -4,7 +4,6 @@ import com.google.devtools.ksp.gradle.KspAATask
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.compose.compiler)
@@ -110,16 +109,6 @@ configurations {
 //    compile.exclude group: "xpp3"
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
-//tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
-//    kotlinOptions {
-//        jvmTarget = "1.8"
-//    }
-//}
-
 wire {
     kotlin {}
 }
@@ -169,5 +158,5 @@ dependencies {
     implementation(libs.timber)
 
     implementation(libs.dagger.hilt.android)
-    kapt(libs.dagger.hilt.android.compiler)
+    ksp(libs.dagger.hilt.android.compiler)
 }
