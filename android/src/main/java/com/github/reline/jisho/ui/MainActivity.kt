@@ -9,90 +9,22 @@
 package com.github.reline.jisho.ui
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.github.reline.jisho.R
+import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var factory: ViewModelProvider.Factory
-
-    private lateinit var viewModel: MainViewModel
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
         setContent {
-            val results by viewModel.wordList.observeAsState(emptyList())
-            val noMatch by viewModel.query.observeAsState()
-            val showProgressBar by viewModel.showProgressBar.observeAsState(false)
-            val showLogo by viewModel.showLogo.observeAsState(true)
-            MainContent(
-                results = results,
-                query = noMatch,
-                showProgressBar = showProgressBar,
-                showLogo = showLogo,
-            )
-        }
-
-        lifecycleScope.launch {
-            for (each in viewModel.hideKeyboardCommand) {
-                hideKeyboard()
+            Theme {
+                MainContent()
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.search_menu, menu)
-
-        val offlineModeItem = menu.findItem(R.id.action_offline_mode)
-        lifecycleScope.launch {
-            viewModel.isOfflineModeEnabled.collectLatest {
-                offlineModeItem?.isChecked = it
-            }
-        }
-
-        val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setQuery(viewModel.searchQuery, false) // restore the query
-        searchView.queryHint = getString(R.string.search)
-        searchView.maxWidth = Integer.MAX_VALUE // allow onSearchClicked view to match the width of the toolbar
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(newText: String): Boolean {
-                viewModel.onSearchQueryChanged(newText)
-                return true
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                viewModel.onSearchClicked(query)
-                return true
-            }
-        })
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_offline_mode -> {
-                item.isChecked = !item.isChecked
-                viewModel.onOfflineModeToggled(item.isChecked)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
