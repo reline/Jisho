@@ -23,6 +23,7 @@ jmdictfurigana = "2.3.0+2023-10-25"
 agp = "8.13.0"
 
 [libraries]
+reline-sqlitecopyopenhelper = { module = "io.github.reline:sqlitecopyopenhelper", version = "0.1.1" }
 jisho-database = { module = "com.github.reline.jisho:database" }
 birchlabs-ve = { module = "uk.co.birchlabs.ve:ve" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

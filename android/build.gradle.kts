@@ -119,7 +119,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.4")
 
     implementation(libs.jisho.database)
-    implementation("com.github.reline:sqlitecopyopenhelper:0.1.0")
+    implementation(libs.reline.sqlitecopyopenhelper)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.sqlite.framework)
