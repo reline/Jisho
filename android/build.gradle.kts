@@ -1,5 +1,5 @@
 import com.github.reline.jisho.tasks.JishoPopulateTask
-import com.google.devtools.ksp.gradle.KspAATask
+import com.google.devtools.ksp.gradle.KspTaskJvm
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -14,11 +14,11 @@ plugins {
 
 android {
     namespace = "com.github.reline.jisho"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.github.reline.jisho"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 4
         versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -89,9 +89,9 @@ androidComponents {
         // https://github.com/square/wire/issues/2335
         val buildType = variant.buildType.toString()
         val flavor = variant.flavorName.toString()
-        tasks.withType<KspAATask> {
+        tasks.withType<KspTaskJvm> {
             if (name.contains(buildType, ignoreCase = true) && name.contains(flavor, ignoreCase = true)) {
-                dependsOn("generate${flavor.replaceFirstChar { it.uppercase() }}${buildType.replaceFirstChar { it.uppercase() }}Protos")
+                dependsOn("generate${flavor.capitalize()}${buildType.capitalize()}Protos")
             }
         }
     }
@@ -131,6 +131,7 @@ dependencies {
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
     implementation(libs.compose.runtime.livedata)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
