@@ -1,5 +1,6 @@
 import com.github.reline.jisho.tasks.JishoPopulateTask
 import com.google.devtools.ksp.gradle.KspAATask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -61,9 +62,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
@@ -93,20 +91,21 @@ androidComponents {
         val flavor = variant.flavorName.toString()
         tasks.withType<KspAATask> {
             if (name.contains(buildType, ignoreCase = true) && name.contains(flavor, ignoreCase = true)) {
-                dependsOn("generate${flavor.capitalize()}${buildType.capitalize()}Protos")
+                dependsOn("generate${flavor.replaceFirstChar { it.uppercase() }}${buildType.replaceFirstChar { it.uppercase() }}Protos")
             }
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
     }
 }
 
 jisho {
     jmdict(libs.versions.jmdictfurigana)
     githubToken.set(providers.environmentVariable("GITHUB_TOKEN"))
-}
-
-configurations {
-//    compile.exclude group: "stax"
-//    compile.exclude group: "xpp3"
 }
 
 wire {
