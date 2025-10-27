@@ -10,7 +10,6 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.jmdict.Entry
 import com.github.reline.jisho.dictmodels.jmdict.JMdict
-import com.github.reline.jisho.dictmodels.jmdict.decodeDictionary
 import com.github.reline.jisho.dictmodels.okurigana.OkuriganaEntry
 import com.github.reline.jisho.dictmodels.okurigana.decodeOkurigana
 import com.github.reline.jisho.jdbcSqliteDriver
@@ -64,22 +63,11 @@ class JishoPopulator(
     }
 }
 
-@Deprecated(
-    "Deprecated in favor of dependency injection",
-    replaceWith = ReplaceWith("JishoPopulator#populate"),
-)
-suspend fun File.populate(
-    inputs: List<DictionaryInput>,
-    kanji: Collection<File>,
-    radk: Collection<File>,
-    krad: Collection<File>,
-) = JishoPopulator().populate(this, JishoInput(inputs, kanji, radk))
-
 suspend fun JishoDatabase.populate(dictionaryFile: File, okuriganaFile: File) {
     logger.debug("Populating database with ${dictionaryFile.nameWithoutExtension}")
     requireFile(dictionaryFile)
     dictionaryFile.source().buffer().use { source ->
-        insertDictionary(decodeDictionary(source))
+        insertDictionary(JMdict.decodeFrom(source))
     }
 
     logger.debug("Populating database with ${okuriganaFile.nameWithoutExtension}")

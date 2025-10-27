@@ -9,21 +9,23 @@ import nl.adaptivity.xmlutil.xmlStreaming
 import okio.BufferedSource
 import okio.IOException
 
-@Throws(IOException::class)
-fun decodeDictionary(source: BufferedSource): JMdict {
-    val reader = xmlStreaming.newReader(source.inputStream())
-    val xml = XML {
-        defaultPolicy {
-            ignoreUnknownChildren()
-        }
-    }
-    return xml.decodeFromReader(JMdict.serializer(), reader)
-}
-
 @Serializable
 class JMdict private constructor(
     val entries: List<Entry>,
-)
+) {
+    companion object {
+        @Throws(IOException::class)
+        fun decodeFrom(source: BufferedSource): JMdict {
+            val reader = xmlStreaming.newReader(source.inputStream())
+            val xml = XML {
+                defaultPolicy {
+                    ignoreUnknownChildren()
+                }
+            }
+            return xml.decodeFromReader(serializer(), reader)
+        }
+    }
+}
 
 @Serializable
 @SerialName("entry")

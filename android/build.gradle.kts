@@ -79,12 +79,10 @@ androidComponents {
     }
 
     onVariants { variant ->
-        if (!variant.productFlavors.contains("environment" to "mock")) {
-            variant.sources.assets?.addGeneratedSourceDirectory(
-                tasks.named<JishoPopulateTask>("populateJishoDatabase"),
-                JishoPopulateTask::databaseOutputDirectory,
-            )
-        }
+        variant.sources.assets?.addGeneratedSourceDirectory(
+            tasks.named<JishoPopulateTask>("populateJishoDatabase"),
+            JishoPopulateTask::databaseOutputDirectory,
+        )
 
         // https://github.com/square/wire/issues/2335
         val buildType = variant.buildType.toString()

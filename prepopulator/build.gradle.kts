@@ -54,7 +54,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.loggingInterceptor)
     implementation(libs.kotlin.serialization.json)
-    implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.2")
+    implementation(libs.xmlutil.core)
     implementation(libs.kotlin.serialization.xml)
     implementation(libs.moshi)
     ksp(libs.moshi.codegen)

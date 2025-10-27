@@ -8,6 +8,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
@@ -16,6 +17,7 @@ import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
 
+@CacheableTask
 abstract class JishoDownloadTask @Inject constructor(
     private val jmdictClient: Provider<JmdictClient>,
 ) : DefaultTask() {

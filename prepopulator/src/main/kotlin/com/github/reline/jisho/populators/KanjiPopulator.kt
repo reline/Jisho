@@ -47,8 +47,8 @@ private suspend fun JishoDatabase.populateKanji(dicts: Collection<File>) = corou
 private fun extractKanji(file: File): KanjiDictionary {
     logger.debug("Extracting kanji from ${file.name}...")
     try {
-        file.inputStream().source().buffer().use { source ->
-            TODO()
+        return file.inputStream().source().buffer().use { source ->
+            KanjiDictionary.decodeFrom(source)
         }
     } catch (e: IOException) {
         throw IOException("Failed to read ${file.name}", e)
@@ -110,27 +110,27 @@ suspend fun JishoDatabase.insertRadk(radicals: List<Radk>) = coroutineScope {
 private suspend fun JishoDatabase.associateEntriesWithKanji(
     dictionaries: List<JMdict>,
 ) = coroutineScope {
-//    val allEntries = dictionaries.flatMap { it.entries }
-//    logger.debug("Associating entries with kanji... (${allEntries.count()})")
-//    allEntries.chunked(500_000).forEach { entries ->
-//        logger.debug("compiling kanji...")
-//        transaction(noEnclosing = true) {
-//            entries.forEach { entry ->
-//                entry.kanji?.forEach { word ->
-//                    word.value.filter { char -> char.isKanji() }.forEach { kanji ->
-//                        ensureActive()
-//                        try {
-//                            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
-//                            entryKanjiQueries.insert(entry.id, kanjiId)
-//                        } catch (e: NullPointerException) {
-//                            // fixme: characters are printed as ?
-//                            // fixme: gradle task log is vague
-//                            logger.warn("$kanji couldn't be found, used in ${word.value}")
-//                        }
-//                    }
-//                }
-//            }
-//            logger.debug("Inserted records")
-//        }
-//    }
+    val allEntries = dictionaries.flatMap { it.entries }
+    logger.debug("Associating entries with kanji... (${allEntries.count()})")
+    allEntries.chunked(500_000).forEach { entries ->
+        logger.debug("compiling kanji...")
+        transaction(noEnclosing = true) {
+            entries.forEach { entry ->
+                entry.kanji?.forEach { word ->
+                    word.value.filter { char -> char.isKanji() }.forEach { kanji ->
+                        ensureActive()
+                        try {
+                            val kanjiId = kanjiRadicalQueries.selectKanji(kanji.toString()).executeAsOne().id
+                            entryKanjiQueries.insert(entry.id, kanjiId)
+                        } catch (e: NullPointerException) {
+                            // fixme: characters are printed as ?
+                            // fixme: gradle task log is vague
+                            logger.warn("$kanji couldn't be found, used in ${word.value}")
+                        }
+                    }
+                }
+            }
+            logger.debug("Inserted records")
+        }
+    }
 }
