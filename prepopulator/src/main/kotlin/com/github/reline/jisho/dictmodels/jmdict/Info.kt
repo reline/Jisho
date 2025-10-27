@@ -219,6 +219,6 @@ object Info {
 
     fun get(entity: String): String {
         val e = entity.removePrefix("&").removeSuffix(";")
-        return ENTITIES[e] ?: throw NullPointerException("Info not found for entity $entity")
+        return ENTITIES[e] ?: throw NullPointerException("Info not found for entity: $entity")
     }
 }

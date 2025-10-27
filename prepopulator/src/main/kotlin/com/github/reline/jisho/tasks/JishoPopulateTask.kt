@@ -1,7 +1,8 @@
 package com.github.reline.jisho.tasks
 
 import com.github.reline.jisho.populators.DictionaryInput
-import com.github.reline.jisho.populators.populate
+import com.github.reline.jisho.populators.JishoInput
+import com.github.reline.jisho.populators.JishoPopulator
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.gradle.api.DefaultTask
@@ -29,7 +30,7 @@ data class Dictionary(
 ) : DictionaryInput, Serializable
 
 abstract class JishoPopulateTask @Inject constructor(
-    objectFactory: ObjectFactory,
+    objectFactory: ObjectFactory
 ) : DefaultTask() {
     @get:Input
     val dictionaries = objectFactory.listProperty<Dictionary>().empty()
@@ -50,6 +51,9 @@ abstract class JishoPopulateTask @Inject constructor(
     @get:OutputDirectory
     abstract val databaseOutputDirectory: DirectoryProperty
 
+    // todo: inject
+    private val jishoPopulator = JishoPopulator()
+
     /**
      * In order to maintain data integrity, a previously generated database cannot be reused and
      * therefore this task unfortunately cannot be incremental.
@@ -59,13 +63,20 @@ abstract class JishoPopulateTask @Inject constructor(
         val database = databaseOutputDirectory.file(databaseFileName.get()).get().asFile
         if (database.exists()) return@runBlocking // fixme: enable caching
         // fixme: timeout cli param
-        withTimeout(timeout.orNull?.toKotlinDuration() ?: INFINITE) {
-            database.populate(
-                dictionaries.get(),
-                kanji = kanji.files,
-                radk = radicalKanjiMappings.files,
-                krad = kanjiRadicalMappings.files,
-            )
+        try {
+            withTimeout(timeout.orNull?.toKotlinDuration() ?: INFINITE) {
+                jishoPopulator.populate(
+                    database,
+                    JishoInput(
+                        dictionaries = dictionaries.get(),
+                        kanji = kanji.files,
+                        radicals = radicalKanjiMappings.files,
+                    ),
+                )
+            }
+        } catch (e: Exception) {
+            database.delete()
+            throw e
         }
         logger.info("Generated ${database.path}")
     }

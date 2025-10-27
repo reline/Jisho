@@ -8,8 +8,14 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.Xml
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.newReader
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.xmlStreaming
+import okio.BufferedSource
+import okio.IOException
 
 /**
  * This is the DTD of the XML-format kanji file combining information from
@@ -32,12 +38,42 @@ import com.tickaroo.tikxml.annotation.Xml
  * The KANJIDIC documentation should also be read for additional
  * information about the information in the file.
  */
-@Xml(name = "kanjidic2")
-open class KanjiDictionary {
-
-    @Element(name = "header")
-    lateinit var header: Header
-
-    @Element
-    var characters: MutableList<Character>? = null
+@Serializable
+@SerialName("kanjidic2")
+class KanjiDictionary private constructor(
+    val characters: List<Character>? = null,
+) {
+    companion object {
+        @Throws(IOException::class)
+        fun decodeFrom(source: BufferedSource): KanjiDictionary {
+            val reader = xmlStreaming.newReader(source.inputStream())
+            val xml = XML {
+                defaultPolicy {
+                    ignoreUnknownChildren()
+                }
+            }
+            return xml.decodeFromReader(serializer(), reader)
+        }
+    }
 }
+
+@Serializable
+@SerialName("character")
+class Character private constructor(
+    /**
+     * The character itself in UTF8 coding.
+     */
+    @XmlElement
+    val literal: String, // todo: char?
+    val misc: Misc,
+) {
+    val strokeCount: Int get() = misc.strokeCounts.first()
+}
+
+@Serializable
+@SerialName("misc")
+class Misc private constructor(
+    @SerialName("stroke_count")
+    @XmlElement
+    val strokeCounts: List<Int>,
+)

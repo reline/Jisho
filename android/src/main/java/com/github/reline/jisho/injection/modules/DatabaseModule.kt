@@ -16,8 +16,6 @@ import com.github.reline.jisho.BuildConfig
 import com.github.reline.jisho.sql.JishoDatabase
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.util.execQuery
-import com.github.reline.sqlite.db.CopyFromAssetPath
-import com.github.reline.sqlite.db.SQLiteCopyOpenHelper
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import dagger.Module
@@ -26,6 +24,9 @@ import dagger.Reusable
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.github.reline.sqlite.db.CopyConfig
+import io.github.reline.sqlite.db.CopySource
+import io.github.reline.sqlite.db.SQLiteCopyOpenHelper
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
@@ -34,11 +35,10 @@ import javax.inject.Singleton
 class DatabaseModule {
     @Provides
     @Reusable
-    fun provideSQLiteOpenHelperFactory(@ApplicationContext context: Context): SupportSQLiteOpenHelper.Factory {
+    fun provideSQLiteOpenHelperFactory(): SupportSQLiteOpenHelper.Factory {
         return SQLiteCopyOpenHelper.Factory(
-                context,
-                CopyFromAssetPath(BuildConfig.DATABASE_FILE_NAME),
-                FrameworkSQLiteOpenHelperFactory()
+            CopyConfig(CopySource.FromAssetPath(BuildConfig.DATABASE_FILE_NAME)),
+            FrameworkSQLiteOpenHelperFactory()
         )
     }
 

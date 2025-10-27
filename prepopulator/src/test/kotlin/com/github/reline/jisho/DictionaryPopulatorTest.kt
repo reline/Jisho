@@ -10,10 +10,10 @@ package com.github.reline.jisho
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.github.reline.jisho.dictmodels.jmdict.decodeDictionary
+import com.github.reline.jisho.dictmodels.okurigana.decodeOkurigana
 import com.github.reline.jisho.persistence.JapaneseMultilingualDao
 import com.github.reline.jisho.persistence.Ruby
-import com.github.reline.jisho.populators.decodeDictionary
-import com.github.reline.jisho.populators.decodeOkurigana
 import com.github.reline.jisho.populators.insertDictionary
 import com.github.reline.jisho.populators.insertOkurigana
 import com.github.reline.jisho.sql.EntryQueries

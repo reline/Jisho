@@ -8,9 +8,6 @@
 
 package com.github.reline.jisho.dictmodels.jmdict
 
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
 /**
  *  This and the equivalent re_pri field are provided to record
     information about the relative priority of the entry,  and consist
@@ -26,10 +23,10 @@ import com.tickaroo.tikxml.annotation.Xml
     on occasions a priority is only associated with a particular
     kanji/reading pair.
  */
-@Xml(name = "ke_pri")
+//@Xml(name = "ke_pri")
 open class KanjiPriority {
 
-    @TextContent
+//    @TextContent
     lateinit var value: String
 
     fun isCommon() = Priority.isCommon(value)

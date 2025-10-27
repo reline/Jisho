@@ -24,3 +24,8 @@ class Attribution(
     val isDbpedia: Boolean
         get() = dbpedia != false.toString()
 }
+
+/**
+ * Error preparing Attribution: jdk.proxy11/jdk.proxy11.$Proxy347.value(Unknown Source)
+ * com.squareup.moshi.kotlin.codegen.ksp.MoshiApiUtilKt.generator(MoshiApiUtil.kt:77)
+ */

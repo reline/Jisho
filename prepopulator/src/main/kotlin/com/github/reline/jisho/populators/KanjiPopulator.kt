@@ -10,12 +10,11 @@ package com.github.reline.jisho.populators
 
 import com.github.reline.jisho.dictmodels.Radk
 import com.github.reline.jisho.dictmodels.decodeRadicals
-import com.github.reline.jisho.dictmodels.jmdict.Dictionary
+import com.github.reline.jisho.dictmodels.jmdict.JMdict
 import com.github.reline.jisho.dictmodels.kanji.KanjiDictionary
 import com.github.reline.jisho.linguist.isKanji
 import com.github.reline.jisho.requireFile
 import com.github.reline.jisho.sql.JishoDatabase
-import com.tickaroo.tikxml.TikXml
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
@@ -48,11 +47,8 @@ private suspend fun JishoDatabase.populateKanji(dicts: Collection<File>) = corou
 private fun extractKanji(file: File): KanjiDictionary {
     logger.debug("Extracting kanji from ${file.name}...")
     try {
-        file.inputStream().source().buffer().use { source ->
-            return TikXml.Builder()
-                .exceptionOnUnreadXml(false)
-                .build()
-                .read(source, KanjiDictionary::class.java)
+        return file.inputStream().source().buffer().use { source ->
+            KanjiDictionary.decodeFrom(source)
         }
     } catch (e: IOException) {
         throw IOException("Failed to read ${file.name}", e)
@@ -112,7 +108,7 @@ suspend fun JishoDatabase.insertRadk(radicals: List<Radk>) = coroutineScope {
 }
 
 private suspend fun JishoDatabase.associateEntriesWithKanji(
-    dictionaries: List<Dictionary>,
+    dictionaries: List<JMdict>,
 ) = coroutineScope {
     val allEntries = dictionaries.flatMap { it.entries }
     logger.debug("Associating entries with kanji... (${allEntries.count()})")

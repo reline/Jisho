@@ -8,34 +8,29 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Attribute
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
 /**
  * The readings for the kanji in several languages, and the meanings, also
 in several languages. The readings and meanings are grouped to enable
 the handling of the situation where the meaning is differentiated by
 reading. [T1]
  */
-@Xml
+//@Xml
 open class ReadingMeaning {
-    @Element
+//    @Element
     var groups: MutableList<Group>? = null
 
-    @Xml(name = "rmgroup")
+//    @Xml(name = "rmgroup")
     open class Group {
-        @Element
+//        @Element
         var readings: MutableList<Reading>? = null
 
         /**
          * The reading element contains the reading or pronunciation
         of the kanji.
          */
-        @Xml(name = "reading")
+//        @Xml(name = "reading")
         open class Reading {
-            @TextContent
+//            @TextContent
             lateinit var value: String
 
             /**
@@ -63,31 +58,31 @@ open class ReadingMeaning {
             will indicate with a value of "jy" whether the reading is
             approved for a "Jouyou kanji".
              */
-            @Attribute(name = "r_type")
+//            @Attribute(name = "r_type")
             lateinit var type: String
 
             /**
              * See under ja_on above.
              */
-            @Attribute(name = "on_type")
+//            @Attribute(name = "on_type")
             var on: String? = null
 
             /**
              * See under ja_on and ja_kun above.
              */
-            @Attribute(name = "r_status")
+//            @Attribute(name = "r_status")
             var status: String? = null
         }
 
-        @Element
+//        @Element
         var meanings: MutableList<Meaning>? = null
 
         /**
          * The meaning associated with the kanji.
          */
-        @Xml(name = "meaning")
+//        @Xml(name = "meaning")
         open class Meaning {
-            @TextContent
+//            @TextContent
             lateinit var value: String
 
             /**
@@ -95,19 +90,22 @@ open class ReadingMeaning {
             will be coded using the two-letter language code from the ISO 639-1
             standard. When absent, the value "en" (i.e. English) is implied. [{}]
              */
-            @Attribute(name = "m_lang")
+//            @Attribute(name = "m_lang")
             var language: String? = null
         }
 
     }
 
-    @Element
+//    @Element
     var nanori: MutableList<Nanori>? = null
 
     /**
      * Japanese readings that are now only associated with names.
      */
-    @Xml(name = "nanori")
-    open class Nanori { @TextContent lateinit var value: String }
+//    @Xml(name = "nanori")
+    open class Nanori {
+//        @TextContent
+        lateinit var value: String
+    }
 
 }

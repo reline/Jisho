@@ -8,18 +8,13 @@
 
 package com.github.reline.jisho.dictmodels.kanji
 
-import com.tickaroo.tikxml.annotation.Attribute
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.TextContent
-import com.tickaroo.tikxml.annotation.Xml
-
-@Xml
+//@Xml
 open class Radical {
 
-    @Element
+//    @Element
     lateinit var values: MutableList<Value>
 
-    @Xml(name = "rad_value")
+//    @Xml(name = "rad_value")
     open class Value {
         /**
          * The rad_type attribute states the type of radical classification.
@@ -28,14 +23,14 @@ open class Radical {
          * Character Dictionary" (i.e. the Classic, not the New Nelson).
          * This will only be used where Nelson reclassified the kanji.
          */
-        @Attribute(name = "rad_type")
+//        @Attribute(name = "rad_type")
         lateinit var type: String
 
         /**
          * The radical number, in the range 1 to 214. The particular
          * classification type is stated in the rad_type attribute.
          */
-        @TextContent
+//        @TextContent
         lateinit var value: String
     }
 }

@@ -1,28 +1,30 @@
 [versions]
 appcompat = "1.6.1"
-kotlin = "1.9.20"
-kotlinCoroutines = "1.8.1"
-kotlinSerialization = "1.6.3"
-compose = "2024.09.03"
+kotlin = "2.2.0"
+kotlinCoroutines = "1.10.2"
+kotlinSerializationJson = "1.9.0"
+kotlinSerializationXml = "0.91.2"
+compose = "2025.10.00"
 # https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 composeCompiler = "1.5.5"
 androidxSqlite = "2.1.0"
-# https://github.com/cashapp/sqldelight/issues/4078
-sqldelight = "2.1.0-SNAPSHOT"
+sqldelight = "2.1.0"
 sqliteJdbc = "3.21.0.1"
-dagger = "2.48"
-wire = "4.9.9"
-retrofit = "2.9.0"
+dagger = "2.57.2"
+wire = "5.4.0"
+retrofit = "3.0.0"
 okhttp = "4.10.0"
 okio = "3.5.0"
-moshi = "1.15.0"
-tikxml = "0.9.3-SNAPSHOT"
+moshi = "1.15.2"
+ksoup = "0.2.5"
 timber = "4.7.1"
 mockk = "1.13.10"
 jmdictfurigana = "2.3.0+2023-10-25"
-agp = "8.2.2"
+agp = "8.13.0"
 
 [libraries]
+xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version = "0.91.2" }
+reline-sqlitecopyopenhelper = { module = "io.github.reline:sqlitecopyopenhelper", version = "0.1.1" }
 jisho-database = { module = "com.github.reline.jisho:database" }
 birchlabs-ve = { module = "uk.co.birchlabs.ve:ve" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -30,7 +32,8 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }
+kotlin-serialization-xml = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "kotlinSerializationXml" }
 
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-test-core = "androidx.test:core:1.5.0"
@@ -44,6 +47,7 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
 compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material-icons = { module = "androidx.compose.material:material-icons-core" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
@@ -65,11 +69,6 @@ moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.re
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 wire = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
-
-tikxml-core = { module = "com.tickaroo.tikxml:core", version.ref = "tikxml" }
-tikxml-annotation = { module = "com.tickaroo.tikxml:annotation", version.ref = "tikxml" }
-tikxml-processorCommon = { module = "com.tickaroo.tikxml:processor-common", version.ref = "tikxml" }
-tikxml-processor = { module = "com.tickaroo.tikxml:processor", version.ref = "tikxml" }
 
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight"}
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight"}
@@ -93,7 +92,9 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-android-extensions = { id = "org.jetbrains.kotlin.android.extensions", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+google-ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.3" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

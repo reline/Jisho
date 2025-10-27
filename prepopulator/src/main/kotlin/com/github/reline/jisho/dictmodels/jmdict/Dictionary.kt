@@ -8,8 +8,8 @@
 
 package com.github.reline.jisho.dictmodels.jmdict
 
-import com.tickaroo.tikxml.annotation.Element
-import com.tickaroo.tikxml.annotation.Xml
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 /**
  * +	a+	One or more occurrences of a
@@ -19,10 +19,13 @@ import com.tickaroo.tikxml.annotation.Xml
  * |	a | b	a followed by b
  * ()	(expression)	An expression surrounded by parentheses is treated as a unit and could have any one of the following suffixes ?, *, or +.
  */
-@Xml(name = "Dictionary")
-open class Dictionary {
-
-    @Element
-    lateinit var entries: MutableList<Entry>
-
-}
+//@Serializable
+//@XmlSerialName(value = "Dictionary")
+//class Dictionary private constructor(
+//    val entries: MutableList<Entry>,
+//) {
+//
+////    @Element
+////    lateinit var entries: MutableList<Entry>
+//
+//}
