@@ -27,10 +27,11 @@ class RateLimitInterceptor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = runBlocking(ioDispatcher) {
-        var currentDelay = DEFAULT_RETRY_DELAY
+        var currentDelay = 0.minutes
         var attempt = 1
         var response: Response
         do {
+            delay(currentDelay)
             response = chain.proceed(chain.request())
             if (!response.hasRateLimitError) break
 
@@ -41,10 +42,9 @@ class RateLimitInterceptor(
                 response.rateLimitRemaining == 0L && rateLimitReset != null -> {
                     rateLimitReset - response.sentRequestAtMillis.milliseconds
                 }
-                attempt > 1 -> 2.0.pow(currentDelay.inWholeSeconds.toDouble()).seconds
+                attempt > 1 -> 2.0.pow(currentDelay.inWholeMinutes.toDouble()).minutes
                 else -> DEFAULT_RETRY_DELAY
             }
-            delay(currentDelay)
         } while (attempt++ <= MAX_ATTEMPTS)
         return@runBlocking response
     }

@@ -16,6 +16,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -49,13 +50,20 @@ class RateLimitInterceptorTest {
     @Test
     fun testRateLimitNotExceeded() = scope.runTest {
         server.enqueue(MockResponse().setResponseCode(Random.nextInt(200..299)))
-        server.enqueue(MockResponse().setResponseCode(Random.nextInt(500..599)))
         val response = client.newCall(request()).executeAsync()
         assertTrue(response.isSuccessful)
     }
 
+    @Test
+    fun testNoRetryOnNonRateLimitError() = scope.runTest {
+        server.enqueue(MockResponse().setResponseCode(Random.nextInt(500..599)))
+        server.enqueue(MockResponse().setResponseCode(Random.nextInt(200..299)))
+        val response = client.newCall(request()).executeAsync()
+        assertFalse(response.isSuccessful)
+    }
+
    @Test
-    fun testForbidden() = scope.runTest {
+    fun testRetryForbidden() = scope.runTest {
         server.enqueue(MockResponse().setResponseCode(403))
         server.enqueue(MockResponse().setResponseCode(200))
         val response = client.newCall(request()).executeAsync()
@@ -63,7 +71,7 @@ class RateLimitInterceptorTest {
     }
 
     @Test
-    fun testTooManyRequests() = scope.runTest {
+    fun testRetryTooManyRequests() = scope.runTest {
         server.enqueue(MockResponse().setResponseCode(429))
         server.enqueue(MockResponse().setResponseCode(200))
         val response = client.newCall(request()).executeAsync()
@@ -111,6 +119,28 @@ class RateLimitInterceptorTest {
         // time is hard
         assertTrue(currentTime.milliseconds > 0.milliseconds)
         assertTrue(5.minutes - currentTime.milliseconds < 1.seconds)
+    }
+
+    @Test
+    fun testExponentialBackoffRetry() = scope.runTest {
+        repeat(3) {
+            server.enqueue(MockResponse().setResponseCode(403))
+        }
+        server.enqueue(MockResponse().setResponseCode(200))
+        val response = client.newCall(request()).executeAsync()
+        assertTrue(response.isSuccessful)
+        assertEquals(7.minutes.inWholeSeconds * 1000, currentTime)
+    }
+
+    @Test
+    fun testMaxAttempts() = scope.runTest {
+        repeat(4) {
+            server.enqueue(MockResponse().setResponseCode(403))
+        }
+        server.enqueue(MockResponse().setResponseCode(200))
+        val response = client.newCall(request()).executeAsync()
+        assertFalse(response.isSuccessful)
+        assertEquals(7.minutes.inWholeSeconds * 1000, currentTime)
     }
 
 }
