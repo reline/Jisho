@@ -69,12 +69,12 @@ class JmdictClientTest {
 
     @Test
     fun testDownloadSpecifiedVersion() = scope.runTest {
-        val asset = GithubAsset(0, "asset.json")
+        val asset = GithubAsset(0, "asset.json.zip")
         coEvery {
             mockGithubApi.getRelease(any(), any(), fakeVersion)
         } returns GithubRelease(listOf(asset))
 
-        jmdictClient.downloadDictionaries(fakeFileSystem.workingDirectory, fakeVersion)
+        jmdictClient.downloadDictionaries(setOf(asset.name), fakeFileSystem.workingDirectory, fakeVersion)
 
         val actual = fakeFileSystem.read(asset.name.toPath()) { readUtf8() }
         assertEquals(fakeReleaseAssetResponse, actual)
@@ -82,25 +82,25 @@ class JmdictClientTest {
 
     @Test
     fun testDownloadUnspecifiedVersion() = scope.runTest {
-        val asset = GithubAsset(0, "asset.json")
+        val asset = GithubAsset(0, "asset.json.zip")
         coEvery {
             mockGithubApi.getLatestRelease(any(), any())
         } returns GithubRelease(listOf(asset))
 
-        jmdictClient.downloadDictionaries(fakeFileSystem.workingDirectory)
+        jmdictClient.downloadDictionaries(setOf(asset.name), fakeFileSystem.workingDirectory)
 
         val actual = fakeFileSystem.read(asset.name.toPath()) { readUtf8() }
         assertEquals(fakeReleaseAssetResponse, actual)
     }
 
     @Test
-    fun testDownloadJsonAssetsOnly() = scope.runTest {
-        val assets = listOf("asset.txt", "asset.xml")
+    fun testDownloadNamedAssetsOnly() = scope.runTest {
+        val assets = listOf("asset.txt", "asset.xml", "asset.json")
         coEvery {
             mockGithubApi.getLatestRelease(any(), any())
         } returns GithubRelease(assets.mapIndexed { i, name -> GithubAsset(i, name) })
 
-        jmdictClient.downloadDictionaries(fakeFileSystem.workingDirectory)
+        jmdictClient.downloadDictionaries(emptySet(), fakeFileSystem.workingDirectory)
 
         assertEquals(emptySet(), fakeFileSystem.allPaths)
     }

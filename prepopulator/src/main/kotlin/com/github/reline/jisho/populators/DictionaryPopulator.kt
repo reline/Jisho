@@ -181,13 +181,16 @@ suspend fun JishoDatabase.insertOkurigana(
 
     logger.info("${entries.size} unique combinations")
 
+    var matchingEntryNotFound = 0
     transaction {
         var previousInsertRowId = -1L
         okurigana.forEach { (kanji, reading, furigana) ->
             ensureActive()
             val entry = entries[Ruby(reading = reading, kanji = kanji)]
             if (entry?.japaneseId == null) {
-                logger.warn("No matching entry found for $kanji ($reading)")
+                // todo: write to file
+//                logger.warn("No matching entry found for $kanji ($reading)")
+                matchingEntryNotFound++
                 return@forEach
             }
 
@@ -210,4 +213,6 @@ suspend fun JishoDatabase.insertOkurigana(
             }
         }
     }
+
+    if (matchingEntryNotFound > 0) logger.warn("No match found for $matchingEntryNotFound entries")
 }

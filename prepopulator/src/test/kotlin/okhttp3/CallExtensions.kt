@@ -41,7 +41,9 @@ suspend fun Call.executeAsync(): Response =
                     call: Call,
                     response: Response,
                 ) {
-                    continuation.resume(value = response, onCancellation = { call.cancel() })
+                    continuation.resume(value = response) { cause, _, _ ->
+                        call.cancel()
+                    }
                 }
             },
         )

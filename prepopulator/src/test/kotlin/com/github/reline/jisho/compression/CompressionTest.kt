@@ -1,5 +1,6 @@
 package com.github.reline.jisho.compression
 
+import com.github.reline.jisho.text.EUC_JP
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -28,7 +29,7 @@ class CompressionTest {
     fun testZip() {
         val fakeZip = "kradzip.zip".toPath()
         val dest = fakeFileSystem.workingDirectory
-        resources.extractZip(fakeZip, fakeFileSystem to dest)
+        resources.extractZip(fakeZip, fakeFileSystem to dest, Charsets.EUC_JP)
         assertTrue(fakeFileSystem.exists(dest), "Output file not found")
 
         fakeFileSystem.list(dest).forEach { extractedFile ->

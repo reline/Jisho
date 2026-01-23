@@ -26,6 +26,7 @@ class JmdictClient(
 
     @Throws(IOException::class)
     suspend fun downloadDictionaries(
+        names: Set<String>,
         destination: Path,
         version: String? = null,
     ) = withContext(ioDispatcher) {
@@ -36,8 +37,7 @@ class JmdictClient(
         }
 
         release.assets
-            // only download json assets
-            .filter { File(it.name).extension == "json" }
+            .filter { names.contains(it.name) }
             .forEach { asset ->
                 val response = githubApi.getReleaseAsset(
                     owner = OWNER,
