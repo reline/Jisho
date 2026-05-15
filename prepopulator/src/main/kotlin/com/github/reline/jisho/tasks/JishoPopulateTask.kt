@@ -60,7 +60,7 @@ abstract class JishoPopulateTask @Inject constructor(
      */
     @TaskAction
     fun prepopulate() = runBlocking {
-        val database = databaseOutputDirectory.file(databaseFileName.get()).get().asFile
+        val database = databaseOutputDirectory.file(databaseFileName).get().asFile
         if (database.exists()) return@runBlocking // fixme: enable caching
         // fixme: timeout cli param
         try {
@@ -75,6 +75,7 @@ abstract class JishoPopulateTask @Inject constructor(
                 )
             }
         } catch (e: Exception) {
+            // delete corrupt database file
             database.delete()
             throw e
         }

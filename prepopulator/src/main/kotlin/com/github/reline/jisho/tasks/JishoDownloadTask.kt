@@ -6,6 +6,7 @@ import kotlinx.coroutines.withTimeout
 import okio.Path.Companion.toOkioPath
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
@@ -13,6 +14,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.setProperty
 import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
@@ -20,11 +22,15 @@ import kotlin.time.toKotlinDuration
 @CacheableTask
 abstract class JishoDownloadTask @Inject constructor(
     private val jmdictClient: Provider<JmdictClient>,
+    objectFactory: ObjectFactory,
 ) : DefaultTask() {
 
     @get:Optional
     @get:Input
     abstract val jmdictVersion: Property<String>
+
+    @get:Input
+    val assets = objectFactory.setProperty<String>().empty()
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
@@ -35,8 +41,11 @@ abstract class JishoDownloadTask @Inject constructor(
         val destination = outputDir.get().asFile.toOkioPath()
         val client = jmdictClient.get()
         val version = jmdictVersion.orNull
+        val names = assets.get()
+        if (names.isEmpty()) return@runBlocking
+
         withTimeout(timeout.orNull?.toKotlinDuration() ?: Duration.INFINITE) {
-            client.downloadDictionaries(destination, version)
+            client.downloadDictionaries(names, destination, version)
         }
     }
 }

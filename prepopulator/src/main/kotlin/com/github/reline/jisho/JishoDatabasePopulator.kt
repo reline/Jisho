@@ -2,12 +2,12 @@ package com.github.reline.jisho
 
 import com.github.reline.jisho.jmdict.defaultJmdictClient
 import com.github.reline.jisho.tasks.Dictionary
+import com.github.reline.jisho.tasks.ZipExtractionTask
 import com.github.reline.jisho.tasks.JishoDownloadTask
 import com.github.reline.jisho.tasks.JishoPopulateTask
 import com.github.reline.jisho.tasks.GzipResourceExtractionTask
 import com.github.reline.jisho.tasks.ZipResourceExtractionTask
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -50,7 +50,19 @@ abstract class JishoDatabasePopulator @Inject constructor(
         downloadTask.configure {
             group = jisho
             this.jmdictVersion.set(jmdictVersion)
+            assets.add("JmdictFurigana.json.zip")
+            assets.add("JmnedictFurigana.json.zip")
             outputDir.set(intermediates.map { it.dir("furigana") })
+        }
+
+        val extractJmdictFurigana = tasks.register("extractJmdictFurigana", ZipExtractionTask::class.java) {
+            inputFile.set(downloadTask.flatMap { it.outputDir.file("JmdictFurigana.json.zip") })
+            outputDirectory.set(downloadTask.flatMap { it.outputDir.dir("jmdict") })
+        }
+
+        val extractJmnedictFurigana = tasks.register("extractJmnedictFurigana", ZipExtractionTask::class.java) {
+            inputFile.set(downloadTask.flatMap { it.outputDir.file("JmnedictFurigana.json.zip") })
+            outputDirectory.set(downloadTask.flatMap { it.outputDir.dir("jmnedict") })
         }
 
         val extractJMdict = tasks.register("extractJMdict", GzipResourceExtractionTask::class.java) {
@@ -90,19 +102,19 @@ abstract class JishoDatabasePopulator @Inject constructor(
             // fixme: download task is run twice during functional tests.
             //  maybe caching just needs to be enabled?
             dictionaries.add(
-                extractJMdict.zip(downloadTask) { gzip, furigana ->
+                extractJMdict.zip(extractJmdictFurigana) { definitions, furigana ->
                     Dictionary(
-                        definitions = gzip.outputFile.get().asFile,
-                        okurigana = furigana.outputDir.get().asFile.resolve("JmdictFurigana.json"),
+                        definitions = definitions.outputFile.get().asFile,
+                        okurigana = furigana.outputDirectory.get().asFile.resolve("JmdictFurigana.json"),
                     )
                 }
             )
 
             dictionaries.add(
-                extractJMnedict.zip(downloadTask) { gzip, furigana ->
+                extractJMnedict.zip(extractJmnedictFurigana) { definitions, furigana ->
                     Dictionary(
-                        definitions = gzip.outputFile.get().asFile,
-                        okurigana = furigana.outputDir.get().asFile.resolve("JmnedictFurigana.json"),
+                        definitions = definitions.outputFile.get().asFile,
+                        okurigana = furigana.outputDirectory.get().asFile.resolve("JmnedictFurigana.json"),
                     )
                 }
             )

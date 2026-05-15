@@ -1,6 +1,5 @@
 package com.github.reline.jisho.compression
 
-import com.github.reline.jisho.text.EUC_JP
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -21,23 +20,12 @@ typealias FileSystemPath = Pair<FileSystem, Path>
 
 /**
  * Extract the compressed zip file contents at [zipPath] into a [destination] directory.
- *
- * Zip files are expected to be from Monash.
- * The Monash zip file contents are all in EUC-JP format AKA:
- * - EUC-JP
- * - csEUCPkdFmtjapanese
- * - x-euc-jp
- * - Extended_UNIX_Code_Packed_Format_for_Japanese
- * - eucjis
- * - euc_jp
- * - eucjp.kt
- * - eucjp.kt
  */
 @Throws(IOException::class)
 fun FileSystem.extractZip(
     zipPath: Path,
     destination: FileSystemPath,
-    charset: Charset = Charsets.EUC_JP,
+    charset: Charset,
 ): List<Path> {
     val (fileSystem, base) = destination
     if (!fileSystem.exists(base)) {
